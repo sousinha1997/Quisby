@@ -1,4 +1,5 @@
 from itertools import groupby
+import time
 
 import quisby.config as config
 from quisby.sheet.sheetapi import sheet
@@ -41,7 +42,7 @@ def series_range_hammerdb(column_count, sheetId, start_index, end_index):
 
 def graph_hammerdb_data(spreadsheetId, range):
     """"""
-    GRAPH_COL_INDEX, GRAPH_ROW_INDEX = 6, 0
+    GRAPH_COL_INDEX, GRAPH_ROW_INDEX = 8, 0
     start_index, end_index = 0, 0
 
     hammerdb_results = read_sheet(spreadsheetId, range)
@@ -125,9 +126,9 @@ def graph_hammerdb_data(spreadsheetId, range):
 
             if GRAPH_COL_INDEX >= 15:
                 GRAPH_ROW_INDEX += 20
-                GRAPH_COL_INDEX = 6
+                GRAPH_COL_INDEX = 8
             else:
-                GRAPH_COL_INDEX += 6
+                GRAPH_COL_INDEX += 8
 
             body = {"requests": requests}
 
@@ -135,3 +136,4 @@ def graph_hammerdb_data(spreadsheetId, range):
 
             # Reset variables
             start_index, end_index = 0, 0
+            time.sleep(1)

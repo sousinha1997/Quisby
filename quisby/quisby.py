@@ -1,3 +1,4 @@
+import os.path
 import sys
 import glob
 import argparse
@@ -40,9 +41,9 @@ from quisby.benchmarks.hammerdb.extract import extract_hammerdb_data
 from quisby.benchmarks.hammerdb.summary import create_summary_hammerdb_data
 from quisby.benchmarks.hammerdb.graph import graph_hammerdb_data
 from quisby.benchmarks.hammerdb.comparison import compare_hammerdb_results
-from quisby.benchmarks.fio.fio import process_fio_result, extract_fio_data
-from quisby.benchmarks.fio.summary import create_summary_fio_data
-from quisby.benchmarks.fio.graph import graph_fio_data
+#from quisby.benchmarks.fio.fio import process_fio_result, extract_fio_data
+#from quisby.benchmarks.fio.summary import create_summary_fio_run_data
+#from quisby.benchmarks.fio.graph import graph_fio_run_data
 from quisby.benchmarks.fio.comparison import compare_fio_results
 from quisby.benchmarks.reboot.reboot import extract_boot_data
 from quisby.benchmarks.reboot.summary import create_summary_boot_data
@@ -66,37 +67,41 @@ logging.basicConfig(level=logging.INFO)
 
 def check_test_is_hammerdb(test_name):
 
-    if test_name in ["postgres", "maria", "mssql"]:
+    if test_name in ["hammerdb_pg", "hammerdb_maria", "hammerdb_mssql"]:
         return True
     else:
         return False
 
 
-def process_results(results):
+def process_results(results,test_name):
     """"""
-    global test_name
+
+
 
     spreadsheet_name = f"{config.cloud_type}-{config.OS_TYPE}-{config.OS_RELEASE}-{config.spreadsheet_name}"
+    logging.info("config.spreadsheett========"+config.spreadsheetId)
+
+    if not config.spreadsheetId:
+        config.spreadsheetId = create_spreadsheet(
+            spreadsheet_name, test_name)
+        logging.info("config.spreadsheett========" + config.spreadsheetId)
+
+    logging.info("config.spreadsheett========" + config.spreadsheetId)
+
     # TODO: remove if check
-    if results:
-        if check_test_is_hammerdb(test_name):
-            results = create_summary_hammerdb_data(results)
-        else:
-            results = globals()[f"create_summary_{test_name}_data"](results)
+    if check_test_is_hammerdb(test_name):
+        results = create_summary_hammerdb_data(results)
+    else:
+        results = globals()[f"create_summary_{test_name}_data"](results)
 
-        if not config.spreadsheetId:
-            config.spreadsheetId = create_spreadsheet(
-                spreadsheet_name, test_name)
-        create_sheet(config.spreadsheetId, test_name)
-        append_to_sheet(config.spreadsheetId, results, test_name)
-
-        # Graphing up data
-        if check_test_is_hammerdb(test_name):
-            graph_hammerdb_data(config.spreadsheetId, test_name)
-        else:
-            globals()[f"graph_{test_name}_data"](
-                config.spreadsheetId, test_name)
-
+    create_sheet(config.spreadsheetId, test_name)
+    append_to_sheet(config.spreadsheetId, results, test_name)
+    # Graphing up data
+    if check_test_is_hammerdb(test_name):
+        graph_hammerdb_data(config.spreadsheetId, test_name)
+    else:
+        globals()[f"graph_{test_name}_data"](
+            config.spreadsheetId, test_name)
     return []
 
 
@@ -104,7 +109,8 @@ def process_results(results):
 def data_handler(args):
     """"""
     global test_name
-
+    global source
+    global count
     results = []
     config.OS_TYPE = args.os_type
     config.OS_RELEASE = args.os_release
@@ -120,29 +126,25 @@ def data_handler(args):
         test_result_path = file.readlines()
 
         for data in test_result_path:
-            if "test:" in data:
+            if "test " in data:
                 if results:
-                    results = process_results(results)
-                test_name = data.split("_")[-1].strip()
+                    results = process_results(results,test_name)
+                test_name = data.replace("test ","").replace("results_","").replace(".csv","").strip()
                 source = data.split()[-1].split("_")[0].strip()
-
             elif "new_series" in data:
                 continue
 
             else:
-                # Create test path
-                if data:
-                    logging.info(f"process result: {data}")
-                    # Strip new line and "'"
-                    data = data.strip("\n").strip("'")
-                    try:
+                try:
+                    if test_name == "fio_run":
+                        data = data.strip("\n").strip("'").strip()
+                        path,system_name=(data.split(",")[0]+","+data.split(",")[1]),data.split(",")[-1]
+                        path=path.replace(os.path.basename(path),"")
+                    else:
+                        data = data.strip("\n").strip("'")
                         path, system_name = data.split(",")
-                        path = path.strip()
-                    except ValueError:
-                        continue
 
-                    # result_name = path.split("/")[-1].strip("\n")
-
+                    path = config.test_path+"/"+path.strip()
                     if test_name == "streams":
                         ret_val = extract_streams_data(path, system_name)
                         if ret_val:
@@ -150,9 +152,10 @@ def data_handler(args):
 
                     # TODO: support url fetching
                     elif test_name == "uperf":
-                        ret_val = extract_uperf_data(path, system_name)
-                        if ret_val:
-                            results += ret_val
+                        # ret_val = extract_uperf_data(path, system_name)
+                        # if ret_val:
+                        #     results += ret_val
+                        pass
 
                     elif test_name == "linpack":
 
@@ -172,25 +175,20 @@ def data_handler(args):
                             results += ret_val
 
                     elif check_test_is_hammerdb(test_name):
-
-                        # prefix_path = f"rhel_{config.OS_RELEASE}/" f"{data}/"
-                        # path_list = glob.glob(f"{prefix_path}test_*.out")
-
-                        # results.append(
-                        #     extract_hammerdb_data(path_list, system_name, test_name)
-                        # )
                         ret_val = extract_hammerdb_data(
                             path, system_name, test_name)
                         if ret_val:
                             results += ret_val
 
-                    elif test_name == "fio":
-                        if source == "results":
-                            ret_val = extract_fio_data(path, system_name)
-                        elif source == "pbench":
-                            ret_val = process_fio_result(path, system_name)
-                        if ret_val:
-                            results += ret_val
+                    elif test_name == "fio_run":
+                        # ret_val=None
+                        # if source == "results":
+                        #      ret_val = extract_fio_data(path, system_name)
+                        # elif source == "pbench":
+                        #      ret_val = process_fio_result(path, system_name)
+                        # if ret_val:
+                        #      results += ret_val
+                        pass
 
                     elif test_name == "boot":
                         ret_val = extract_boot_data(path, system_name)
@@ -215,8 +213,17 @@ def data_handler(args):
                         ret_val = extract_etcd_data(path, system_name)
                         if ret_val:
                             results += ret_val
-                            
-        results = process_results(results)
+                    else:
+                        continue
+
+                except ValueError as exc:
+                    #logging.error(str(exc))
+                    continue
+        try:
+            results = process_results(results,test_name)
+        except Exception as exc:
+            #logging.error(str(exc))
+            pass
 
         print(f"https://docs.google.com/spreadsheets/d/{config.spreadsheetId}")
 

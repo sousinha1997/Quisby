@@ -138,4 +138,5 @@ def graph_fio_data(spreadsheetId, test_name):
 
             start_index, end_index = None, None
             logging.info("Sleep for 1sec to workaround Gsheet API")
+
             time.sleep(1)

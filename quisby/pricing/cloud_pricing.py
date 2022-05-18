@@ -73,34 +73,21 @@ def get_aws_instance_info(instance_name, region):
 
     returns: integer pricing in USD
     """
-    pricing = boto3.client("pricing")
+    region="us-east-1"
+    pricing = boto3.client("pricing",region_name=region)
 
-    OPERATING_SYSTEM = "Linux"
-    OPERATION = "RunInstances"
-    TENANCY = "Shared"
-    PRE_INSTALLED_SW = "NA"
-    CAPACITY_STATUS = "UnusedCapacityReservation"
-
+    OPERATING_SYSTEM = "AmazonEC2"
     response = pricing.get_products(
-        ServiceCode="AmazonEC2",
+        ServiceCode=OPERATING_SYSTEM,
         Filters=[
             {
-                "Type": "TERM_MATCH",
-                "Field": "operatingSystem",
-                "Value": OPERATING_SYSTEM,
+                'Type': 'TERM_MATCH',
+                'Field': 'ServiceCode',
+                'Value': OPERATING_SYSTEM
             },
-            {"Type": "TERM_MATCH", "Field": "instanceType", "Value": instance_name},
-            {"Type": "TERM_MATCH", "Field": "operation", "Value": OPERATION},
-            {"Type": "TERM_MATCH", "Field": "tenancy", "Value": TENANCY},
-            {
-                "Type": "TERM_MATCH",
-                "Field": "preInstalledSw",
-                "Value": PRE_INSTALLED_SW,
-            },
-            {"Type": "TERM_MATCH", "Field": "Location", "Value": region},
-            {"Type": "TERM_MATCH", "Field": "capacitystatus", "Value": CAPACITY_STATUS},
         ],
-        MaxResults=100,
+        FormatVersion='aws_v1',
+        MaxResults=1
     )
 
     return response['PriceList']

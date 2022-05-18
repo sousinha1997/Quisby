@@ -1,3 +1,4 @@
+import time
 from itertools import groupby
 
 import quisby.config as config
@@ -282,3 +283,5 @@ def graph_linpack_data(spreadsheetId, test_name):
 
             GRAPH_ROW_INDEX += 20
             start_index, end_index = None, None
+
+            time.sleep(1)

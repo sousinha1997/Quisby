@@ -14,8 +14,10 @@ test_name = ""
 test_path = ""
 
 system_name = ""
-region = "US East 2"
-cloud_type = ""
+region = "us-east-1"
+cloud_type = "aws"
 
 specjbb_java_version = "java-11-openjdk"
+
+users=[]
 # ================================

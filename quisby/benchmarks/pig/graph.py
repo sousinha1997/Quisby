@@ -1,3 +1,5 @@
+import time
+
 from quisby.sheet.sheetapi import sheet
 from quisby.sheet.sheet_util import read_sheet, clear_sheet_charts, get_sheet
 
@@ -120,3 +122,5 @@ def graph_pig_data(spreadsheetId, test_name):
             sheet.batchUpdate(spreadsheetId=spreadsheetId, body=body).execute()
 
             start_index, end_index = None, None
+
+            time.sleep(1)

@@ -1,3 +1,4 @@
+import time
 from itertools import groupby
 
 import quisby.config as config
@@ -48,14 +49,14 @@ def graph_streams_data(spreadsheetId, test_name):
     :spreadsheetId
     :test_name: test_name to graph up the data, it will be mostly sheet name
     """
-    GRAPH_COL_INDEX = 0
+
+
+    GRAPH_COL_INDEX = 1
     GRAPH_ROW_INDEX = 0
     start_index = 0
     end_index = 0
-
-    data = read_sheet(spreadsheetId, test_name)
-    clear_sheet_charts(spreadsheetId, test_name)
-
+    data = read_sheet(spreadsheetId,"streams")
+    clear_sheet_charts(spreadsheetId, "streams")
     for index, row in enumerate(data):
         if "Max Througput" in row:
             start_index = index
@@ -139,13 +140,15 @@ def graph_streams_data(spreadsheetId, test_name):
 
                 if GRAPH_COL_INDEX >= 5:
                     GRAPH_ROW_INDEX += 20
-                    GRAPH_COL_INDEX = 0
+                    GRAPH_COL_INDEX = 1
                 else:
                     GRAPH_COL_INDEX += 6
 
                 body = {"requests": requests}
 
                 sheet.batchUpdate(spreadsheetId=spreadsheetId, body=body).execute()
+
+                time.sleep(1)
 
             # Reset variables
             start_index, end_index = 0, 0

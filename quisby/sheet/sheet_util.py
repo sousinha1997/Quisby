@@ -1,4 +1,7 @@
-from quisby.sheet.sheetapi import sheet
+import logging
+from googleapiclient.discovery import build
+from quisby import config
+from quisby.sheet.sheetapi import sheet, creds
 
 
 def check_sheet_exists(sheet_info, test_name):
@@ -31,15 +34,34 @@ def create_spreadsheet(spreadsheet_name, test_name):
         },
     }
 
-    spreadsheet = sheet.create(body=spreadsheet, fields="spreadsheetId").execute()
+    spreadsheet = sheet.create(spreadsheet_name=config.spreadsheet_name).execute()
     spreadsheetId = spreadsheet["spreadsheetId"]
+    drive_api = build('drive', 'v3', credentials=creds)
+    domain_permission = {
+        'type': 'user',
+        'role': 'writer',
+        # Magic almost undocumented variable which makes files appear in your Google Drive
+        'emailAddress':config.users
+    }
+
+    req = drive_api.permissions().create(
+        fileId=spreadsheetId,
+        body=domain_permission,
+        fields="id"
+    )
+
+    req.execute()
 
     return spreadsheetId
 
 
-def get_sheet(spreadsheetId, range="A:F"):
+def get_sheet(spreadsheetId, test_name,range="!a:z"):
 
-    return sheet.get(spreadsheetId=spreadsheetId, ranges=range).execute()
+    if test_name== []:
+        #create sheet
+        return sheet.get(spreadsheetId=spreadsheetId).execute()
+    else:
+        return sheet.get(spreadsheetId=spreadsheetId,ranges=test_name+range).execute()
 
 
 def create_sheet(spreadsheetId, test_name):
@@ -73,11 +95,11 @@ def create_sheet(spreadsheetId, test_name):
         sheet.batchUpdate(spreadsheetId=spreadsheetId, body=body).execute()
 
 
-def read_sheet(spreadsheet_Id, range="A:F"):
-    """"""
-    result = sheet.values().get(spreadsheetId=spreadsheet_Id, range=range).execute()
-    values = result.get("values", [])
-
+def read_sheet(spreadsheet_Id, range="A:Z"):
+    # TODO : check for the previous api
+    request=sheet.values().batchGet(spreadsheetId=spreadsheet_Id, ranges=range)
+    result=request.execute()
+    values = result.get("valueRanges", [])[0].get('values',[])
     return values
 
 
@@ -99,7 +121,7 @@ def append_to_sheet(spreadsheet_Id, results, range="A:F"):
     return response
 
 
-def apply_named_range(spreadsheetId, name, range="A:F"):
+def apply_named_range(spreadsheetId, name, range="A:Z"):
 
     sheetId = get_sheet(spreadsheetId, range)["sheets"][0]["properties"]["sheetId"]
 
@@ -134,7 +156,7 @@ def apply_named_range(spreadsheetId, name, range="A:F"):
     print(response)
 
 
-def clear_sheet_data(spreadsheetId, range="A2:Z1000"):
+def clear_sheet_data(spreadsheetId, range="A1:Z1000"):
     # Clear values
     sheet.values().clear(spreadsheetId=spreadsheetId, range=range, body={}).execute()
 
