@@ -34,7 +34,7 @@ def create_spreadsheet(spreadsheet_name, test_name):
         },
     }
 
-    spreadsheet = sheet.create(spreadsheet_name=config.spreadsheet_name).execute()
+    spreadsheet = sheet.create(body=spreadsheet).execute()
     spreadsheetId = spreadsheet["spreadsheetId"]
     drive_api = build('drive', 'v3', credentials=creds)
     domain_permission = {
