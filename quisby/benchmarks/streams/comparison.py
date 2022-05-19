@@ -21,7 +21,7 @@ def compare_streams_results(
 
     for spreadsheet in spreadsheets:
         values.append(read_sheet(spreadsheet, range=test_name))
-        spreadsheet_name.append(get_sheet(spreadsheet, range=[])["properties"]["title"])
+        spreadsheet_name.append(get_sheet(spreadsheet, test_name=test_name)["properties"]["title"])
 
     for index, value in enumerate(values):
         values[index] = (list(g) for k, g in groupby(value, key=lambda x: x != []) if k)

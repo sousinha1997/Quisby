@@ -20,7 +20,7 @@ def compare_hammerdb_results(spreadsheets, spreadsheetId, test_name):
     for spreadsheet in spreadsheets:
         values.append(read_sheet(spreadsheet, range=test_name))
         spreadsheet_name.append(
-            get_sheet(spreadsheet, range=[])["properties"]["title"]
+            get_sheet(spreadsheet,test_name=test_name)["properties"]["title"]
         )
 
     for index, value in enumerate(values):

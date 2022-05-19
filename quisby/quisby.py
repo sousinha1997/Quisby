@@ -240,14 +240,13 @@ def compare_results(args):
     for spreadsheet in spreadsheets:
         sheet_names = []
 
-        sheets = get_sheet(spreadsheet, range=test_name)
-        spreadsheet_name.append(get_sheet(spreadsheet, range=[])[
-                                "properties"]["title"])
+        sheets = get_sheet(spreadsheet, test_name=test_name)
+        spreadsheet_name.append(get_sheet(spreadsheet, test_name=[])[
+                                "properties"]["title"].strip())
 
         for sheet in sheets.get("sheets"):
-            sheet_names.append(sheet["properties"]["title"])
+            sheet_names.append(sheet["properties"]["title"].strip())
         sheet_list.append(sheet_names)
-
     if test_name:
         comparison_list = test_name
     else:
@@ -257,9 +256,11 @@ def compare_results(args):
             comparison_list.intersection_update(sheets)
 
         comparison_list = list(comparison_list)
-
+    logging.info(comparison_list)
     spreadsheet_name = " and ".join(spreadsheet_name)
     spreadsheetId = create_spreadsheet(spreadsheet_name, comparison_list[0])
+    logging.info(spreadsheet_name)
+    logging.info(spreadsheetId)
 
     for index, test_name in enumerate(comparison_list):
         config.test_name = test_name
