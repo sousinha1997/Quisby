@@ -1,4 +1,5 @@
 import csv
+import logging
 from itertools import groupby
 
 import requests
@@ -12,40 +13,15 @@ def combine_uperf_data(results):
     group_data = []
 
     for data in results:
-        if data == [""]:
-            if result_data:
-                group_data.append(result_data)
-                result_data = []
+        if data == ['']:
+            group_data.append(result_data)
+            result_data = []
         if data:
             result_data.append(data)
     # Last data point insertion
     group_data.append(result_data)
-
+    group_data.remove([])
     return group_data
-
-
-def uperf_sort_data_by_system_family(results):
-    """"""
-    sorted_results = []
-
-    group_data = combine_uperf_data(results)
-
-    group_data.sort(
-        key=lambda x: str(process_instance(
-            x[1][0], "family", "version", "feature"))
-    )
-
-    for _, items in groupby(
-        group_data,
-        key=lambda x: str(process_instance(
-            x[1][0], "family", "version", "feature")),
-    ):
-        sorted_results.append(
-            sorted(list(items), key=lambda x: mk_int(
-                process_instance(x[1][0], "size")))
-        )
-
-    return sorted_results
 
 
 def create_summary_uperf_data(results):

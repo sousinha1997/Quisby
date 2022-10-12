@@ -1,3 +1,4 @@
+import logging
 import time
 from itertools import groupby
 
@@ -56,7 +57,7 @@ def graph_uperf_data(spreadsheetId, range):
 
     for index, row in enumerate(uperf_results):
         if row:
-            if "tcp_stream16" in row[1] or "tcp_rr64" in row[1]:
+            if "tcp_stream16" in row[1] or "tcp_rr64" in row[1] or "tcp_stream64" in row[1] or "tcp_rr16" in row[1]:
                 start_index = index
 
         if start_index:
