@@ -1,12 +1,12 @@
 import re
 from configparser import ConfigParser
 
-
+config_location = "~/.config/pquisby/"
 invalid_compare_list = ["pig"]
 
 def create_parser():
     configur = ConfigParser()
-    configur.read('config.ini')
+    configur.read(config_location+"config.ini")
     return configur
 
 

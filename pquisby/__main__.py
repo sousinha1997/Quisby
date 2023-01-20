@@ -43,9 +43,6 @@ from pquisby.benchmarks.fio.fio import process_fio_run_result, extract_fio_run_d
 from pquisby.benchmarks.fio.summary import create_summary_fio_run_data
 from pquisby.benchmarks.fio.graph import graph_fio_run_data
 from pquisby.benchmarks.fio.comparison import compare_fio_run_results
-from pquisby.benchmarks.reboot.reboot import extract_boot_data
-from pquisby.benchmarks.reboot.summary import create_summary_boot_data
-from pquisby.benchmarks.reboot.graph import graph_boot_data
 from pquisby.benchmarks.aim.extract import extract_aim_data
 from pquisby.benchmarks.aim.summary import create_summary_aim_data
 from pquisby.benchmarks.aim.graph import graph_aim_data
