@@ -6,20 +6,23 @@ invalid_compare_list = ["pig"]
 
 def create_parser():
     configur = ConfigParser()
-    configur.read(config_location+"config.ini")
     return configur
-
 
 def read_config(section,key):
     configur=create_parser()
-    if configur.get(section,key) is not None:
-        return configur.get(section,key)
-    else:
-        return None
+    with open(config_location+"config.ini","r") as configfile:
+        configur.read(config_location+"config.ini")
+        if configur.get(section,key) is not None:
+            return configur.get(section,key)
+        else:
+            return None
 
 def write_config(section,key,value):
     configur=create_parser()
-    configur.set(section,key,value)
+    configur.read(config_location+"config.ini")
+    configur.set(section, key, value)
+    with open(config_location+"config.ini","w") as configfile:
+        configur.write(configfile)
 
 
 def process_instance(instance_name, *args):

@@ -104,7 +104,7 @@ def process_results(results,test_name,cloud_type,OS_TYPE,OS_RELEASE,spreadsheet_
         logging.error("Error graphing "+str(test_name)+" data")
         return
 
-    return []
+    return spreadsheetId
 
 
 # TODO: simplify functions once data location is exact
@@ -212,7 +212,7 @@ def data_handler():
                     logging.error(str(exc))
                     continue
         try:
-            results = process_results(results,test_name,cloud_type,OS_TYPE,OS_RELEASE,spreadsheet_name,spreadsheetId)
+            spreadsheetId = process_results(results,test_name,cloud_type,OS_TYPE,OS_RELEASE,spreadsheet_name,spreadsheetId)
         except Exception as exc:
             logging.error(str(exc))
             pass

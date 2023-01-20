@@ -1,7 +1,7 @@
 import logging
 from googleapiclient.discovery import build
 from pquisby.sheet.sheetapi import sheet, creds
-from pquisby.util import read_config
+from pquisby.util import read_config,write_config
 
 def check_sheet_exists(sheet_info, test_name):
     """"""
@@ -13,22 +13,26 @@ def check_sheet_exists(sheet_info, test_name):
 
 
 def permit_users():
-    users = read_config("access","users")
+    users = read_config("access","users").split(",")
+    if users == ['']:
+        logging.info("Permission not porvided to any users")
+        return
     spreadsheetId=read_config("spreadsheet","spreadsheetId")
     drive_api = build('drive', 'v3', credentials=creds)
-    domain_permission = {
-        'type': 'user',
-        'role': 'writer',
-        # Magic almost undocumented variable which makes files appear in your Google Drive
-        'emailAddress': users
-    }
-    req = drive_api.permissions().create(
-        fileId=spreadsheetId,
-        body=domain_permission,
-        fields="id"
-    )
+    for user in users:
+        domain_permission = {
+            'type': 'user',
+            'role': 'writer',
+            # Magic almost undocumented variable which makes files appear in your Google Drive
+            'emailAddress': user
+        }
+        req = drive_api.permissions().create(
+            fileId=spreadsheetId,
+            body=domain_permission,
+            fields="id"
+        )
 
-    req.execute()
+        req.execute()
 
 
 def create_spreadsheet(spreadsheet_name, test_name):
@@ -53,6 +57,8 @@ def create_spreadsheet(spreadsheet_name, test_name):
 
     spreadsheet = sheet.create(body=spreadsheet).execute()
     spreadsheetId = spreadsheet["spreadsheetId"]
+    write_config("spreadsheet", "spreadsheetId", spreadsheetId)
+    write_config("spreadsheet","spreadsheet_name",spreadsheet_name)
     permit_users()
     return spreadsheetId
 
