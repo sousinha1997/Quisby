@@ -23,7 +23,7 @@ def get_benchmark_details(resourceid, test_name):
 
 
 def register_details_json(test_name, spreadsheet_id):
-    filename = "/Users/soumyasinha/.config/pquisby/charts.json"
+    filename = "~/.config/pquisby/charts.json"
     if not os.path.exists(filename):
         data = {"chartlist": {test_name: spreadsheet_id}}
         with open(filename, "w") as f:
@@ -36,7 +36,7 @@ def register_details_json(test_name, spreadsheet_id):
             json.dump(data, f)
 
 def delete_entry_from_json(run_name):
-    filename = "/Users/soumyasinha/.config/pquisby/charts.json"
+    filename = "~/.config/pquisby/charts.json"
     with open(filename, "r") as f:
         data = json.load(f)
     del data["chartlist"][run_name]
@@ -45,7 +45,7 @@ def delete_entry_from_json(run_name):
 
 
 def check_if_chart_exists(test_name):
-    filename = "/Users/soumyasinha/.config/pquisby/charts.json"
+    filename = "~/.config/pquisby/charts.json"
     if not os.path.exists(filename):
         return ""
     else:
