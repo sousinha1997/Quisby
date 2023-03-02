@@ -6,6 +6,10 @@ import sys
 
 def main():
     """Run administrative tasks."""
+    
+    home_dir = os.path.expanduser('~')
+    os.environ['quisby_conf_dir'] = os.path.join(home_dir,".config/pquisby")
+    
     sys.path.append('./pquisby')
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "quisby_api.settings")
     try:

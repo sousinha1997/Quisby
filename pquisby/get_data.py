@@ -10,6 +10,8 @@ payload = ""
 headers = {'Authorization': '' }
 pbench_server_url = "http://intlab-002.ctrl.perf-infra.lab.eng.rdu2.redhat.com:8080"
 
+
+
 def get_benchmark_details(resourceid, test_name):
     url = f"{pbench_server_url}/api/v1/datasets/inventory/{resourceid}/metadata.log"
     print(url)
@@ -23,7 +25,7 @@ def get_benchmark_details(resourceid, test_name):
 
 
 def register_details_json(test_name, spreadsheet_id):
-    filename = "~/.config/pquisby/charts.json"
+    filename = os.path.join(os.environ['quisby_conf_dir'],"charts.json")
     if not os.path.exists(filename):
         data = {"chartlist": {test_name: spreadsheet_id}}
         with open(filename, "w") as f:
@@ -36,7 +38,7 @@ def register_details_json(test_name, spreadsheet_id):
             json.dump(data, f)
 
 def delete_entry_from_json(run_name):
-    filename = "~/.config/pquisby/charts.json"
+    filename = os.path.join(os.environ['quisby_conf_dir'],"charts.json")
     with open(filename, "r") as f:
         data = json.load(f)
     del data["chartlist"][run_name]
@@ -45,7 +47,7 @@ def delete_entry_from_json(run_name):
 
 
 def check_if_chart_exists(test_name):
-    filename = "~/.config/pquisby/charts.json"
+    filename = os.path.join(os.environ['quisby_conf_dir'],"charts.json")
     if not os.path.exists(filename):
         return ""
     else:
@@ -91,4 +93,4 @@ def delete_test_data(resourceid,run_name):
         delete_entry_from_json(run_name)
     delete_spreadsheet(spreadsheet_id)
 
-delete_test_data("e8b03087a03c5986b47b58f6ad84a907","uperf__2023.03.01T05.17.05")
+# delete_test_data("e8b03087a03c5986b47b58f6ad84a907","uperf__2023.03.01T05.17.05")
