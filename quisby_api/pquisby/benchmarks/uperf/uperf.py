@@ -62,11 +62,17 @@ def extract_uperf_data(system_name,csv_data):
     for index, row in enumerate(csv_data[0]):
         if "all" in row:
             data_position[row.split(":")[0]] = index
-
+    filtered_result =  []
     # Keep only required test results
     csv_reader = list(filter(None, csv_data))
-    filtered_result = list(filter(lambda x: x[1].split("-")[0] in tests_supported, csv_reader))
-
+    for result in csv_reader:
+        try:
+            if result[1].split("-")[0] in tests_supported:
+                filtered_result.append(result)
+        except Exception as exc:
+            pass
+    # filtered_result = list(filter(lambda x: x[1].split("-")[0] in tests_supported, csv_reader))
+    print(filtered_result)
     # Group data by test name and pkt size
     for test_name, items in groupby(
         filtered_result, key=lambda x: x[1].split("-")[:2]

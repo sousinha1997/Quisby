@@ -7,12 +7,13 @@ from process_result import process_results
 
 payload = ""
 headers = {'Authorization': '' }
-
+pbench_server_url = "http://intlab-002.ctrl.perf-infra.lab.eng.rdu2.redhat.com:8080"
 
 def get_benchmark_details(resourceid, test_name):
-    url = f"http://10.1.170.201/api/v1/datasets/inventory/{resourceid}/{test_name}/metadata.log"
-    response = requests.request("GET", url, headers=headers, data=payload)
-    decoded_response = response.decode("utf-8")
+    url = f"{pbench_server_url}/api/v1/datasets/inventory/{resourceid}/metadata.log"
+    print(url)
+    response = requests.get(url, headers=headers, data=payload,stream=True)
+    decoded_response = response.content.decode("UTF-8")
     parser = configparser.ConfigParser(allow_no_value=True)
     parser.read_string(decoded_response)
     benchmark_name = parser.get("pbench", "script")
@@ -52,14 +53,16 @@ def fetch_test_data(resourceid, run_name):
     results = []
     benchmark_name, controller_name = get_benchmark_details(resourceid, run_name)
     spreadsheet_name = run_name
-    url = f"http://10.1.170.201/api/v1/datasets/inventory/{resourceid}/{run_name}/result.csv"
-    response = requests.request("GET", url, headers=headers, data=payload)
-    decoded_data = response.decode("utf-8")
+    url = f"{pbench_server_url}/api/v1/datasets/inventory/{resourceid}/result.csv"
+    print(url)
+    response = requests.get(url, headers=headers, data=payload,stream=True)
+    decoded_data = response.content.decode("UTF-8")
+    print(decoded_data)
     split_rows = decoded_data.split("\n")
+    print(split_rows)
     csv_data = []
     for row in split_rows:
         csv_data.append(row.split(","))
-
     if benchmark_name == "uperf":
         test_name = "uperf"
         ret_val = extract_uperf_data(controller_name, csv_data)
@@ -72,3 +75,6 @@ def fetch_test_data(resourceid, run_name):
     else:
         spreadsheet_id = process_results(results, test_name, spreadsheet_name, spreadsheet_id)
     return spreadsheet_id
+
+
+fetch_test_data("e8b03087a03c5986b47b58f6ad84a907","uperf__2023.03.01T05.17.05")
