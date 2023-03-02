@@ -54,12 +54,9 @@ def fetch_test_data(resourceid, run_name):
     benchmark_name, controller_name = get_benchmark_details(resourceid, run_name)
     spreadsheet_name = run_name
     url = f"{pbench_server_url}/api/v1/datasets/inventory/{resourceid}/result.csv"
-    print(url)
     response = requests.get(url, headers=headers, data=payload,stream=True)
     decoded_data = response.content.decode("UTF-8")
-    print(decoded_data)
     split_rows = decoded_data.split("\n")
-    print(split_rows)
     csv_data = []
     for row in split_rows:
         csv_data.append(row.split(","))
