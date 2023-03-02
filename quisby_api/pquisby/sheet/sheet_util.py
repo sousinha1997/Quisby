@@ -1,7 +1,7 @@
 import logging
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from sheet.sheetapi import creds,sheet
+from sheet.sheetapi import creds,sheet,file
 
 def check_sheet_exists(sheet_info, test_name):
     """"""
@@ -75,6 +75,13 @@ def delete_sheet_content(spreadsheet_id,sheet_title):
         response = sheet.values().clear(spreadsheetId = spreadsheet_id,range = sheet_title).execute()
     except Exception:
         logging.warning("Unable to clear chart, might get repetitive data")
+def delete_spreadsheet(spreadsheet_id):
+    try:
+        file.delete(fileId = spreadsheet_id).execute()
+    except Exception as exc:
+        logging.error("Unable to delete sheet")
+
+
 
 def create_sheet(spreadsheetId, test_name):
     """
