@@ -25,7 +25,7 @@ setup(
     install_requires = REQUIRE,
     entry_points={
         "console_scripts": [
-            "pquisby = pquisby.__main__:main",
+            "pquisby = __main__:main",
         ]
     },
     include_package_data=True,

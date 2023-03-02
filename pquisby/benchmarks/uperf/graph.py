@@ -2,11 +2,9 @@ import logging
 import time
 from itertools import groupby
 
-from pquisby.sheet.sheetapi import sheet
-from pquisby.benchmarks.uperf.uperf import combine_uperf_data
-from pquisby.sheet.sheet_util import (
-    clear_sheet_charts,
-    clear_sheet_data,
+from sheet.sheetapi import sheet
+from benchmarks.uperf.uperf import combine_uperf_data
+from sheet.sheet_util import (
     append_to_sheet,
     read_sheet,
     get_sheet,
@@ -14,11 +12,8 @@ from pquisby.sheet.sheet_util import (
 
 
 def series_range_uperf(column_count, sheetId, start_index, end_index):
-
     series = []
-
     for index in range(column_count):
-
         series.append(
             {
                 "series": {
@@ -37,9 +32,7 @@ def series_range_uperf(column_count, sheetId, start_index, end_index):
                 "type": "COLUMN",
             }
         )
-
     return series
-
 
 def graph_uperf_data(spreadsheetId, range):
     """"""
@@ -50,13 +43,10 @@ def graph_uperf_data(spreadsheetId, range):
         "trans_sec": "Transactions/second",
         "usec": "Latency",
     }
-
     uperf_results = read_sheet(spreadsheetId, range)
-    clear_sheet_charts(spreadsheetId, range)
-
     for index, row in enumerate(uperf_results):
         if row:
-            if "tcp_stream16" in row[1] or "tcp_rr64" in row[1] or "tcp_stream64" in row[1] or "tcp_rr16" in row[1]:
+            if "tcp_stream" in row[1] or "tcp_rr" in row[1] or "tcp_maerts" in row[1] or "tcp_bidirec" in row[1]:
                 start_index = index
 
         if start_index:
@@ -73,7 +63,6 @@ def graph_uperf_data(spreadsheetId, range):
             sheetId = get_sheet(spreadsheetId, range)["sheets"][0]["properties"][
                 "sheetId"
             ]
-
             requests = {
                 "addChart": {
                     "chart": {
@@ -129,18 +118,13 @@ def graph_uperf_data(spreadsheetId, range):
                     }
                 }
             }
-
             if GRAPH_COL_INDEX >= 5:
                 GRAPH_ROW_INDEX += 20
                 GRAPH_COL_INDEX = 2
             else:
                 GRAPH_COL_INDEX += 6
-
             body = {"requests": requests}
-
             sheet.batchUpdate(spreadsheetId=spreadsheetId, body=body).execute()
-
             # Reset variables
             start_index, end_index = 0, 0
-
             time.sleep(1)

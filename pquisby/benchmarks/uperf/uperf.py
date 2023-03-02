@@ -1,11 +1,4 @@
-import csv
-import logging
 from itertools import groupby
-
-import requests
-
-from pquisby.util import mk_int, process_instance
-
 
 def combine_uperf_data(results):
     result_data = []
@@ -26,9 +19,7 @@ def combine_uperf_data(results):
 def create_summary_uperf_data(results,OS_RELEASE):
     summary_results = []
     group_by_test_name = {}
-
-    sorted_results = combine_uperf_data(results)
-
+    sorted_results = [combine_uperf_data(results)]
     for result in sorted_results:
         for row in result:
             key = row[1][0].split(".")[0] + "-" + row[2][0] + "-" + row[3][1]
@@ -61,31 +52,20 @@ def create_summary_uperf_data(results,OS_RELEASE):
     return summary_results
 
 
-def extract_uperf_data(path, system_name):
+def extract_uperf_data(system_name,csv_data):
     """"""
     results = []
     data_position = {}
     
-    tests_supported = ["tcp_stream", "tcp_rr"]
+    tests_supported = ["tcp_stream", "tcp_rr", "tcp_bidirec", "tcp_maerts"]
 
-    # Check if path is a URL
-    try:
-        csv_data = requests.get(path)
-        csv_reader = list(csv.reader(csv_data.text.split("\n")))
-    except requests.exceptions.InvalidSchema:
-        with open(path) as csv_file:
-            csv_reader = list(csv.reader(csv_file))
-
-    # find all ports result index in csv row
-    for index, row in enumerate(csv_reader[0]):
+    for index, row in enumerate(csv_data[0]):
         if "all" in row:
             data_position[row.split(":")[0]] = index
 
-    # Keep only tcp_stream and tcp_rr test results
-    csv_reader = list(filter(None, csv_reader))
-    filtered_result = list(
-        filter(lambda x: x[1].split("-")[0] in tests_supported, csv_reader)
-    )
+    # Keep only required test results
+    csv_reader = list(filter(None, csv_data))
+    filtered_result = list(filter(lambda x: x[1].split("-")[0] in tests_supported, csv_reader))
 
     # Group data by test name and pkt size
     for test_name, items in groupby(

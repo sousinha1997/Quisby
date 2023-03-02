@@ -1,39 +1,29 @@
 import logging
 from googleapiclient.discovery import build
-from pquisby.sheet.sheetapi import sheet, creds
-from pquisby.util import read_config,write_config
+from googleapiclient.errors import HttpError
+from sheet.sheetapi import creds,sheet
 
 def check_sheet_exists(sheet_info, test_name):
     """"""
     for sheet_prop in sheet_info:
         if test_name == sheet_prop["properties"]["title"]:
             return True
-
     return False
 
-
-def permit_users():
-    users = read_config("access","users").split(",")
-    if users == ['']:
-        logging.info("Permission not porvided to any users")
-        return
-    spreadsheetId=read_config("spreadsheet","spreadsheetId")
+def permit_users(spreadsheetId):
     drive_api = build('drive', 'v3', credentials=creds)
-    for user in users:
-        domain_permission = {
-            'type': 'user',
-            'role': 'writer',
-            # Magic almost undocumented variable which makes files appear in your Google Drive
-            'emailAddress': user
-        }
-        req = drive_api.permissions().create(
-            fileId=spreadsheetId,
-            body=domain_permission,
-            fields="id"
-        )
+    permission = {
+        'type': 'anyone',
+        'role': 'writer',
+        'withLink': True
+    }
+    req = drive_api.permissions().create(
+        fileId=spreadsheetId,
+        body=permission,
+        fields="id"
+    )
 
-        req.execute()
-
+    req.execute()
 
 def create_spreadsheet(spreadsheet_name, test_name):
     """
@@ -54,14 +44,10 @@ def create_spreadsheet(spreadsheet_name, test_name):
             }
         },
     }
-
     spreadsheet = sheet.create(body=spreadsheet).execute()
     spreadsheetId = spreadsheet["spreadsheetId"]
-    write_config("spreadsheet", "spreadsheetId", spreadsheetId)
-    write_config("spreadsheet","spreadsheet_name",spreadsheet_name)
-    permit_users()
+    permit_users(spreadsheetId)
     return spreadsheetId
-
 
 def get_sheet(spreadsheetId, test_name,range="!a:z"):
 
@@ -71,6 +57,24 @@ def get_sheet(spreadsheetId, test_name,range="!a:z"):
     else:
         return sheet.get(spreadsheetId=spreadsheetId,ranges=test_name+range).execute()
 
+def get_sheet_id(spreadsheetId, sheet_title):
+    try:
+        # Get the spreadsheet information
+        spreadsheet = get_sheet(spreadsheetId,[])
+        # Find the sheet with the specified title
+        sheet = next(s for s in spreadsheet['sheets']if s['properties']['title'] == sheet_title)
+        # Get the sheet ID
+        sheet_id = sheet['properties']['sheetId']
+        return sheet_id
+    except HttpError as error:
+        print(f'An error occurred: {error}')
+    return None
+
+def delete_sheet_content(spreadsheet_id,sheet_title):
+    try:
+        response = sheet.values().clear(spreadsheetId = spreadsheet_id,range = sheet_title).execute()
+    except Exception:
+        logging.warning("Unable to clear chart, might get repetitive data")
 
 def create_sheet(spreadsheetId, test_name):
     """
@@ -81,11 +85,9 @@ def create_sheet(spreadsheetId, test_name):
     :test_name: range to graph up the data, it will be mostly sheet name
     """
     sheet_info = get_sheet(spreadsheetId, [])["sheets"]
-
     # Create sheet if it doesn't exit
     if not check_sheet_exists(sheet_info, test_name):
         sheet_count = len(sheet_info)
-
         requests = {
             "addSheet": {
                 "properties": {
@@ -97,11 +99,8 @@ def create_sheet(spreadsheetId, test_name):
                 }
             }
         }
-
         body = {"requests": requests}
-
         sheet.batchUpdate(spreadsheetId=spreadsheetId, body=body).execute()
-
 
 def read_sheet(spreadsheet_Id, range="A:Z"):
     # TODO : check for the previous api
@@ -110,12 +109,9 @@ def read_sheet(spreadsheet_Id, range="A:Z"):
     values = result.get("valueRanges", [])[0].get('values',[])
     return values
 
-
 def append_to_sheet(spreadsheet_Id, results, range="A:F"):
     """"""
-
     body = {"values": results}
-
     response = (
         sheet.values()
         .append(
@@ -127,7 +123,6 @@ def append_to_sheet(spreadsheet_Id, results, range="A:F"):
         .execute()
     )
     return response
-
 
 def apply_named_range(spreadsheetId, name, range="A:Z"):
 
@@ -160,39 +155,14 @@ def apply_named_range(spreadsheetId, name, range="A:Z"):
         .batchUpdate(spreadsheetId=spreadsheetId, body=body)
         .execute()
     )
-
     print(response)
-
-
-def clear_sheet_data(spreadsheetId, range="A1:Z1000"):
-    # Clear values
-    sheet.values().clear(spreadsheetId=spreadsheetId, range=range, body={}).execute()
-
-
-def clear_sheet_charts(spreadsheetId, range="A2:Z1000"):
-    # Clear charts
-    sheet_properties = get_sheet(spreadsheetId, range)
-
-    if "charts" in sheet_properties["sheets"][0]:
-        for chart in sheet_properties["sheets"][0]["charts"]:
-
-            requests = {"deleteEmbeddedObject": {"objectId": chart["chartId"]}}
-
-            body = {"requests": requests}
-
-            sheet.batchUpdate(spreadsheetId=spreadsheetId, body=body).execute()
-
 
 def get_named_range(spreadsheetId, range="A:F"):
     spreadsheet = get_sheet(spreadsheetId, range)
-
     return spreadsheet['namedRanges']
 
 def append_empty_row_sheet(spreadsheetId, rows, range="A:F"):
-    
     sheetId = get_sheet(spreadsheetId, range)["sheets"][0]["properties"]["sheetId"]
-
-
     body = {
         "requests": [
             {
@@ -204,5 +174,4 @@ def append_empty_row_sheet(spreadsheetId, rows, range="A:F"):
             }
         ]
     }
-
     sheet.batchUpdate(spreadsheetId=spreadsheetId, body=body).execute()

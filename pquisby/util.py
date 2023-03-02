@@ -1,51 +1,12 @@
 import re
-from configparser import ConfigParser
-
-config_location = "~/.config/pquisby/"
-invalid_compare_list = ["pig"]
-
-def create_parser():
-    configur = ConfigParser()
-    return configur
-
-def read_config(section,key):
-    configur=create_parser()
-    with open(config_location+"config.ini","r") as configfile:
-        configur.read(config_location+"config.ini")
-        if configur.get(section,key) is not None:
-            return configur.get(section,key)
-        else:
-            return None
-
-def write_config(section,key,value):
-    configur=create_parser()
-    configur.read(config_location+"config.ini")
-    configur.set(section, key, value)
-    with open(config_location+"config.ini","w") as configfile:
-        configur.write(configfile)
-
 
 def process_instance(instance_name, *args):
-    cloud_type = read_config("cloud","cloud_type")
-    if cloud_type == "azure":
-        pattern = r"Standard_(?P<family>\w)(?P<sub_family>\D)?(?P<size>\d+)(?P<feature>\w+)?_(?P<accel_type>\w\d)?_?(?P<version>\w\d)"
-
-    if cloud_type == "aws":
-        pattern = r"(?P<family>\w)(?P<version>\d)(?P<feature>\w+)?.(?P<size>\d+)?(?P<bool_xlarge>x)?(?P<machine_type>\w+)"
-
-    if cloud_type == "gcp":
-        pattern = r"(?P<family>\w)(?P<version>\d)(?P<sub_family>\w)?-(?P<feature>\w+)?-(?P<size>\d+)?"
-
-    if cloud_type == "local":
-        pattern = r"(?P<family>\D+)(?P<size>\d+)"
-        regex_match = re.match(pattern, instance_name, flags=re.IGNORECASE)
-        if "size" in args:
-            return regex_match.group(2)
-        else:
-            return regex_match.group(1)
-
+    pattern = r"(?P<family>\D+)(?P<size>\d+)"
     regex_match = re.match(pattern, instance_name, flags=re.IGNORECASE)
-    return regex_match.group(*args)
+    if "size" in args:
+        return regex_match.group(2)
+    else:
+        return regex_match.group(1)
 
 
 def mk_int(string):
