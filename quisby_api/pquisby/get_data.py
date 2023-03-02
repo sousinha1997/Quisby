@@ -23,7 +23,7 @@ def get_benchmark_details(resourceid, test_name):
 
 
 def register_details_json(test_name, spreadsheet_id):
-    filename = "~/.config/pquisby/charts.json"
+    filename = "/Users/soumyasinha/.config/pquisby/charts.json"
     if not os.path.exists(filename):
         data = {"chartlist": {test_name: spreadsheet_id}}
         with open(filename, "w") as f:
@@ -36,7 +36,7 @@ def register_details_json(test_name, spreadsheet_id):
             json.dump(data, f)
 
 def delete_entry_from_json(run_name):
-    filename = "~/.config/pquisby/charts.json"
+    filename = "/Users/soumyasinha/.config/pquisby/charts.json"
     with open(filename, "r") as f:
         data = json.load(f)
     del data["chartlist"][run_name]
@@ -45,7 +45,7 @@ def delete_entry_from_json(run_name):
 
 
 def check_if_chart_exists(test_name):
-    filename = "~/.config/pquisby/charts.json"
+    filename = "/Users/soumyasinha/.config/pquisby/charts.json"
     if not os.path.exists(filename):
         return ""
     else:
@@ -74,7 +74,7 @@ def fetch_test_data(resourceid, run_name):
         ret_val = extract_uperf_data(controller_name, csv_data)
         if ret_val:
             results += ret_val
-    spreadsheet_id = check_if_chart_exists(run_name,run_name)
+    spreadsheet_id = check_if_chart_exists(run_name)
     if spreadsheet_id == "":
         spreadsheet_id = process_results(results, test_name, spreadsheet_name, spreadsheet_id)
         register_details_json(run_name, spreadsheet_id)
@@ -90,3 +90,5 @@ def delete_test_data(resourceid,run_name):
     else:
         delete_entry_from_json(run_name)
     delete_spreadsheet(spreadsheet_id)
+
+delete_test_data("e8b03087a03c5986b47b58f6ad84a907","uperf__2023.03.01T05.17.05")

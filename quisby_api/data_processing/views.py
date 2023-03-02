@@ -24,6 +24,7 @@ def get_metrics_data(request):
             test_name = tests[0]["name"]
             resource_id = tests[0]["rid"]
             spreadsheetId = get_data.fetch_test_data(resource_id,test_name)
+            print(f"https://docs.google.com/spreadsheets/d/{spreadsheetId}")
         for test in tests:
             # Compare multiple results
             # test_name = test["name"]
@@ -45,6 +46,7 @@ def delete_record(request):
             # Process single result
             test_name = tests[0]["name"]
             resource_id = tests[0]["rid"]
+            print("hello")
             spreadsheetId = get_data.delete_test_data(resource_id, test_name)
         for test in tests:
             # Compare multiple results
