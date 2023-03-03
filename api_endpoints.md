@@ -1,7 +1,8 @@
 # API endpoints
 
 1. Get metric data
-endpoint: http://<server>/quisby/get_metrics_data/
+endpoint: http://server url/quisby/get_metrics_data/
+
     Input: 
     ```json
         {
@@ -18,7 +19,8 @@ endpoint: http://<server>/quisby/get_metrics_data/
     ```
 
 2. Delete record 
-endpoint: http://<server>/quisby/delete_record/
+endpoint: http://server url/quisby/delete_record/
+
     Input:
     ```json
         {"resource_id": [
