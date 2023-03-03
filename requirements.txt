@@ -34,3 +34,4 @@ uritemplate==3.0.1; python_version >= "3.6" and python_full_version < "3.0.0" or
 urllib3==1.26.5; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version < "4" 
 djangorestframework==3.14.0 
 Django==4.1.7
+django-cors-headers
