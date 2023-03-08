@@ -19,11 +19,12 @@ def get_metrics_data(request):
     try:
         data = request.data
         tests = data['resource_id']
+        custom_headers = {"Authorization": request.META['HTTP_AUTHORIZATION']}
         if len(tests) == 1:
             # Process single result
             test_name = tests[0]["name"]
             resource_id = tests[0]["rid"]
-            spreadsheetId = get_data.fetch_test_data(resource_id,test_name)
+            spreadsheetId = get_data.fetch_test_data(resource_id,test_name,custom_headers)
             print(f"https://docs.google.com/spreadsheets/d/{spreadsheetId}")
         for test in tests:
             # Compare multiple results
@@ -32,7 +33,7 @@ def get_metrics_data(request):
             # Get required files
             pass
 
-        return Response({"status": "success","spreadsheetId":spreadsheetId})
+        return Response({"status": "success","spreadsheetId":spreadsheetId ,"sheet_url":f"https://docs.google.com/spreadsheets/d/{spreadsheetId}"})
     except Exception as e:
         print(e)
         return Response({"status": "failed", "Exception": str(e)})

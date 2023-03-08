@@ -8,14 +8,12 @@ from sheet.sheet_util import delete_spreadsheet
 
 payload = ""
 headers = {'Authorization': '' }
-pbench_server_url = "http://intlab-002.ctrl.perf-infra.lab.eng.rdu2.redhat.com:8080"
+pbench_server_url = "http://dhcp-214.ctrl.perf-infra.lab.eng.rdu2.redhat.com:8080"
 
-
-
-def get_benchmark_details(resourceid, test_name):
+def get_benchmark_details(resourceid, test_name,custom_headers):
     url = f"{pbench_server_url}/api/v1/datasets/inventory/{resourceid}/metadata.log"
     print(url)
-    response = requests.get(url, headers=headers, data=payload,stream=True)
+    response = requests.get(url, headers=custom_headers, data=payload,stream=True)
     decoded_response = response.content.decode("UTF-8")
     parser = configparser.ConfigParser(allow_no_value=True)
     parser.read_string(decoded_response)
@@ -60,12 +58,13 @@ def check_if_chart_exists(test_name):
         return id
 
 
-def fetch_test_data(resourceid, run_name):
+def fetch_test_data(resourceid, run_name,custom_headers):
     results = []
-    benchmark_name, controller_name = get_benchmark_details(resourceid, run_name)
+    benchmark_name, controller_name = get_benchmark_details(resourceid, run_name,custom_headers)
+
     spreadsheet_name = run_name
     url = f"{pbench_server_url}/api/v1/datasets/inventory/{resourceid}/result.csv"
-    response = requests.get(url, headers=headers, data=payload,stream=True)
+    response = requests.get(url, headers=custom_headers, data=payload,stream=True)
     decoded_data = response.content.decode("UTF-8")
     split_rows = decoded_data.split("\n")
     csv_data = []
