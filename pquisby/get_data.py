@@ -96,5 +96,6 @@ def delete_test_data(resourceid,run_name):
     else:
         delete_entry_from_json(run_name)
     delete_spreadsheet(spreadsheet_id)
+    return spreadsheet_id
 
 # delete_test_data("e8b03087a03c5986b47b58f6ad84a907","uperf__2023.03.01T05.17.05")

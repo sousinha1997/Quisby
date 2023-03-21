@@ -26,7 +26,7 @@ def get_metrics_data(request):
             # Process single result
             run_name = tests[0]["name"]
             resource_id = tests[0]["rid"]
-            spreadsheet, json_data = get_data.fetch_test_data(resource_id, run_name, custom_headers)
+            spreadsheet, json_data, benchmark_name = get_data.fetch_test_data(resource_id, run_name, custom_headers)
             if spreadsheet is None:
                 return Response({"status": "failure", "message": "Unable to chart the test"})
             print("Test chart -")
