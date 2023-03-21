@@ -31,7 +31,7 @@ def compare_uperf_results(spreadsheets, spreadsheetId, test_name):
         for ele in list_2:
             if value[0] == ele[0]:
                 results.append(value[0])
-                results = combine_two_array_alternating(results, value[1:], ele[1:])
+                results = combine_two_array_alternating(results, value[1:], ele[1:],test_name)
 
     create_sheet(spreadsheetId, test_name)
     append_to_sheet(spreadsheetId, results, test_name)

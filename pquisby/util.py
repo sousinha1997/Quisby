@@ -1,5 +1,7 @@
 import re
 
+invalid_compare_list = ["pig"]
+
 def process_instance(instance_name, *args):
     pattern = r"(?P<family>\D+)(?P<size>\d+)"
     regex_match = re.match(pattern, instance_name, flags=re.IGNORECASE)
@@ -35,9 +37,8 @@ def merge_lists_alternately(results, list1, list2):
     return results
 
 
-def combine_two_array_alternating(results, value, ele):
+def combine_two_array_alternating(results, value, ele, test_name):
     indexer = []
-    test_name=read_config("test","test_name")
 
     for lindex, item1 in enumerate(value[0][1:]):
         for rindex, item2 in enumerate(ele[0][1:]):
