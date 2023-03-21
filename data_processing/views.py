@@ -49,7 +49,7 @@ def get_metrics_data(request):
             comp_spreadsheet = compare_results(spreadsheets, benchmark_name)
             print("Comparison chart -")
             print(f"https://docs.google.com/spreadsheets/d/{comp_spreadsheet}")
-        return Response({"status": "success", "sheet_url":f"https://docs.google.com/spreadsheets/d/{comp_spreadsheet}","jsonData": comp_json})
+            return Response({"status": "success", "sheet_url":f"https://docs.google.com/spreadsheets/d/{comp_spreadsheet}","jsonData": comp_json})
     except Exception as e:
         return Response({"status": "failed", "Exception": str(e)})
 
