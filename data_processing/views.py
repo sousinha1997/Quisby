@@ -67,6 +67,7 @@ def delete_record(request):
             spreadsheet = get_data.delete_test_data(resource_id, run_name)
             print("Deleted spreadsheet -")
             print(f"https://docs.google.com/spreadsheets/d/{spreadsheet}")
+            return Response({"status": "success", "spreadsheetId": spreadsheet})
         else:
             # Delete multiple result
             spreadsheet_list = []
