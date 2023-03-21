@@ -77,7 +77,7 @@ def delete_record(request):
                 print("Deleted spreadsheet -")
                 print(f"https://docs.google.com/spreadsheets/d/{spreadsheet}")
                 spreadsheet_list.append(spreadsheet)
-        return Response({"status": "success", "spreadsheetId":spreadsheet_list })
+            return Response({"status": "success", "spreadsheetId":spreadsheet_list })
     except Exception as e:
         print(e)
         return Response({"status": "failed", "Exception": str(e)})
