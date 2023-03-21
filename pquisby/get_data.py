@@ -1,5 +1,6 @@
 import configparser
 import json
+import logging
 import os.path
 import requests
 from benchmarks.uperf.uperf import extract_uperf_data
@@ -72,16 +73,20 @@ def fetch_test_data(resourceid, run_name,custom_headers):
         csv_data.append(row.split(","))
     if benchmark_name == "uperf":
         test_name = "uperf"
-        ret_val = extract_uperf_data(controller_name, csv_data)
+        ret_val,json_data = extract_uperf_data(controller_name, csv_data)
         if ret_val:
             results += ret_val
+        else:
+            logging.ERROR("No data to chart")
+            return None,None,None
     spreadsheet_id = check_if_chart_exists(run_name)
     if spreadsheet_id == "":
         spreadsheet_id = process_results(results, test_name, spreadsheet_name, spreadsheet_id)
         register_details_json(run_name, spreadsheet_id)
     else:
         spreadsheet_id = process_results(results, test_name, spreadsheet_name, spreadsheet_id)
-    return spreadsheet_id
+    return spreadsheet_id, json_data, benchmark_name
+
 
 
 def delete_test_data(resourceid,run_name):

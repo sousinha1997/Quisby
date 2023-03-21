@@ -162,7 +162,6 @@ def apply_named_range(spreadsheetId, name, range="A:Z"):
         .batchUpdate(spreadsheetId=spreadsheetId, body=body)
         .execute()
     )
-    print(response)
 
 def get_named_range(spreadsheetId, range="A:F"):
     spreadsheet = get_sheet(spreadsheetId, range)

@@ -56,7 +56,7 @@ def extract_uperf_data(system_name,csv_data):
     """"""
     results = []
     data_position = {}
-    
+    results_json = {"data": []}
     tests_supported = ["tcp_stream", "tcp_rr", "tcp_bidirec", "tcp_maerts"]
 
     for index, row in enumerate(csv_data[0]):
@@ -94,31 +94,43 @@ def extract_uperf_data(system_name,csv_data):
                         data_dict[key] = [
                             [instance_count, item[data_position[key]]]
                         ]
-
+        test_json = {"vm_name": "", "test_name": "", "metrics_unit": "", "instances": []}
         for key, test_results in data_dict.items():
             if test_results:
+                test_json["vm_name"] = system_name
+                test_json["test_name"] = "".join(test_name)
+                test_json["metrics_unit"] = key
                 results.append([""])
                 results.append([system_name])
                 results.append(["".join(test_name)])
                 results.append(["Instance Count", key])
-                for instance_count, items in groupby(
-                    test_results, key=lambda x: x[0].split("-")[0]
-                ):
+                for instance_count, items in groupby(test_results, key=lambda x: x[0].split("-")[0]):
                     items = list(items)
-
+                    item_json = {}
+                    item_json["name"] = instance_count
                     if len(items) > 1:
                         failed_run = True
                         for item in items:
                             if "fail" not in item[0]:
+                                item_json["status"] = "pass"
+                                item_json["time_taken"] = item[0]
+                                test_json["instances"].append(item_json)
                                 results.append(item)
                                 failed_run = False
                                 break
                         if failed_run:
+                            item_json["status"] = "fail"
+                            item_json["time_taken"] = "fail"
+                            test_json["instances"].append(item_json)
                             results.append([instance_count, "fail"])
                     else:
+                        item_json["status"] = "pass"
+                        item_json["time_taken"] = items[0][1]
+                        test_json["instances"].append(item_json)
                         results.append(*items)
+        results_json["data"].append(test_json)
 
-    return results
+    return results,results_json
 
 
 if __name__ == "__main__":
