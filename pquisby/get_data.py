@@ -73,7 +73,7 @@ def fetch_test_data(resourceid, run_name,custom_headers):
         csv_data.append(row.split(","))
     if benchmark_name == "uperf":
         test_name = "uperf"
-        ret_val,json_data = extract_uperf_data(controller_name,run_name, csv_data)
+        ret_val,json_data = extract_uperf_data(controller_name, csv_data)
         if ret_val:
             results += ret_val
         else:
