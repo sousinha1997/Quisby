@@ -11,7 +11,7 @@ payload = ""
 headers = {'Authorization': '' }
 pbench_server_url = "http://dhcp-214.ctrl.perf-infra.lab.eng.rdu2.redhat.com:8080"
 
-def get_benchmark_details(resourceid, test_name,custom_headers):
+def get_benchmark_details(resourceid, run_name,custom_headers):
     url = f"{pbench_server_url}/api/v1/datasets/inventory/{resourceid}/metadata.log"
     print(url)
     response = requests.get(url, headers=custom_headers, data=payload,stream=True)
@@ -61,7 +61,7 @@ def check_if_chart_exists(test_name):
 
 def fetch_test_data(resourceid, run_name,custom_headers):
     results = []
-    benchmark_name, controller_name = get_benchmark_details(resourceid, run_name,custom_headers)
+    benchmark_name, controller_name = get_benchmark_details(resourceid, run_name, custom_headers)
 
     spreadsheet_name = run_name
     url = f"{pbench_server_url}/api/v1/datasets/inventory/{resourceid}/result.csv"
@@ -73,18 +73,18 @@ def fetch_test_data(resourceid, run_name,custom_headers):
         csv_data.append(row.split(","))
     if benchmark_name == "uperf":
         test_name = "uperf"
-        ret_val,json_data = extract_uperf_data(controller_name, csv_data)
+        ret_val,json_data = extract_uperf_data(controller_name,run_name, csv_data)
         if ret_val:
             results += ret_val
         else:
             logging.ERROR("No data to chart")
-            return None,None,None
+            return None, None, None
     spreadsheet_id = check_if_chart_exists(run_name)
     if spreadsheet_id == "":
-        spreadsheet_id = process_results(results, test_name, spreadsheet_name, spreadsheet_id)
+        spreadsheet_id = process_results(results, test_name,run_name, spreadsheet_name, spreadsheet_id)
         register_details_json(run_name, spreadsheet_id)
     else:
-        spreadsheet_id = process_results(results, test_name, spreadsheet_name, spreadsheet_id)
+        spreadsheet_id = process_results(results, test_name,run_name, spreadsheet_name, spreadsheet_id)
     return spreadsheet_id, json_data, benchmark_name
 
 

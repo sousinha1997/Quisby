@@ -36,4 +36,4 @@ def compare_results(spreadsheet_list,test_name):
         if index + 1 != len(comparison_list):
             logging.info("# Sleeping 10 sec to workaround the Google Sheet per minute API limit")
             time.sleep(10)
-    return comp_spreadsheetId
+    return spreadsheet_name,comp_spreadsheetId

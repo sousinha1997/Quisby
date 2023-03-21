@@ -24,32 +24,33 @@ def get_metrics_data(request):
         custom_headers = {"Authorization": request.META['HTTP_AUTHORIZATION']}
         if len(tests) == 1:
             # Process single result
-            test_name = tests[0]["name"]
+            run_name = tests[0]["name"]
             resource_id = tests[0]["rid"]
-            spreadsheet, json_data = get_data.fetch_test_data(resource_id,test_name,custom_headers)
+            spreadsheet, json_data = get_data.fetch_test_data(resource_id, run_name, custom_headers)
             if spreadsheet is None:
                 return Response({"status": "failure", "message": "Unable to chart the test"})
             print("Test chart -")
             print(f"https://docs.google.com/spreadsheets/d/{spreadsheet}")
-            return Response({"status": "success","sheet_url":f"https://docs.google.com/spreadsheets/d/{spreadsheet}", "jsonData": json_data})
+            return Response({"status": "success", "sheet_url": f"https://docs.google.com/spreadsheets/d/{spreadsheet}", "jsonData": json_data})
         else:
             spreadsheets = []
             comp_json = {"datasets":[]}
             for test in tests:
                 # Compare multiple results
-                test_name = test["name"]
+                run_name = test["name"]
                 resource_id = test["rid"]
-                spreadsheet, json_data, benchmark_name = get_data.fetch_test_data(resource_id, test_name)
-                for data in json_data:
-                    comp_json["datasets"].append(data)
+                spreadsheet, json_data, benchmark_name = get_data.fetch_test_data(resource_id, run_name, custom_headers)
+                for items in json_data["data"]:
+                    comp_json["datasets"].append(items)
                 print("Test charts -")
                 print(f"https://docs.google.com/spreadsheets/d/{spreadsheet}")
                 spreadsheets.append(spreadsheet)
             # Create comparison chart
-            comp_spreadsheet = compare_results(spreadsheets, benchmark_name)
+            spreadsheet_name, comp_spreadsheet = compare_results(spreadsheets, benchmark_name)
+            get_data.register_details_json(spreadsheet_name, comp_spreadsheet)
             print("Comparison chart -")
             print(f"https://docs.google.com/spreadsheets/d/{comp_spreadsheet}")
-            return Response({"status": "success", "sheet_url":f"https://docs.google.com/spreadsheets/d/{comp_spreadsheet}","jsonData": comp_json})
+            return Response({"status": "success", "sheet_url": f"https://docs.google.com/spreadsheets/d/{comp_spreadsheet}", "jsonData": comp_json})
     except Exception as e:
         return Response({"status": "failed", "Exception": str(e)})
 
@@ -61,18 +62,18 @@ def delete_record(request):
         tests = data['resource_id']
         if len(tests) == 1:
             # Delete single result
-            test_name = tests[0]["name"]
+            run_name = tests[0]["name"]
             resource_id = tests[0]["rid"]
-            spreadsheet = get_data.delete_test_data(resource_id, test_name)
+            spreadsheet = get_data.delete_test_data(resource_id, run_name)
             print("Deleted spreadsheet -")
             print(f"https://docs.google.com/spreadsheets/d/{spreadsheet}")
         else:
             # Delete multiple result
             spreadsheet_list = []
             for test in tests:
-                test_name = test[0]["name"]
+                run_name = test[0]["name"]
                 resource_id = test[0]["rid"]
-                spreadsheet = get_data.delete_test_data(resource_id, test_name)
+                spreadsheet = get_data.delete_test_data(resource_id, run_name)
                 print("Deleted spreadsheet -")
                 print(f"https://docs.google.com/spreadsheets/d/{spreadsheet}")
                 spreadsheet_list.append(spreadsheet)

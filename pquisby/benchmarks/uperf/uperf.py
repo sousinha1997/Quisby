@@ -16,7 +16,7 @@ def combine_uperf_data(results):
     return group_data
 
 
-def create_summary_uperf_data(results,OS_RELEASE):
+def create_summary_uperf_data(results,run_name,OS_RELEASE):
     summary_results = []
     group_by_test_name = {}
     sorted_results = [combine_uperf_data(results)]
@@ -37,7 +37,7 @@ def create_summary_uperf_data(results,OS_RELEASE):
         summary_results.append(["Instance Count"])
 
         for ele in value:
-            summary_results[-1].append(ele[1][0] + "-" + OS_RELEASE)
+            summary_results[-1].append(run_name+"-os-release-"+OS_RELEASE)
             for index in ele[4:]:
                 if index[0] in run_data:
                     run_data[index[0]].append(index[1].strip())
