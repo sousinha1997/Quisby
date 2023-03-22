@@ -5,16 +5,16 @@ from benchmarks.uperf.graph import graph_uperf_data
 from benchmarks.uperf.comparison import compare_uperf_results
 
 
-def process_results(results, test_name, run_name, spreadsheet_name, spreadsheetId):
+def process_results(results, test_name, os_version, spreadsheet_name, spreadsheet_id):
     # Create spreadsheet if it doesn't exist, otherwise delete old records
-    if not spreadsheetId:
-        spreadsheetId = create_spreadsheet(spreadsheet_name, test_name)
+    if not spreadsheet_id:
+        spreadsheet_id = create_spreadsheet(spreadsheet_name, test_name)
     else:
-        delete_sheet_content(spreadsheetId, test_name)
+        delete_sheet_content(spreadsheet_id, test_name)
 
     # Summarise data
     try:
-        results = globals()[f"create_summary_{test_name}_data"](results, run_name, "9")
+        results = globals()[f"create_summary_{test_name}_data"](results, spreadsheet_name, os_version)
     except Exception as exc:
         logging.error("Error summarising " + str(test_name) + " data")
         print(str(exc))
@@ -22,16 +22,16 @@ def process_results(results, test_name, run_name, spreadsheet_name, spreadsheetI
 
     # Create sheet and add data
     try:
-        create_sheet(spreadsheetId, test_name)
-        append_to_sheet(spreadsheetId, results, test_name)
+        create_sheet(spreadsheet_id, test_name)
+        append_to_sheet(spreadsheet_id, results, test_name)
     except Exception as exc:
         logging.error("Error appending " + str(test_name) + " data to sheet")
         return
 
     # Graphing up data
     try:
-        globals()[f"graph_{test_name}_data"](spreadsheetId, test_name)
+        globals()[f"graph_{test_name}_data"](spreadsheet_id, test_name)
     except Exception as exc:
         logging.error("Error graphing " + str(test_name) + " data")
         return
-    return spreadsheetId
+    return spreadsheet_id
