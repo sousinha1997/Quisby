@@ -2,9 +2,9 @@ import logging
 import time
 from itertools import groupby
 
-from sheet.sheetapi import sheet
-from benchmarks.uperf.uperf import combine_uperf_data
-from sheet.sheet_util import (
+from pquisby.lib.sheet.sheetapi import sheet
+from pquisby.lib.benchmarks.uperf.uperf import combine_uperf_data
+from pquisby.lib.sheet.sheet_util import (
     append_to_sheet,
     read_sheet,
     get_sheet,

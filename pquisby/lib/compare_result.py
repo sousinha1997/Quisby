@@ -1,17 +1,18 @@
 import logging
 import time
 
-from sheet.sheet_util import get_sheet, create_spreadsheet
-from benchmarks.uperf.comparison import compare_uperf_results
+from pquisby.lib.sheet.sheet_util import get_sheet, create_spreadsheet
+from pquisby.lib.benchmarks.uperf.comparison import compare_uperf_results
 
 def compare_results(spreadsheet_list,test_name):
 
     sheet_list = []
     spreadsheet_name = []
-    spreadsheets = spreadsheet_list
+    spreadsheets = spreadsheet_list.split(",")
 
     for spreadsheet in spreadsheets:
         sheet_names = []
+        print(spreadsheet)
         sheets = get_sheet(spreadsheet, test_name=test_name)
         spreadsheet_name.append(get_sheet(spreadsheet, test_name=[])["properties"]["title"].strip())
         for sheet in sheets.get("sheets"):

@@ -1,14 +1,14 @@
 from itertools import groupby
 
-from sheet.sheet_util import (
+from pquisby.lib.sheet.sheet_util import (
     create_spreadsheet,
     append_to_sheet,
     read_sheet,
     get_sheet,
     create_sheet,
 )
-from util import combine_two_array_alternating
-from benchmarks.uperf.graph import graph_uperf_data
+from pquisby.lib.util import combine_two_array_alternating
+from pquisby.lib.benchmarks.uperf.graph import graph_uperf_data
 
 
 def compare_uperf_results(spreadsheets, spreadsheetId, test_name):

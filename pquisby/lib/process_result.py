@@ -1,8 +1,9 @@
 import logging
-from sheet.sheet_util import (create_sheet, append_to_sheet, create_spreadsheet, delete_sheet_content)
-from benchmarks.uperf.uperf import create_summary_uperf_data
-from benchmarks.uperf.graph import graph_uperf_data
-from benchmarks.uperf.comparison import compare_uperf_results
+from pquisby.lib.sheet.sheet_util import (create_sheet, append_to_sheet, create_spreadsheet, delete_sheet_content)
+from pquisby.lib.benchmarks.uperf.uperf import create_summary_uperf_data
+from pquisby.lib.benchmarks.uperf.graph import graph_uperf_data
+from pquisby.lib.benchmarks.uperf.comparison import compare_uperf_results
+
 
 
 def process_results(results, test_name, os_version, spreadsheet_name, spreadsheet_id):

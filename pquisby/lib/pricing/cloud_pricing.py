@@ -6,7 +6,7 @@ import datetime
 import subprocess
 
 import boto3
-from util import process_instance, read_config
+from pquisby.lib.util import process_instance
 
 
 # ToDo: Timestamp work
