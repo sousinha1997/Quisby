@@ -8,11 +8,13 @@ def compare_results(spreadsheet_list,test_name):
 
     sheet_list = []
     spreadsheet_name = []
-    spreadsheets = spreadsheet_list.split(",")
+    spreadsheets = spreadsheet_list
+    # check if list is passed else conver to list
+    if not isinstance(spreadsheets,list):
+        spreadsheets = spreadsheets.split(",")
 
     for spreadsheet in spreadsheets:
         sheet_names = []
-        print(spreadsheet)
         sheets = get_sheet(spreadsheet, test_name=test_name)
         spreadsheet_name.append(get_sheet(spreadsheet, test_name=[])["properties"]["title"].strip())
         for sheet in sheets.get("sheets"):
