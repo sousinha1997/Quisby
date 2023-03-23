@@ -35,6 +35,7 @@ def get_metrics_data(request):
         else:
             spreadsheets = []
             result_json = {}
+            flag = 0
             for test in tests:
                 # Compare multiple results
                 run_name = test["name"]
