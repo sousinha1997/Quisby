@@ -34,14 +34,23 @@ def get_metrics_data(request):
             return Response({"status": "success", "sheet_url": f"https://docs.google.com/spreadsheets/d/{spreadsheet}", "jsonData": json_data})
         else:
             spreadsheets = []
-            comp_json = {"datasets":[]}
+            result_json = {}
             for test in tests:
                 # Compare multiple results
                 run_name = test["name"]
                 resource_id = test["rid"]
                 spreadsheet, json_data, benchmark_name = get_data.fetch_test_data(resource_id, run_name, custom_headers)
-                for items in json_data["data"]:
-                    comp_json["datasets"].append(items)
+                if flag == 0:
+                    result_json = json_data
+                    flag = flag + 1
+                else:
+                    for i in result_json["jsonData"]:
+                        metric_unit = i["metrics_unit"]
+                        test_name = i["test_name"]
+                        for j in json_data["jsonData"]:
+                            if metric_unit == j["metrics_unit"] and test_name == j["test_name"]:
+                                i["result"].extend(j["result"])
+
                 print("Test charts -")
                 print(f"https://docs.google.com/spreadsheets/d/{spreadsheet}")
                 spreadsheets.append(spreadsheet)
@@ -50,7 +59,7 @@ def get_metrics_data(request):
             get_data.register_details_json(spreadsheet_name, comp_spreadsheet)
             print("Comparison chart -")
             print(f"https://docs.google.com/spreadsheets/d/{comp_spreadsheet}")
-            return Response({"status": "success", "sheet_url": f"https://docs.google.com/spreadsheets/d/{comp_spreadsheet}", "jsonData": comp_json})
+            return Response({"status": "success", "sheet_url": f"https://docs.google.com/spreadsheets/d/{comp_spreadsheet}", "jsonData": result_json})
     except Exception as e:
         return Response({"status": "failed", "Exception": str(e)})
 

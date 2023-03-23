@@ -1,4 +1,5 @@
 from itertools import groupby
+import requests,csv
 
 def combine_uperf_data(results):
     result_data = []
@@ -52,12 +53,18 @@ def create_summary_uperf_data(results,run_name,OS_RELEASE):
     return summary_results
 
 
-def extract_uperf_data(system_name,csv_data):
+def extract_uperf_data(system_name, csv_data, run_name):
     """"""
     results = []
     data_position = {}
     results_json = {"data": []}
     tests_supported = ["tcp_stream", "tcp_rr", "tcp_bidirec", "tcp_maerts"]
+    try:
+        csv_data = requests.get(csv_data)
+        csv_reader = list(csv.reader(csv_data.text.split("\n")))
+    except Exception:
+        with open(csv_data) as csv_file:
+            csv_data = list(csv.reader(csv_file))
 
     for index, row in enumerate(csv_data[0]):
         if "all" in row:
@@ -94,12 +101,14 @@ def extract_uperf_data(system_name,csv_data):
                         data_dict[key] = [
                             [instance_count, item[data_position[key]]]
                         ]
-        test_json = {"vm_name": "", "test_name": "", "metrics_unit": "", "instances": []}
+        test_json = {"test_name": "", "metrics_unit": "","result":[]}
         for key, test_results in data_dict.items():
             if test_results:
-                test_json["vm_name"] = system_name
                 test_json["test_name"] = "".join(test_name)
                 test_json["metrics_unit"] = key
+                run_json={"run_name":"","vm_name":"","instances":[]}
+                run_json["run_name"] = run_name
+                run_json["vm_name"] = system_name
                 results.append([""])
                 results.append([system_name])
                 results.append(["".join(test_name)])
@@ -114,29 +123,28 @@ def extract_uperf_data(system_name,csv_data):
                             if "fail" not in item[0]:
                                 item_json["status"] = "pass"
                                 item_json["time_taken"] = item[0]
-                                test_json["instances"].append(item_json)
+                                run_json["instances"].append(item_json)
                                 results.append(item)
                                 failed_run = False
                                 break
                         if failed_run:
                             item_json["status"] = "fail"
                             item_json["time_taken"] = "fail"
-                            test_json["instances"].append(item_json)
+                            run_json["instances"].append(item_json)
                             results.append([instance_count, "fail"])
                     else:
                         item_json["status"] = "pass"
                         item_json["time_taken"] = items[0][1]
-                        test_json["instances"].append(item_json)
+                        run_json["instances"].append(item_json)
                         results.append(*items)
+            test_json["result"].append(run_json)
         results_json["data"].append(test_json)
 
-    return results,results_json
+    return results, results_json
 
 
 if __name__ == "__main__":
-    print(
-        extract_uperf_data(
-            "uperf_results_8.3/user_none_instance_m5a.24xlarge:Networks_number=1_/result.csv",
-            "i3en.xlarge",
+    a,b=extract_uperf_data(
+            "localhost", "/Users/soumyasinha/Workspace/2022/rocky_rhel_gvnic/hackathon/pbench.perf.lab.eng.bos.redhat.com/results/pravins.localhost/uperf__2022.10.07T07.06.50/results_uperf.csv","b"
         )
-    )
+
