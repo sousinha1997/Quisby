@@ -29,7 +29,7 @@ def data_handler(run_name, results_location, os_version, controller_name,spreads
             else:
                 try:
                     csv_path = data.split(",")[0]
-                    test_path = results_location.strip("results_file")
+                    test_path = results_location.strip("results_location")
                     if test_name == "uperf":
                         ret_val,json_data = extract_uperf_data(controller_name, os.path.join(test_path, csv_path))
                         if ret_val:
