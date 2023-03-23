@@ -1,4 +1,7 @@
+import csv
 from itertools import groupby
+import requests
+
 
 def combine_uperf_data(results):
     result_data = []
@@ -59,10 +62,17 @@ def extract_uperf_data(system_name,csv_data):
     results_json = {"data": []}
     tests_supported = ["tcp_stream", "tcp_rr", "tcp_bidirec", "tcp_maerts"]
 
+    try:
+        csv_data = requests.get(csv_data)
+        csv_reader = list(csv.reader(csv_data.text.split("\n")))
+    except Exception:
+        with open(csv_data) as csv_file:
+            csv_data = list(csv.reader(csv_file))
+
     for index, row in enumerate(csv_data[0]):
         if "all" in row:
             data_position[row.split(":")[0]] = index
-    filtered_result =  []
+    filtered_result = []
     # Keep only required test results
     csv_reader = list(filter(None, csv_data))
     for result in csv_reader:
@@ -72,7 +82,6 @@ def extract_uperf_data(system_name,csv_data):
         except Exception as exc:
             pass
     # filtered_result = list(filter(lambda x: x[1].split("-")[0] in tests_supported, csv_reader))
-    print(filtered_result)
     # Group data by test name and pkt size
     for test_name, items in groupby(
         filtered_result, key=lambda x: x[1].split("-")[:2]
@@ -130,13 +139,12 @@ def extract_uperf_data(system_name,csv_data):
                         results.append(*items)
         results_json["data"].append(test_json)
 
-    return results,results_json
+    return results, results_json
 
 
 if __name__ == "__main__":
     print(
         extract_uperf_data(
-            "uperf_results_8.3/user_none_instance_m5a.24xlarge:Networks_number=1_/result.csv",
-            "i3en.xlarge",
+            "localhost", "/Users/soumyasinha/Workspace/2022/rocky_rhel_gvnic/hackathon/pbench.perf.lab.eng.bos.redhat.com/results/pravins.localhost/uperf__2022.10.07T06.49.32/results_uperf.csv"
         )
     )

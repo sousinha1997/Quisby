@@ -1,10 +1,13 @@
 import fileinput
 import logging
+import os.path
+
 from pquisby.lib.benchmarks.uperf.uperf import extract_uperf_data
 from pquisby.lib.process_result import process_results
 
 
 def data_handler(run_name, results_location, os_version, controller_name,spreadsheet_id,spreadsheet_name):
+    results = []
     if not spreadsheet_name:
         spreadsheet_name = run_name
     if not spreadsheet_id:
@@ -25,9 +28,10 @@ def data_handler(run_name, results_location, os_version, controller_name,spreads
                 test_name = data.replace("test: ", "").strip()
             else:
                 try:
-                    path = data.split(",")[0]
+                    csv_path = data.split(",")[0]
+                    test_path = results_location.strip("results_file")
                     if test_name == "uperf":
-                        ret_val = extract_uperf_data(path, controller_name)
+                        ret_val,json_data = extract_uperf_data(controller_name, os.path.join(test_path, csv_path))
                         if ret_val:
                             results += ret_val
                         else:
