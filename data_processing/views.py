@@ -45,10 +45,10 @@ def get_metrics_data(request):
                     result_json = json_data
                     flag = flag + 1
                 else:
-                    for i in result_json["jsonData"]:
+                    for i in result_json["data"]:
                         metric_unit = i["metrics_unit"]
                         test_name = i["test_name"]
-                        for j in json_data["jsonData"]:
+                        for j in json_data["data"]:
                             if metric_unit == j["metrics_unit"] and test_name == j["test_name"]:
                                 i["result"].extend(j["result"])
 
