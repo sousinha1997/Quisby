@@ -72,7 +72,7 @@ def extract_uperf_data(system_name, csv_data, run_name):
                 filtered_result.append(result)
         except Exception as exc:
             pass
-    # filtered_result = list(filter(lambda x: x[1].split("-")[0] in tests_supported, csv_reader))
+    filtered_result = list(filter(lambda x: x[1].split("-")[0] in tests_supported, csv_reader))
     print(filtered_result)
     # Group data by test name and pkt size
     for test_name, items in groupby(
@@ -95,50 +95,51 @@ def extract_uperf_data(system_name, csv_data, run_name):
                         data_dict[key] = [
                             [instance_count, item[data_position[key]]]
                         ]
-        test_json = {"test_name": "", "metrics_unit": "","result":[]}
-        for key, test_results in data_dict.items():
-            if test_results:
-                test_json["test_name"] = "".join(test_name)
-                test_json["metrics_unit"] = key
-                run_json={"run_name":"","vm_name":"","instances":[]}
-                run_json["run_name"] = run_name
-                run_json["vm_name"] = system_name
-                results.append([""])
-                results.append([system_name])
-                results.append(["".join(test_name)])
-                results.append(["Instance Count", key])
-                for instance_count, items in groupby(test_results, key=lambda x: x[0].split("-")[0]):
-                    items = list(items)
-                    item_json = {}
-                    item_json["name"] = instance_count
-                    if len(items) > 1:
-                        failed_run = True
-                        for item in items:
-                            if "fail" not in item[0]:
-                                item_json["status"] = "pass"
-                                item_json["time_taken"] = item[0]
+
+            for key, test_results in data_dict.items():
+                test_json = {"test_name": "", "metrics_unit": "", "result": []}
+                if test_results:
+                    test_json["test_name"] = "".join(test_name)
+                    test_json["metrics_unit"] = key
+                    run_json={"run_name":"","vm_name":"","instances":[]}
+                    run_json["run_name"] = run_name
+                    run_json["vm_name"] = system_name
+                    results.append([""])
+                    results.append([system_name])
+                    results.append(["".join(test_name)])
+                    results.append(["Instance Count", key])
+                    for instance_count, items in groupby(test_results, key=lambda x: x[0].split("-")[0]):
+                        items = list(items)
+                        item_json = {}
+                        item_json["name"] = instance_count
+                        if len(items) > 1:
+                            failed_run = True
+                            for item in items:
+                                if "fail" not in item[0]:
+                                    item_json["status"] = "pass"
+                                    item_json["time_taken"] = item[0]
+                                    run_json["instances"].append(item_json)
+                                    results.append(item)
+                                    failed_run = False
+                                    break
+                            if failed_run:
+                                item_json["status"] = "fail"
+                                item_json["time_taken"] = "fail"
                                 run_json["instances"].append(item_json)
-                                results.append(item)
-                                failed_run = False
-                                break
-                        if failed_run:
-                            item_json["status"] = "fail"
-                            item_json["time_taken"] = "fail"
+                                results.append([instance_count, "fail"])
+                        else:
+                            item_json["status"] = "pass"
+                            item_json["time_taken"] = items[0][1]
                             run_json["instances"].append(item_json)
-                            results.append([instance_count, "fail"])
-                    else:
-                        item_json["status"] = "pass"
-                        item_json["time_taken"] = items[0][1]
-                        run_json["instances"].append(item_json)
-                        results.append(*items)
-            test_json["result"].append(run_json)
-        results_json["data"].append(test_json)
+                            results.append(*items)
+                test_json["result"].append(run_json)
+                results_json["data"].append(test_json)
 
     return results, results_json
 
 
 if __name__ == "__main__":
     a,b=extract_uperf_data(
-            "localhost", "/Users/soumyasinha/Workspace/2022/rocky_rhel_gvnic/hackathon/pbench.perf.lab.eng.bos.redhat.com/results/pravins.localhost/uperf__2022.10.07T07.06.50/results_uperf.csv","b"
+            "localhost", "/Users/soumyasinha/Workspace/2022/rocky_rhel_gvnic/hackathon/pbench.perf.lab.eng.bos.redhat.com/results/pravins.localhost/uperf__2022.10.07T06.49.32/results_uperf.csv","a"
         )
 
