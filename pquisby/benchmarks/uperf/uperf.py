@@ -73,7 +73,7 @@ def extract_uperf_data(system_name, csv_data, run_name):
         except Exception as exc:
             pass
     #filtered_result = list(filter(lambda x: x[1].split("-")[0] in tests_supported, csv_reader))
-    print(filtered_result)
+    # print(filtered_result)
     # Group data by test name and pkt size
     for test_name, items in groupby(
         filtered_result, key=lambda x: x[1].split("-")[:2]
