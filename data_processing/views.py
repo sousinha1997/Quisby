@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 # Sample GET method.
 from pquisby import get_data
 from pquisby.compare_result import compare_results
@@ -62,7 +62,7 @@ def get_metrics_data(request):
             print(f"https://docs.google.com/spreadsheets/d/{comp_spreadsheet}")
             return Response({"status": "success", "sheet_url": f"https://docs.google.com/spreadsheets/d/{comp_spreadsheet}", "jsonData": result_json})
     except Exception as e:
-        return Response({"status": "failed", "Exception": str(e)})
+        return HttpResponseBadRequest({"status": "failed", "Exception": str(e)}, status=400)
 
 
 @api_view(['POST'])
@@ -90,5 +90,4 @@ def delete_record(request):
                 spreadsheet_list.append(spreadsheet)
             return Response({"status": "success", "spreadsheetId":spreadsheet_list })
     except Exception as e:
-        print(e)
-        return Response({"status": "failed", "Exception": str(e)})
+        return HttpResponseBadRequest({"status": "failed", "Exception": str(e)}, status=400)
