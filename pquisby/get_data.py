@@ -84,7 +84,8 @@ def fetch_test_data(resourceid, run_name,custom_headers):
         spreadsheet_id = process_results(results, test_name,run_name, spreadsheet_name, spreadsheet_id)
         register_details_json(run_name, spreadsheet_id)
     else:
-        spreadsheet_id = process_results(results, test_name,run_name, spreadsheet_name, spreadsheet_id)
+        logging.info("Grpahed spreadsheet already exist")
+        return spreadsheet_id, json_data, benchmark_name
     return spreadsheet_id, json_data, benchmark_name
 
 
