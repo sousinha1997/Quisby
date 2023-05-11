@@ -62,13 +62,6 @@ def extract_uperf_data(system_name,csv_data):
     results_json = {"data": []}
     tests_supported = ["tcp_stream", "tcp_rr", "tcp_bidirec", "tcp_maerts"]
 
-    try:
-        csv_data = requests.get(csv_data)
-        csv_reader = list(csv.reader(csv_data.text.split("\n")))
-    except Exception:
-        with open(csv_data) as csv_file:
-            csv_data = list(csv.reader(csv_file))
-
     for index, row in enumerate(csv_data[0]):
         if "all" in row:
             data_position[row.split(":")[0]] = index

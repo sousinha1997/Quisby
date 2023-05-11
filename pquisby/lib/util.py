@@ -1,5 +1,5 @@
 import re
-
+from configparser import ConfigParser
 invalid_compare_list = ["pig"]
 
 def process_instance(instance_name, *args):
@@ -18,6 +18,25 @@ def mk_int(string):
     else:
         return 1
 
+def create_parser():
+    configur = ConfigParser()
+    return configur
+
+def read_config(config_path,section,key):
+    configur=create_parser()
+    with open(config_path) as configfile:
+        configur.read(config_path)
+        if configur.get(section,key) is not None:
+            return configur.get(section,key)
+        else:
+            return None
+
+def write_config(config_path, section,key,value):
+    configur=create_parser()
+    configur.read(config_path)
+    configur.set(section, key, value)
+    with open(config_path,"w") as configfile:
+        configur.write(configfile)
 
 def merge_lists_alternately(results, list1, list2):
     merger_list = []
