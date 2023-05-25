@@ -3,9 +3,9 @@ import json
 import logging
 import os.path
 import requests
-from benchmarks.uperf.uperf import extract_uperf_data
-from process_result import process_results
-from sheet.sheet_util import delete_spreadsheet
+from pquisby.lib.benchmarks.uperf.uperf import extract_uperf_data
+from pquisby.lib.process_result import process_results
+from pquisby.lib.sheet.sheet_util import delete_spreadsheet
 
 payload = ""
 headers = {'Authorization': '' }

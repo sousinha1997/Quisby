@@ -1,4 +1,4 @@
-from setuptools import setup, find_namespace_packages
+from setuptools import setup, find_packages
 from importlib.metadata import entry_points
 import pathlib
 
@@ -19,13 +19,14 @@ setup(
     author = 'Soumya Sinha',
     author_email = 'sinhasoumya97@gmail.com',
     license = 'GPL v3.0',
-    packages=["pquisby"],
+    packages=find_packages("src"),
+    package_dir={"":"src"},
     long_description=README,
     long_description_content_type="text/markdown",
     install_requires = REQUIRE,
     entry_points={
         "console_scripts": [
-            "pquisby = pquisby.__main__:cli",
+            "pquisby = pquisby.command.main:main",
         ]
     },
     include_package_data=True,

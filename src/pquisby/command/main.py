@@ -10,5 +10,8 @@ def cli():
 cli.add_command(process_benchmark.process_run)
 cli.add_command(compare_benchmark.compare_benchmark)
 
-if __name__ == '__main__':
+def main():
     cli()
+
+if __name__ == '__main__':
+    main()
