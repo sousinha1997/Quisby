@@ -55,7 +55,7 @@ def create_summary_uperf_data(results,run_name,OS_RELEASE):
     return summary_results
 
 
-def extract_uperf_data(system_name,csv_data):
+def extract_uperf_data(dataset_name, system_name,csv_data):
     """"""
     results = []
     data_position = {}
@@ -99,7 +99,7 @@ def extract_uperf_data(system_name,csv_data):
         test_json = {"vm_name": "", "test_name": "", "metrics_unit": "", "instances": []}
         for key, test_results in data_dict.items():
             if test_results:
-                test_json["vm_name"] = system_name
+                test_json["dataset_name"] = dataset_name
                 test_json["test_name"] = "".join(test_name)
                 test_json["metrics_unit"] = key
                 results.append([""])

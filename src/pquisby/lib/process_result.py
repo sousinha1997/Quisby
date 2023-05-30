@@ -5,7 +5,7 @@ import os.path
 import requests
 import csv
 from pquisby.lib.benchmarks.uperf.uperf import extract_uperf_data
-from pquisby.lib.util import read_config
+from pquisby.lib.util import read_config, stream_to_csv
 
 from pquisby.lib.sheet.sheet_util import (create_sheet, append_to_sheet, create_spreadsheet, delete_sheet_content)
 from pquisby.lib.benchmarks.uperf.uperf import create_summary_uperf_data
@@ -49,7 +49,7 @@ def process_results(results, test_name, cloud, os_type, os_version, spreadsheet_
 
 def register_details_json(spreadsheet_name, spreadsheet_id):
     home_dir = os.getenv("HOME")
-    filename = home_dir+ "/charts.json"
+    filename = home_dir + "/pquisby/charts.json"
     if not os.path.exists(filename):
         data = {"chartlist": {spreadsheet_name: spreadsheet_id}}
         with open(filename, "w") as f:
@@ -60,6 +60,7 @@ def register_details_json(spreadsheet_name, spreadsheet_id):
         data["chartlist"][spreadsheet_name] = spreadsheet_id
         with open(filename, "w") as f:
             json.dump(data, f)
+
 
 def check_if_chart_exists(test_name):
     home_dir = os.getenv("HOME")
@@ -75,6 +76,7 @@ def check_if_chart_exists(test_name):
             return ""
         return id
 
+
 def data_handler(config_location):
     global test_name
     global source
@@ -87,6 +89,8 @@ def data_handler(config_location):
     spreadsheet_name = read_config(config_location, 'spreadsheet', 'spreadsheet_name')
     spreadsheet_id = read_config(config_location, 'spreadsheet', 'spreadsheet_id')
     results_path = read_config(config_location, 'test', 'results')
+    input_type = read_config(config_location, 'test', 'input_type')
+    dataset_name = read_config(config_location, 'test', 'dataset_name')
     test_path = results_path.strip(results_path.split("/")[-1])
 
     if not spreadsheet_id:
@@ -102,8 +106,9 @@ def data_handler(config_location):
         for data in test_result_path:
             if "test " in data:
                 if results:
-                    spreadsheet_name, spreadsheet_id = process_results(results, test_name, cloud, os_type, os_version, spreadsheet_name,
-                                                     spreadsheet_id)
+                    spreadsheet_name, spreadsheet_id = process_results(results, test_name, cloud, os_type, os_version,
+                                                                       spreadsheet_name,
+                                                                       spreadsheet_id)
                 results = []
                 test_name = data.replace("test ", "").replace("results_", "").replace(".csv", "").strip()
                 source = data.split()[-1].split("_")[0].strip()
@@ -116,40 +121,42 @@ def data_handler(config_location):
                     else:
                         data = data.strip("\n").strip("'")
                         path, system_name = data.split(",")
-                    path = test_path + "/" + path.strip()
-                    try:
-                        csv_data = requests.get(path)
-                        csv_reader = list(csv.reader(csv_data.text.split("\n")))
-                    except Exception:
-                        with open(path) as csv_file:
-                            csv_data = list(csv.reader(csv_file))
-
-                    ret_val, json_data = extract_data(test_name, system_name, csv_data)
-                    if ret_val:
-                        results += ret_val
+                    csv_path = test_path + "/" + path.strip()
+                    json_res = extract_data(test_name,dataset_name, system_name, input_type, csv_path)
+                    if json_res["csvData"]:
+                        results += json_res["csvData"]
                 except ValueError as exc:
                     logging.error(str(exc))
                     continue
         try:
-            spreadsheet_name, spreadsheet_id = process_results(results, test_name, cloud, os_type, os_version, spreadsheet_name,
-                                             spreadsheet_id)
+            spreadsheet_name, spreadsheet_id = process_results(results, test_name, cloud, os_type, os_version,spreadsheet_name,spreadsheet_id)
         except Exception as exc:
-            logging.error(str(exc))
-            pass
+            exception_type = type(exc)
+            return {"status": "failed", "Exception": str(exc), "Exception_type": exception_type}
         print(f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}")
         register_details_json(spreadsheet_name, spreadsheet_id)
         return spreadsheet_id
 
 
-def extract_data(test_name, system_name, csv_data):
-    ret_val = []
-    json_data = {}
-    if test_name == "uperf":
-        ret_val, json_data = extract_uperf_data(system_name, csv_data)
-    else:
-        pass
-    return ret_val, json_data
+def extract_data(test_name, dataset_name, system_name, input_type, data):
+    try:
+        if input_type == "stream":
+            csv_data = stream_to_csv(data)
+        elif input_type == "csv":
+            csv_data = data
+        elif input_type == "file":
+            with open(data) as csv_file:
+                csv_data = list(csv.reader(csv_file))
+        ret_val = []
+        json_data = {}
+        if test_name == "uperf":
+            ret_val, json_data = extract_uperf_data(dataset_name, system_name, csv_data)
+        else:
+            pass
+    except Exception as exc:
+        exception_type = type(exc)
+        return {"status": "failed", "Exception": str(exc), "Exception_type": exception_type}
+    return {"status": "success", "csvData": ret_val, "jsonData": json_data}
 
-
-#if __name__ == '__main__':
+# if __name__ == '__main__':
 #    extract_data("uperf","localhost",[['iteration_number', 'iteration_name', 'Gb_sec:client_hostname:127.0.0.1-server_hostname:192.168.122.142-server_port:20010', 'Gb_sec:client_hostname:all-server_hostname:all-server_port:all', 'trans_sec:client_hostname:127.0.0.1-server_hostname:192.168.122.142-server_port:20010', 'trans_sec:client_hostname:all-server_hostname:all-server_port:all', 'usec:client_hostname:127.0.0.1-server_hostname:192.168.122.142-server_port:20010', 'usec:client_hostname:all-server_hostname:all-server_port:all'], ['1', 'tcp_stream-65535B-1i', ' 0.0010', ' 0.0010', '', '', '', '', ''], ['2', 'tcp_maerts-65535B-1i', ' 1.1396', ' 1.1396', '', '', '', '', ''], ['3', 'tcp_bidirec-65535B-1i', ' 0.8890', ' 0.8890', '', '', '', '', ''], ['4', 'tcp_rr-65535B-1i', '', '', ' 1.8146', ' 1.8146', ' 592316.6667', ' 592316.6667', ''], ['5', 'udp_stream-65535B-1i', '', '', '', '', '', '', ''], ['6', 'udp_maerts-65535B-1i', '', '', '', '', '', '', ''], ['7', 'udp_bidirec-65535B-1i', '', '', '', '', '', '', ''], ['8', 'udp_rr-65535B-1i', '', '', '', '', '', '', ''], []])

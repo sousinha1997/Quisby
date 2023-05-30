@@ -1,6 +1,8 @@
 import re
 from configparser import ConfigParser
+
 invalid_compare_list = ["pig"]
+
 
 def process_instance(instance_name, *args):
     pattern = r"(?P<family>\D+)(?P<size>\d+)"
@@ -11,12 +13,21 @@ def process_instance(instance_name, *args):
         return regex_match.group(1)
 
 
+def stream_to_csv(data):
+    split_rows = data.split("\n")
+    csv_data = []
+    for row in split_rows:
+        csv_data.append(row.split(","))
+    return csv_data
+
+
 def mk_int(string):
     if string:
         string = string.strip()
         return int(string) if string else 1
     else:
         return 1
+
 
 def create_parser():
     configur = ConfigParser()
@@ -65,7 +76,7 @@ def combine_two_array_alternating(results, value, ele, test_name):
                 indexer.append([lindex, rindex])
             elif test_name in invalid_compare_list:
                 indexer.append([lindex, rindex])
- 
+
     for list1, list2 in zip(value, ele):
         holder_list = []
         holder_list.append(list1[0])
