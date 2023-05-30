@@ -1,6 +1,6 @@
 import logging
 import os
-
+import shutil
 import click
 from pquisby.lib.process_result import data_handler, extract_data
 from pquisby.lib.util import write_config
@@ -22,12 +22,14 @@ def process_run(results, test_name, os_type, os_version, system_name, spreadshee
         config_location = config
     else:
         logging.INFO("No config path found,switching to default location")
-        home_dir = os.getenv("HOME")
-        config_location = home_dir + "/.config/pquisby/config.ini"
+        conf_dir = os.getenv("HOME") + "/.config/pquisby/"
+        config_location = conf_dir + "config.ini"
         if os.path.exists(config_location):
             pass
         else:
-            logging.error("Unable to find config at default location, exiting...")
+            logging.error("Unable to find config at default location, creating...")
+            # Copy the file to the destination directory
+            shutil.copy("pquisby/lib/sample_files/config.ini", conf_dir)
             return
     if results:
         write_config(config_location, "test", "results", results)
