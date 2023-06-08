@@ -2,15 +2,12 @@ import fileinput
 import json
 import logging
 import os.path
-import requests
-import csv
-from pquisby.lib.benchmarks.uperf.uperf import extract_uperf_data
-from pquisby.lib.util import read_config, stream_to_csv
-
+from pquisby.lib.util import read_config
 from pquisby.lib.sheet.sheet_util import (create_sheet, append_to_sheet, create_spreadsheet, delete_sheet_content)
 from pquisby.lib.benchmarks.uperf.uperf import create_summary_uperf_data
 from pquisby.lib.benchmarks.uperf.graph import graph_uperf_data
 from pquisby.lib.benchmarks.uperf.comparison import compare_uperf_results
+from pquisby.lib.post_processing import extract_data
 
 
 def process_results(results, test_name, cloud, os_type, os_version, spreadsheet_name, spreadsheet_id):
@@ -83,7 +80,7 @@ def data_handler(config_location):
     global count
     results = []
     print(config_location)
-    cloud = read_config(config_location, 'cloud', 'cloud')
+    environment = read_config(config_location, 'test', 'environment')
     os_type = read_config(config_location, 'test', 'os_type')
     os_version = read_config(config_location, 'test', 'os_version')
     spreadsheet_name = read_config(config_location, 'spreadsheet', 'spreadsheet_name')
@@ -138,25 +135,6 @@ def data_handler(config_location):
         return spreadsheet_id
 
 
-def extract_data(test_name, dataset_name, system_name, input_type, data):
-    try:
-        if input_type == "stream":
-            csv_data = stream_to_csv(data)
-        elif input_type == "csv":
-            csv_data = data
-        elif input_type == "file":
-            with open(data) as csv_file:
-                csv_data = list(csv.reader(csv_file))
-        ret_val = []
-        json_data = {}
-        if test_name == "uperf":
-            ret_val, json_data = extract_uperf_data(dataset_name, system_name, csv_data)
-        else:
-            pass
-    except Exception as exc:
-        exception_type = type(exc)
-        return {"status": "failed", "Exception": str(exc), "Exception_type": exception_type}
-    return {"status": "success", "csvData": ret_val, "jsonData": json_data}
 
 # if __name__ == '__main__':
 #    extract_data("uperf","localhost",[['iteration_number', 'iteration_name', 'Gb_sec:client_hostname:127.0.0.1-server_hostname:192.168.122.142-server_port:20010', 'Gb_sec:client_hostname:all-server_hostname:all-server_port:all', 'trans_sec:client_hostname:127.0.0.1-server_hostname:192.168.122.142-server_port:20010', 'trans_sec:client_hostname:all-server_hostname:all-server_port:all', 'usec:client_hostname:127.0.0.1-server_hostname:192.168.122.142-server_port:20010', 'usec:client_hostname:all-server_hostname:all-server_port:all'], ['1', 'tcp_stream-65535B-1i', ' 0.0010', ' 0.0010', '', '', '', '', ''], ['2', 'tcp_maerts-65535B-1i', ' 1.1396', ' 1.1396', '', '', '', '', ''], ['3', 'tcp_bidirec-65535B-1i', ' 0.8890', ' 0.8890', '', '', '', '', ''], ['4', 'tcp_rr-65535B-1i', '', '', ' 1.8146', ' 1.8146', ' 592316.6667', ' 592316.6667', ''], ['5', 'udp_stream-65535B-1i', '', '', '', '', '', '', ''], ['6', 'udp_maerts-65535B-1i', '', '', '', '', '', '', ''], ['7', 'udp_bidirec-65535B-1i', '', '', '', '', '', '', ''], ['8', 'udp_rr-65535B-1i', '', '', '', '', '', '', ''], []])

@@ -1,13 +1,11 @@
 import json
 import logging
 import time
-
-from pquisby.lib.process_result import extract_data
 from pquisby.lib.sheet.sheet_util import get_sheet, create_spreadsheet
 from pquisby.lib.benchmarks.uperf.comparison import compare_uperf_results
 
 
-def compare_results(spreadsheet_list,test_name):
+def compare_sheets(spreadsheet_list,test_name):
 
     sheet_list = []
     spreadsheet_name = []
@@ -45,22 +43,5 @@ def compare_results(spreadsheet_list,test_name):
     return spreadsheet_name,comp_spreadsheetId
 
 
-def compare_csv_to_json(benchmark_name, input_type, data_stream):
-    result_json = {}
-    flag = 0
-    for dataset_name, data in data_stream.items():
-        json_res = extract_data(benchmark_name, dataset_name, "baremetal", input_type, data)
-        if json_res["jsonData"]:
-            json_data = json_res["jsonData"]
-        if flag == 0:
-            result_json = json_data
-            flag = flag + 1
-        else:
-            for i in result_json["data"]:
-                metric_unit = i["metrics_unit"]
-                test_name = i["test_name"]
-                for j in json_data["data"]:
-                    if metric_unit == j["metrics_unit"] and test_name == j["test_name"]:
-                        i["instances"].extend(j["instances"])
-    return result_json
+
 
