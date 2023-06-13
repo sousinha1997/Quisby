@@ -1,36 +1,58 @@
 import csv
 from pquisby.lib.benchmarks.uperf.uperf import extract_uperf_data
 from pquisby.lib.util import stream_to_csv
+import enum
 
 
-def extract_data(test_name, dataset_name, system_name, input_type, data):
+class InputType(enum.Enum):
+    """Various input types"""
+
+    STREAM = enum.auto()
+    CSV = enum.auto()
+    OTHER_FILE = enum.auto()
+
+
+class BenchmarkName(enum.Enum):
+    """Various benchmark types"""
+
+    UPERF = enum.auto()
+    FIO = enum.auto()
+    LINPACK = enum.auto()
+    SPECJBB = enum.auto()
+
+
+def extract_data(test_name, dataset_name, input_type, data):
     try:
-        if input_type == "stream":
+        if input_type == InputType.STREAM:
             csv_data = stream_to_csv(data)
-        elif input_type == "csv":
+        elif input_type == InputType.CSV:
             csv_data = data
-        elif input_type == "file":
+        elif input_type == InputType.OTHER_FILE:
             with open(data) as csv_file:
                 csv_data = list(csv.reader(csv_file))
         ret_val = []
         json_data = {}
-        if test_name == "uperf":
-            ret_val, json_data = extract_uperf_data(dataset_name, system_name, csv_data)
+        if test_name == BenchmarkName.UPERF:
+            ret_val, json_data = extract_uperf_data(dataset_name, csv_data)
         else:
             pass
     except Exception as exc:
         exception_type = type(exc)
-        return {"status": "failed", "Exception": str(exc), "Exception_type": exception_type}
-    return {"status": "success", "csvData": ret_val, "jsonData": json_data}
+        return {
+            "status": "failed",
+            "exception": str(exc),
+            "exception_type": exception_type,
+        }
+    return {"status": "success", "csv_data": ret_val, "json_data": json_data}
 
 
 def compare_csv_to_json(benchmark_name, input_type, data_stream):
     result_json = {}
     flag = 0
     for dataset_name, data in data_stream.items():
-        json_res = extract_data(benchmark_name, dataset_name, "baremetal", input_type, data)
-        if json_res["jsonData"]:
-            json_data = json_res["jsonData"]
+        json_res = extract_data(benchmark_name, dataset_name, input_type, data)
+        if json_res["json_data"]:
+            json_data = json_res["json_data"]
         if flag == 0:
             result_json = json_data
             flag = flag + 1

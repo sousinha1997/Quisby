@@ -1,14 +1,11 @@
-import csv
 from itertools import groupby
-import requests
-
 
 def combine_uperf_data(results):
     result_data = []
     group_data = []
 
     for data in results:
-        if data == ['']:
+        if data == [""]:
             group_data.append(result_data)
             result_data = []
         if data:
@@ -19,7 +16,7 @@ def combine_uperf_data(results):
     return group_data
 
 
-def create_summary_uperf_data(results,run_name,OS_RELEASE):
+def create_summary_uperf_data(results, run_name, OS_RELEASE):
     summary_results = []
     group_by_test_name = {}
     sorted_results = [combine_uperf_data(results)]
@@ -40,7 +37,7 @@ def create_summary_uperf_data(results,run_name,OS_RELEASE):
         summary_results.append(["Instance Count"])
 
         for ele in value:
-            summary_results[-1].append(run_name+"-os-release-"+OS_RELEASE)
+            summary_results[-1].append(run_name + "-os-release-" + OS_RELEASE)
             for index in ele[4:]:
                 if index[0] in run_data:
                     run_data[index[0]].append(index[1].strip())
@@ -55,7 +52,7 @@ def create_summary_uperf_data(results,run_name,OS_RELEASE):
     return summary_results
 
 
-def extract_uperf_data(dataset_name, system_name,csv_data):
+def extract_uperf_data(dataset_name, csv_data):
     """"""
     results = []
     data_position = {}
@@ -76,9 +73,7 @@ def extract_uperf_data(dataset_name, system_name,csv_data):
             pass
     # filtered_result = list(filter(lambda x: x[1].split("-")[0] in tests_supported, csv_reader))
     # Group data by test name and pkt size
-    for test_name, items in groupby(
-        filtered_result, key=lambda x: x[1].split("-")[:2]
-    ):
+    for test_name, items in groupby(filtered_result, key=lambda x: x[1].split("-")[:2]):
         data_dict = {}
 
         for item in items:
@@ -93,20 +88,24 @@ def extract_uperf_data(dataset_name, system_name,csv_data):
                             [instance_count, item[data_position[key]]]
                         )
                     else:
-                        data_dict[key] = [
-                            [instance_count, item[data_position[key]]]
-                        ]
-        test_json = {"vm_name": "", "test_name": "", "metrics_unit": "", "instances": []}
+                        data_dict[key] = [[instance_count, item[data_position[key]]]]
+        test_json = {
+            "vm_name": "",
+            "test_name": "",
+            "metrics_unit": "",
+            "instances": [],
+        }
         for key, test_results in data_dict.items():
             if test_results:
                 test_json["dataset_name"] = dataset_name
                 test_json["test_name"] = "".join(test_name)
                 test_json["metrics_unit"] = key
                 results.append([""])
-                results.append([system_name])
                 results.append(["".join(test_name)])
                 results.append(["Instance Count", key])
-                for instance_count, items in groupby(test_results, key=lambda x: x[0].split("-")[0]):
+                for instance_count, items in groupby(
+                    test_results, key=lambda x: x[0].split("-")[0]
+                ):
                     items = list(items)
                     item_json = {}
                     item_json["name"] = instance_count
@@ -138,6 +137,7 @@ def extract_uperf_data(dataset_name, system_name,csv_data):
 if __name__ == "__main__":
     print(
         extract_uperf_data(
-            "localhost", "/Users/soumyasinha/Workspace/2022/rocky_rhel_gvnic/hackathon/pbench.perf.lab.eng.bos.redhat.com/results/pravins.localhost/uperf__2022.10.07T06.49.32/results_uperf.csv"
+            "localhost",
+            "/Users/soumyasinha/Workspace/2022/rocky_rhel_gvnic/hackathon/pbench.perf.lab.eng.bos.redhat.com/results/pravins.localhost/uperf__2022.10.07T06.49.32/results_uperf.csv",
         )
     )
