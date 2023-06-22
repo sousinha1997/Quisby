@@ -16,9 +16,12 @@ class BenchmarkName(enum.Enum):
     """Various benchmark types"""
 
     UPERF = enum.auto()
-    FIO = enum.auto()
-    LINPACK = enum.auto()
-    SPECJBB = enum.auto()
+
+    """Uncomment or add more benchmark once we are ready with other benchmarks."""
+
+    # FIO = enum.auto()
+    # LINPACK = enum.auto()
+    # SPECJBB = enum.auto()
 
 
 class QuisbyProcessing:
