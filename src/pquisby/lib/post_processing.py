@@ -48,10 +48,10 @@ class QuisbyProcessing:
 
     def compare_csv_to_json(self, benchmark_name, input_type, data_stream):
         result_json = {}
-        comp_dataset_name = "result"
+        comp_dataset_name = ""
         flag = 0
         for dataset_name, data in data_stream.items():
-            comp_dataset_name = comp_dataset_name + "_" + dataset_name
+            comp_dataset_name = comp_dataset_name + "&" + dataset_name
             json_res = self.extract_data(benchmark_name, dataset_name, input_type, data)
             if json_res["status"] != "success":
                 return json_res
