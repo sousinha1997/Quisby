@@ -56,7 +56,7 @@ def extract_uperf_data(dataset_name, csv_data):
     """"""
     results = []
     data_position = {}
-    results_json = {"data": []}
+    results_json = {"dataset_name": "", "data": []}
     tests_supported = ["tcp_stream", "tcp_rr", "tcp_bidirec", "tcp_maerts"]
 
     for index, row in enumerate(csv_data[0]):
@@ -89,15 +89,15 @@ def extract_uperf_data(dataset_name, csv_data):
                         )
                     else:
                         data_dict[key] = [[instance_count, item[data_position[key]]]]
-        test_json = {
-            "vm_name": "",
-            "test_name": "",
-            "metrics_unit": "",
-            "instances": [],
-        }
+
         for key, test_results in data_dict.items():
+            test_json = {
+                "vm_name": "",
+                "test_name": "",
+                "metrics_unit": "",
+                "instances": [],
+            }
             if test_results:
-                test_json["dataset_name"] = dataset_name
                 test_json["test_name"] = "".join(test_name)
                 test_json["metrics_unit"] = key
                 results.append([""])
@@ -109,6 +109,7 @@ def extract_uperf_data(dataset_name, csv_data):
                     items = list(items)
                     item_json = {}
                     item_json["name"] = instance_count
+                    item_json["dataset_name"] = dataset_name
                     if len(items) > 1:
                         failed_run = True
                         for item in items:
@@ -129,8 +130,8 @@ def extract_uperf_data(dataset_name, csv_data):
                         item_json["time_taken"] = items[0][1]
                         test_json["instances"].append(item_json)
                         results.append(*items)
-        results_json["data"].append(test_json)
-
+            results_json["data"].append(test_json)
+        results_json["dataset_name"] = dataset_name
     return results, results_json
 
 

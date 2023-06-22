@@ -48,8 +48,10 @@ class QuisbyProcessing:
 
     def compare_csv_to_json(self, benchmark_name, input_type, data_stream):
         result_json = {}
+        comp_dataset_name = "result"
         flag = 0
         for dataset_name, data in data_stream.items():
+            comp_dataset_name = comp_dataset_name + "_" + dataset_name
             json_res = self.extract_data(benchmark_name, dataset_name, input_type, data)
             if json_res["json_data"]:
                 json_data = json_res["json_data"]
@@ -66,4 +68,6 @@ class QuisbyProcessing:
                             and test_name == j["test_name"]
                         ):
                             i["instances"].extend(j["instances"])
+        result_json["dataset_name"] = comp_dataset_name
         return result_json
+
