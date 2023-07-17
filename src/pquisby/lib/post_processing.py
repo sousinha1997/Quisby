@@ -1,6 +1,6 @@
 import csv
-from src.pquisby.lib.benchmarks.uperf.uperf import extract_uperf_data
-from src.pquisby.lib.util import stream_to_csv
+from pquisby.lib.benchmarks.uperf.uperf import extract_uperf_data
+from pquisby.lib.util import stream_to_csv
 import enum
 
 
