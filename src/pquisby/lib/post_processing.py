@@ -1,6 +1,6 @@
 import csv
-from pquisby.lib.benchmarks.uperf.uperf import extract_uperf_data
-from pquisby.lib.util import stream_to_csv
+from src.pquisby.lib.benchmarks.uperf.uperf import extract_uperf_data
+from src.pquisby.lib.util import stream_to_csv
 import enum
 
 
@@ -51,20 +51,21 @@ class QuisbyProcessing:
 
     def compare_csv_to_json(self, benchmark_name, input_type, data_stream):
         result_json = {}
-        comp_dataset_name = ""
+        comp_dataset_name = "result"
         flag = 0
         for dataset_name, data in data_stream.items():
-            comp_dataset_name = comp_dataset_name + "&" + dataset_name
-            json_res = self.extract_data(benchmark_name, dataset_name, input_type, data)
+            json_res = self.extract_data(self,benchmark_name, dataset_name, input_type, data)
             if json_res["status"] != "success":
                 return json_res
 
             if json_res["json_data"]:
                 json_data = json_res["json_data"]
             if flag == 0:
+                comp_dataset_name = dataset_name
                 result_json = json_data
                 flag = flag + 1
             else:
+                comp_dataset_name = comp_dataset_name + "&" + dataset_name
                 for i in result_json["data"]:
                     metric_unit = i["metrics_unit"]
                     test_name = i["test_name"]
@@ -76,3 +77,4 @@ class QuisbyProcessing:
                             i["instances"].extend(j["instances"])
         result_json["dataset_name"] = comp_dataset_name
         return {"status": "success", "json_data": result_json}
+
