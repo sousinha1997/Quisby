@@ -54,7 +54,7 @@ class QuisbyProcessing:
         comp_dataset_name = "result"
         flag = 0
         for dataset_name, data in data_stream.items():
-            json_res = self.extract_data(self,benchmark_name, dataset_name, input_type, data)
+            json_res = self.extract_data(benchmark_name, dataset_name, input_type, data)
             if json_res["status"] != "success":
                 return json_res
 
