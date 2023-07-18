@@ -3,7 +3,7 @@
 test_pypi_url="https://test.pypi.org/pypi/$2/json"
 pypi_url="https://pypi.org/pypi/$2/json"
 url=""
-if [ "pypi" == $1 ] 
+if [[ "pypi" == $1 ]]
 then
 url=$pypi_url
 else

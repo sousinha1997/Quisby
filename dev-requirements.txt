@@ -1,0 +1,4 @@
+jinja2-cli
+setuptools
+twine
+wheel
