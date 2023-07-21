@@ -66,15 +66,16 @@ class QuisbyProcessing:
                 flag = flag + 1
             else:
                 comp_dataset_name = comp_dataset_name + "&" + dataset_name
-                for i in result_json["data"]:
-                    metric_unit = i["metrics_unit"]
-                    test_name = i["test_name"]
-                    for j in json_data["data"]:
-                        if (
-                            metric_unit == j["metrics_unit"]
-                            and test_name == j["test_name"]
-                        ):
-                            i["instances"].extend(j["instances"])
+
+                for i in json_data["data"]:
+                    flag_test = 0
+                    for j in result_json["data"]:
+                        if (i["metrics_unit"] == j["metrics_unit"] and i["test_name"] == j["test_name"]):
+                            j["instances"].extend(i["instances"])
+                            flag_test = 1
+                            continue
+
+                    if (flag_test == 0):
+                        result_json["data"].append(i)
         result_json["dataset_name"] = comp_dataset_name
         return {"status": "success", "json_data": result_json}
-
