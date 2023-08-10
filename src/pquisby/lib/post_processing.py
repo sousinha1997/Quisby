@@ -1,6 +1,10 @@
 import csv
-from pquisby.lib.benchmarks.uperf.uperf import extract_uperf_data
-from pquisby.lib.util import stream_to_csv
+import os
+
+from src.pquisby.lib.benchmarks.fio.fio import extract_fio_run_data
+from src.pquisby.lib.benchmarks.linpack.extract import extract_linpack_data
+from src.pquisby.lib.benchmarks.uperf.uperf import extract_uperf_data
+from src.pquisby.lib.util import stream_to_csv
 import enum
 
 
@@ -16,12 +20,12 @@ class BenchmarkName(enum.Enum):
     """Various benchmark types"""
 
     UPERF = enum.auto()
+    FIO = enum.auto()
+
 
     """Uncomment or add more benchmark once we are ready with other benchmarks."""
-
-    # FIO = enum.auto()
-    # LINPACK = enum.auto()
     # SPECJBB = enum.auto()
+    # LINPACK = enum.auto()
 
 
 class QuisbyProcessing:
@@ -33,11 +37,19 @@ class QuisbyProcessing:
                 csv_data = data
             elif input_type == InputType.OTHER_FILE:
                 with open(data) as csv_file:
-                    csv_data = list(csv.reader(csv_file))
+                    if test_name == BenchmarkName.UPERF:
+                        csv_data = list(csv.reader(csv_file))
+                    elif test_name == BenchmarkName.FIO:
+                        csv_data = csv_file.readlines()
+                        csv_data[-1] = csv_data[-1].strip()
+
             ret_val = []
             json_data = {}
             if test_name == BenchmarkName.UPERF:
                 ret_val, json_data = extract_uperf_data(dataset_name, csv_data)
+            if test_name == BenchmarkName.FIO:
+                path = data.split("/")[-2]
+                ret_val, json_data = extract_fio_run_data(dataset_name, csv_data, path)
             else:
                 pass
         except Exception as exc:

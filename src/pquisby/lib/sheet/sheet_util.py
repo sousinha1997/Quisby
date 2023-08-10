@@ -83,7 +83,18 @@ def delete_spreadsheet(spreadsheet_id):
     except Exception as exc:
         logging.error("Unable to delete sheet")
 
+def clear_sheet_charts(spreadsheetId, range="A2:Z1000"):
+    # Clear charts
+    sheet_properties = get_sheet(spreadsheetId, range)
 
+    if "charts" in sheet_properties["sheets"][0]:
+        for chart in sheet_properties["sheets"][0]["charts"]:
+
+            requests = {"deleteEmbeddedObject": {"objectId": chart["chartId"]}}
+
+            body = {"requests": requests}
+
+            sheet.batchUpdate(spreadsheetId=spreadsheetId, body=body).execute()
 
 def create_sheet(spreadsheetId, test_name):
     """
