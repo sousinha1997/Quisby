@@ -1,8 +1,8 @@
 import logging
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from pquisby.lib.sheet.sheetapi import creds,sheet,file
-from pquisby.lib.util import write_config
+from src.pquisby.lib.sheet.sheetapi import creds,sheet,file
+from src.pquisby.lib.util import write_config
 
 
 def check_sheet_exists(sheet_info, test_name):
