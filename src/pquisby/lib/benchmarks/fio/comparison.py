@@ -1,14 +1,14 @@
 from itertools import groupby
 
-from src.pquisby.lib.sheet.sheet_util import (
+from pquisby.lib.sheet.sheet_util import (
     create_spreadsheet,
     append_to_sheet,
     read_sheet,
     get_sheet,
     create_sheet
 )
-from src.pquisby.lib.util import combine_two_array_alternating
-from src.pquisby.lib.benchmarks.fio.graph import graph_fio_run_data
+from pquisby.lib.util import combine_two_array_alternating
+from pquisby.lib.benchmarks.fio.graph import graph_fio_run_data
 
 
 def compare_fio_run_results(spreadsheets, spreadsheetId, test_name="fio_run"):

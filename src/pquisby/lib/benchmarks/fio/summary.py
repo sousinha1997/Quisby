@@ -1,6 +1,6 @@
 from itertools import groupby
 
-from src.pquisby.lib.util import mk_int, process_instance
+from pquisby.lib.util import mk_int, process_instance
 
 
 def fio_run_sort_data(results):

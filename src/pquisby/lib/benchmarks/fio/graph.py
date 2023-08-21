@@ -1,8 +1,8 @@
 import time
 import logging
 
-from src.pquisby.lib.sheet.sheetapi import sheet
-from src.pquisby.lib.sheet.sheet_util import (
+from pquisby.lib.sheet.sheetapi import sheet
+from pquisby.lib.sheet.sheet_util import (
     read_sheet,
     clear_sheet_charts,
     get_sheet,
