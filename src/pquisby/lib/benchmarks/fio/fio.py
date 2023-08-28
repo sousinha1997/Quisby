@@ -19,9 +19,14 @@ def extract_csv_data(csv_data, path):
     results = []
     logging.info(f"extract csv data: {path}")
     header_row = csv_data.pop(0).split(",")
-    io_depth = re.findall(r"iod.*?_(\d+)", path)[0]
-    ndisks = re.findall(r"ndisks_(\d+)", path)[0]
-    njobs = re.findall(r"njobs_(\d+)", path)[0]
+    if path == "":
+        io_depth = "<>"
+        ndisks = "<>"
+        njobs = "<>"
+    else:
+        io_depth = re.findall(r"iod.*?_(\d+)", path)[0]
+        ndisks = re.findall(r"ndisks_(\d+)", path)[0]
+        njobs = re.findall(r"njobs_(\d+)", path)[0]
     result_json = {
         "dataset_name": "",
         "data": [],

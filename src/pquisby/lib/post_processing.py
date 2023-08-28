@@ -31,6 +31,7 @@ class BenchmarkName(enum.Enum):
 class QuisbyProcessing:
     def extract_data(self, test_name, dataset_name, input_type, data):
         try:
+            path = ""
             if input_type == InputType.STREAM:
                 csv_data = stream_to_csv(data)
             elif input_type == InputType.CSV:
@@ -40,6 +41,7 @@ class QuisbyProcessing:
                     if test_name == BenchmarkName.UPERF:
                         csv_data = list(csv.reader(csv_file))
                     elif test_name == BenchmarkName.FIO:
+                        path = data.split("/")[-2]
                         csv_data = csv_file.readlines()
                         csv_data[-1] = csv_data[-1].strip()
 
@@ -48,7 +50,6 @@ class QuisbyProcessing:
             if test_name == BenchmarkName.UPERF:
                 ret_val, json_data = extract_uperf_data(dataset_name, csv_data)
             if test_name == BenchmarkName.FIO:
-                path = data.split("/")[-2]
                 ret_val, json_data = extract_fio_run_data(dataset_name, csv_data, path)
             else:
                 pass
