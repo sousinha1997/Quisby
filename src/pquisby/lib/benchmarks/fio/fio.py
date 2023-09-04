@@ -37,12 +37,15 @@ def extract_csv_data(csv_data, path):
         for row in csv_data:
             run_data = []
             if row:
-                csv_row = row
-                # run_json["name"] = ndisks+"_ndisks"+njobs+"_njobs"+io_depth+"_io_depth"
-                # run_json
-                for index in indexof_all:
-                    run_data.append(csv_row[index])
-                results.append([csv_row[1], ndisks, njobs, io_depth, *run_data])
+                try:
+                    csv_row = row
+                    # run_json["name"] = ndisks+"_ndisks"+njobs+"_njobs"+io_depth+"_io_depth"
+                    # run_json
+                    for index in indexof_all:
+                        run_data.append(csv_row[index])
+                    results.append([csv_row[1], ndisks, njobs, io_depth, *run_data])
+                except Exception as exc:
+                    print("Invalid row data...")
     except Exception as exc:
         logging.error("Data format incorrect. Skipping data")
     return results, result_json
@@ -79,11 +82,11 @@ def group_data(run_data,json_data, dataset_name, OS_RELEASE):
                 test_json["iteration_name"] = row_hash
                 test_json["dataset_name"] = dataset_name
                 if "iops" in value:
-                    grouped_data.append([row_hash, item[4]])
-                    test_json["value"] = item[4]
+                    grouped_data.append([row_hash, item[4].strip()])
+                    test_json["value"] = item[4].strip()
                 elif "lat" in value:
-                    grouped_data.append([row_hash, item[5]])
-                    test_json["value"] = item[5]
+                    grouped_data.append([row_hash, item[5].strip()])
+                    test_json["value"] = item[5].strip()
                 item_json["instances"].append(test_json)
         json_data["data"].append(item_json)
     # json_data["vm_name"] = system_name
