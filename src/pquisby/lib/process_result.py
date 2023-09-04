@@ -7,7 +7,7 @@ from pquisby.lib.sheet.sheet_util import (create_sheet, append_to_sheet, create_
 from pquisby.lib.benchmarks.uperf.uperf import create_summary_uperf_data
 from pquisby.lib.benchmarks.uperf.graph import graph_uperf_data
 from pquisby.lib.benchmarks.uperf.comparison import compare_uperf_results
-from pquisby.lib.post_processing import extract_data
+from pquisby.lib.post_processing import QuisbyProcessing
 
 
 def process_results(results, test_name, cloud, os_type, os_version, spreadsheet_name, spreadsheet_id):
@@ -119,7 +119,7 @@ def data_handler(config_location):
                         data = data.strip("\n").strip("'")
                         path, system_name = data.split(",")
                     csv_path = test_path + "/" + path.strip()
-                    json_res = extract_data(test_name,dataset_name, system_name, input_type, csv_path)
+                    json_res = QuisbyProcessing.extract_data(test_name,dataset_name, system_name, input_type, csv_path)
                     if json_res["csvData"]:
                         results += json_res["csvData"]
                 except ValueError as exc:

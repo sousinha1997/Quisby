@@ -40,7 +40,6 @@ class QuisbyProcessing:
                     if test_name == BenchmarkName.UPERF:
                         csv_data = list(csv.reader(csv_file))
                     elif test_name == BenchmarkName.FIO:
-                        path = data.split("/")[-2]
                         csv_data = csv_file.readlines()
                         csv_data[-1] = csv_data[-1].strip()
 

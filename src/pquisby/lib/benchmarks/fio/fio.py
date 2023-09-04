@@ -17,8 +17,8 @@ HEADER_TO_EXTRACT = [
 def extract_csv_data(csv_data, path):
     indexof_all = []
     results = []
-    logging.info(f"extract csv data: {path}")
-    header_row = csv_data.pop(0).split(",")
+    print(f"extract csv data: {path}")
+    header_row = csv_data.pop(0)
     if path == "":
         io_depth = "<>"
         ndisks = "<>"
@@ -37,7 +37,7 @@ def extract_csv_data(csv_data, path):
         for row in csv_data:
             run_data = []
             if row:
-                csv_row = row.split(",")
+                csv_row = row
                 # run_json["name"] = ndisks+"_ndisks"+njobs+"_njobs"+io_depth+"_io_depth"
                 # run_json
                 for index in indexof_all:

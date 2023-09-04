@@ -2,7 +2,8 @@ import logging
 import os
 import shutil
 import click
-from pquisby.lib.process_result import data_handler, extract_data
+from pquisby.lib.process_result import data_handler
+from pquisby.lib.post_processing import QuisbyProcessing
 from pquisby.lib.util import write_config
 
 
@@ -70,7 +71,7 @@ def process_run(results, test_name, os_type, os_version, dataset_name, spreadshe
 
     if platform == "pbench":
         input_type = "stream"
-        json_res = extract_data(test_name, dataset_name, environment, input_type, results)
+        json_res = QuisbyProcessing.extract_data(test_name, dataset_name, environment, input_type, results)
         if json_res["jsonData"]:
             return json_res["jsonData"]
 
