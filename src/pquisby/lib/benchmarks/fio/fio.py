@@ -1,8 +1,6 @@
 import re
-import os
 import logging
 from itertools import groupby
-
 import requests
 from bs4 import BeautifulSoup
 
@@ -23,6 +21,7 @@ def extract_csv_data(csv_data, path):
         io_depth = "<>"
         ndisks = "<>"
         njobs = "<>"
+
     else:
         io_depth = re.findall(r"iod.*?_(\d+)", path)[0]
         ndisks = re.findall(r"ndisks_(\d+)", path)[0]
@@ -33,7 +32,9 @@ def extract_csv_data(csv_data, path):
     }
     try:
         for header in HEADER_TO_EXTRACT:
-            indexof_all.append(header_row.index(header))
+            for name in header_row:
+                if name.startswith(header):
+                    indexof_all.append(header_row.index(name))
         for row in csv_data:
             run_data = []
             if row:
@@ -68,6 +69,7 @@ def group_data(run_data,json_data, dataset_name, OS_RELEASE):
     grouped_data = []
     for key, items in groupby(sorted(run_data), key=lambda x: x[0].split("-")):
         item_json = {}
+        count = 1
         for item in items:
             for value in run_metric[key[1]]:
                 item_json["vm_name"] = ""
@@ -79,7 +81,7 @@ def group_data(run_data,json_data, dataset_name, OS_RELEASE):
                 grouped_data.append(["", key[0], f"{key[1]}-{value}"])
                 grouped_data.append(["iteration_name", f"{value}-{OS_RELEASE}"])
                 row_hash = f"{item[1]}_d-{item[2]}_j-{item[3]}_iod"
-                test_json["iteration_name"] = row_hash
+                test_json["iteration_name"] = count
                 test_json["dataset_name"] = dataset_name
                 if "iops" in value:
                     grouped_data.append([row_hash, item[4].strip()])
@@ -88,6 +90,7 @@ def group_data(run_data,json_data, dataset_name, OS_RELEASE):
                     grouped_data.append([row_hash, item[5].strip()])
                     test_json["value"] = item[5].strip()
                 item_json["instances"].append(test_json)
+            count = count + 1
         json_data["data"].append(item_json)
     # json_data["vm_name"] = system_name
     # json_data["iterations"].extend(item_json)
@@ -151,6 +154,4 @@ def extract_fio_run_data(dataset_name, csv_data, path):
         logging.error("Unable to find fio path")
         print(str(exc))
     return []
-
-
 
