@@ -1,3 +1,4 @@
+import logging
 from itertools import groupby
 
 def combine_uperf_data(results):
@@ -53,7 +54,7 @@ def create_summary_uperf_data(results, run_name, OS_RELEASE):
 
 
 def extract_uperf_data(dataset_name, csv_data):
-    """"""
+    logging.info("Extracting required data...")
     results = []
     data_position = {}
     results_json = {"dataset_name": "", "data": []}
@@ -70,9 +71,10 @@ def extract_uperf_data(dataset_name, csv_data):
             if result[1].split("-")[0] in tests_supported:
                 filtered_result.append(result)
         except Exception as exc:
+            logging.warning("Filtering data failed.")
             pass
-    # filtered_result = list(filter(lambda x: x[1].split("-")[0] in tests_supported, csv_reader))
     # Group data by test name and pkt size
+    logging.info("Grouping data to a specified format...")
     for test_name, items in groupby(filtered_result, key=lambda x: x[1].split("-")[:2]):
         data_dict = {}
 
@@ -132,6 +134,14 @@ def extract_uperf_data(dataset_name, csv_data):
                         results.append(*items)
             results_json["data"].append(test_json)
         results_json["dataset_name"] = dataset_name
+
+    logging.info(results)
+    logging.info(results_json)
+
+    if results == [] or results_json == {"dataset_name": "", "data": []}:
+        logging.warning("Found empty values. Please check the logs for details...")
+        raise ValueError
+
     return results, results_json
 
 

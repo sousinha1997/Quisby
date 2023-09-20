@@ -13,9 +13,9 @@ HEADER_TO_EXTRACT = [
 
 
 def extract_csv_data(csv_data, path):
+    logging.info("Extracting required data...")
     indexof_all = []
     results = []
-    print(f"extract csv data: {path}")
     header_row = csv_data.pop(0)
     if path == "":
         io_depth = "<>"
@@ -26,33 +26,40 @@ def extract_csv_data(csv_data, path):
         io_depth = re.findall(r"iod.*?_(\d+)", path)[0]
         ndisks = re.findall(r"ndisks_(\d+)", path)[0]
         njobs = re.findall(r"njobs_(\d+)", path)[0]
-    result_json = {
-        "dataset_name": "",
-        "data": [],
-    }
+
+    logging.info("IO_DEPTH: "+io_depth+" | NDISKS: "+ndisks+" | NJOBS: "+njobs)
+
+    for header in HEADER_TO_EXTRACT:
+        for name in header_row:
+            if name.startswith(header):
+                indexof_all.append(header_row.index(name))
+    if not indexof_all:
+        logging.warning("No data found to push. Exiting...")
+        raise ValueError
+
     try:
-        for header in HEADER_TO_EXTRACT:
-            for name in header_row:
-                if name.startswith(header):
-                    indexof_all.append(header_row.index(name))
         for row in csv_data:
+            logging.debug(row)
             run_data = []
             if row:
                 try:
                     csv_row = row
-                    # run_json["name"] = ndisks+"_ndisks"+njobs+"_njobs"+io_depth+"_io_depth"
-                    # run_json
                     for index in indexof_all:
                         run_data.append(csv_row[index])
                     results.append([csv_row[1], ndisks, njobs, io_depth, *run_data])
                 except Exception as exc:
-                    print("Invalid row data...")
+                    logging.warning("Invalid row data. Ignoring...")
     except Exception as exc:
         logging.error("Data format incorrect. Skipping data")
-    return results, result_json
+        raise exc
+
+    if results == []:
+        logging.warning("Found empty values. Please check the logs for details...")
+
+    return results
 
 
-def group_data(run_data,json_data, dataset_name, OS_RELEASE):
+def group_data(run_data, json_data, dataset_name, OS_RELEASE):
 
     """ Groups data into similar metric groups
         Parameters
@@ -63,6 +70,7 @@ def group_data(run_data,json_data, dataset_name, OS_RELEASE):
             Machine name
         OS_RELEASE : str
             Release version of machine"""
+    logging.info("Grouping data to a specified format")
     run_metric = {"1024KiB": ["iops", "lat"], "4KiB": ["lat", "iops"]}
     json_data["dataset_name"] = dataset_name
     json_data["data"] = []
@@ -92,8 +100,13 @@ def group_data(run_data,json_data, dataset_name, OS_RELEASE):
                 item_json["instances"].append(test_json)
             count = count + 1
         json_data["data"].append(item_json)
-    # json_data["vm_name"] = system_name
-    # json_data["iterations"].extend(item_json)
+
+    if grouped_data == [] or json_data == {"dataset_name": "", "data": [], }:
+        logging.warning("Found empty values. Please check the logs for details...")
+        raise ValueError
+
+    logging.info(grouped_data)
+    logging.info(json_data)
     return grouped_data, json_data
 
 
@@ -142,16 +155,20 @@ def extract_fio_run_data(dataset_name, csv_data, path):
             ----------
             path : str
                 Path to results csv file
-            system_name : str
-                Machine name
-            OS_RELEASE : str
-                Release version of machine"""
-    results = []
+            dataset_name : str
+                Dataset name
+            csv_data : str
+                raw data"""
     try:
-        results,results_json = extract_csv_data(csv_data, path)
-        return group_data(results, results_json, dataset_name, "9")
+        result_json = {
+            "dataset_name": "",
+            "data": [],
+        }
+
+        results = extract_csv_data(csv_data, path)
+        return group_data(results, result_json, dataset_name, "9")
     except Exception as exc:
-        logging.error("Unable to find fio path")
-        print(str(exc))
-    return []
+        logging.error("Failed to fetch FIO data...")
+        raise exc
+    return [], {}
 
