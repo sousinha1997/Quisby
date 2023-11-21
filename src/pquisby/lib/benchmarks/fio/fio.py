@@ -1,8 +1,8 @@
 import re
-import logging
 from itertools import groupby
 import requests
 from bs4 import BeautifulSoup
+from pquisby.lib import custom_logger
 
 
 # TODO: Maybe we can do away with clat, lat, slat
@@ -13,7 +13,7 @@ HEADER_TO_EXTRACT = [
 
 
 def extract_csv_data(csv_data, path):
-    logging.info("Extracting required data...")
+    custom_logger.info("Extracting required data...")
     indexof_all = []
     results = []
     header_row = csv_data.pop(0)
@@ -27,19 +27,19 @@ def extract_csv_data(csv_data, path):
         ndisks = re.findall(r"ndisks_(\d+)", path)[0]
         njobs = re.findall(r"njobs_(\d+)", path)[0]
 
-    logging.info("IO_DEPTH: "+io_depth+" | NDISKS: "+ndisks+" | NJOBS: "+njobs)
+    custom_logger.info("IO_DEPTH: "+io_depth+" | NDISKS: "+ndisks+" | NJOBS: "+njobs)
 
     for header in HEADER_TO_EXTRACT:
         for name in header_row:
             if name.startswith(header):
                 indexof_all.append(header_row.index(name))
     if not indexof_all:
-        logging.warning("No data found to push. Exiting...")
+        custom_logger.warning("No data found to push. Exiting...")
         raise ValueError
 
     try:
         for row in csv_data:
-            logging.debug(row)
+            custom_logger.debug(row)
             run_data = []
             if row:
                 try:
@@ -48,13 +48,13 @@ def extract_csv_data(csv_data, path):
                         run_data.append(csv_row[index])
                     results.append([csv_row[1], ndisks, njobs, io_depth, *run_data])
                 except Exception as exc:
-                    logging.warning("Invalid row data. Ignoring...")
+                    custom_logger.warning("Invalid row data. Ignoring...")
     except Exception as exc:
-        logging.error("Data format incorrect. Skipping data")
+        custom_logger.error("Data format incorrect. Skipping data")
         raise exc
 
     if results == []:
-        logging.warning("Found empty values. Please check the logs for details...")
+        custom_logger.warning("Found empty values. Please check the logs for details...")
 
     return results
 
@@ -70,7 +70,7 @@ def group_data(run_data, json_data, dataset_name, OS_RELEASE):
             Machine name
         OS_RELEASE : str
             Release version of machine"""
-    logging.info("Grouping data to a specified format")
+    custom_logger.info("Grouping data to a specified format")
     run_metric = {"1024KiB": ["iops", "lat"], "4KiB": ["lat", "iops"]}
     json_data["dataset_name"] = dataset_name
     json_data["data"] = []
@@ -102,11 +102,11 @@ def group_data(run_data, json_data, dataset_name, OS_RELEASE):
         json_data["data"].append(item_json)
 
     if grouped_data == [] or json_data == {"dataset_name": "", "data": [], }:
-        logging.warning("Found empty values. Please check the logs for details...")
+        custom_logger.warning("Found empty values. Please check the logs for details...")
         raise ValueError
 
-    logging.info(grouped_data)
-    logging.info(json_data)
+    custom_logger.info(grouped_data)
+    custom_logger.info(json_data)
     return grouped_data, json_data
 
 
@@ -168,7 +168,7 @@ def extract_fio_run_data(dataset_name, csv_data, path):
         results = extract_csv_data(csv_data, path)
         return group_data(results, result_json, dataset_name, "9")
     except Exception as exc:
-        logging.error("Failed to fetch FIO data...")
+        custom_logger.error("Failed to fetch FIO data...")
         raise exc
     return [], {}
 

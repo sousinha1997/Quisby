@@ -1,6 +1,5 @@
 import fileinput
 import json
-import logging
 import os.path
 from pquisby.lib.util import read_config
 from pquisby.lib.sheet.sheet_util import (create_sheet, append_to_sheet, create_spreadsheet, delete_sheet_content)
@@ -8,6 +7,7 @@ from pquisby.lib.benchmarks.uperf.uperf import create_summary_uperf_data
 from pquisby.lib.benchmarks.uperf.graph import graph_uperf_data
 from pquisby.lib.benchmarks.uperf.comparison import compare_uperf_results
 from pquisby.lib.post_processing import QuisbyProcessing
+from pquisby.lib import custom_logger
 
 
 def process_results(results, test_name, cloud, os_type, os_version, spreadsheet_name, spreadsheet_id):
@@ -23,7 +23,7 @@ def process_results(results, test_name, cloud, os_type, os_version, spreadsheet_
     try:
         results = globals()[f"create_summary_{test_name}_data"](results, spreadsheet_name, os_version)
     except Exception as exc:
-        logging.error("Error summarising " + str(test_name) + " data")
+        custom_logger.error("Error summarising " + str(test_name) + " data")
         print(str(exc))
         return
 
@@ -32,14 +32,14 @@ def process_results(results, test_name, cloud, os_type, os_version, spreadsheet_
         create_sheet(spreadsheet_id, test_name)
         append_to_sheet(spreadsheet_id, results, test_name)
     except Exception as exc:
-        logging.error("Error appending " + str(test_name) + " data to sheet")
+        custom_logger.error("Error appending " + str(test_name) + " data to sheet")
         return
 
     # Graphing up data
     try:
         globals()[f"graph_{test_name}_data"](spreadsheet_id, test_name)
     except Exception as exc:
-        logging.error("Error graphing " + str(test_name) + " data")
+        custom_logger.error("Error graphing " + str(test_name) + " data")
         return
     return spreadsheet_name, spreadsheet_id
 
@@ -123,7 +123,7 @@ def data_handler(config_location):
                     if json_res["csvData"]:
                         results += json_res["csvData"]
                 except ValueError as exc:
-                    logging.error(str(exc))
+                    custom_logger.error(str(exc))
                     continue
         try:
             spreadsheet_name, spreadsheet_id = process_results(results, test_name, cloud, os_type, os_version,spreadsheet_name,spreadsheet_id)
@@ -133,8 +133,3 @@ def data_handler(config_location):
         print(f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}")
         register_details_json(spreadsheet_name, spreadsheet_id)
         return spreadsheet_id
-
-
-
-# if __name__ == '__main__':
-#    extract_data("uperf","localhost",[['iteration_number', 'iteration_name', 'Gb_sec:client_hostname:127.0.0.1-server_hostname:192.168.122.142-server_port:20010', 'Gb_sec:client_hostname:all-server_hostname:all-server_port:all', 'trans_sec:client_hostname:127.0.0.1-server_hostname:192.168.122.142-server_port:20010', 'trans_sec:client_hostname:all-server_hostname:all-server_port:all', 'usec:client_hostname:127.0.0.1-server_hostname:192.168.122.142-server_port:20010', 'usec:client_hostname:all-server_hostname:all-server_port:all'], ['1', 'tcp_stream-65535B-1i', ' 0.0010', ' 0.0010', '', '', '', '', ''], ['2', 'tcp_maerts-65535B-1i', ' 1.1396', ' 1.1396', '', '', '', '', ''], ['3', 'tcp_bidirec-65535B-1i', ' 0.8890', ' 0.8890', '', '', '', '', ''], ['4', 'tcp_rr-65535B-1i', '', '', ' 1.8146', ' 1.8146', ' 592316.6667', ' 592316.6667', ''], ['5', 'udp_stream-65535B-1i', '', '', '', '', '', '', ''], ['6', 'udp_maerts-65535B-1i', '', '', '', '', '', '', ''], ['7', 'udp_bidirec-65535B-1i', '', '', '', '', '', '', ''], ['8', 'udp_rr-65535B-1i', '', '', '', '', '', '', ''], []])

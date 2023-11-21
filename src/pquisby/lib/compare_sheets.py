@@ -1,9 +1,8 @@
 import json
-import logging
 import time
 from pquisby.lib.sheet.sheet_util import get_sheet, create_spreadsheet
 from pquisby.lib.benchmarks.uperf.comparison import compare_uperf_results
-
+from pquisby.lib import custom_logger
 
 def compare_sheets(spreadsheet_list,test_name):
 
@@ -38,7 +37,7 @@ def compare_sheets(spreadsheet_list,test_name):
     for index, test_name in enumerate(comparison_list):
         compare_uperf_results(spreadsheets, comp_spreadsheetId, test_name)
         if index + 1 != len(comparison_list):
-            logging.info("# Sleeping 10 sec to workaround the Google Sheet per minute API limit")
+            custom_logger.info("# Sleeping 10 sec to workaround the Google Sheet per minute API limit")
             time.sleep(10)
     return spreadsheet_name,comp_spreadsheetId
 

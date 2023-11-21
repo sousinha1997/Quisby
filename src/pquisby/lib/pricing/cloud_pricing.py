@@ -1,10 +1,4 @@
-# Using this package which is a HTTP library
-from os.path import getmtime
-import pprint
 import json
-import datetime
-import subprocess
-
 import boto3
 from pquisby.lib.util import process_instance
 

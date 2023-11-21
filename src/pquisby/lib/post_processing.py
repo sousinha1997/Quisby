@@ -1,13 +1,9 @@
 import csv
-import logging
-
 from pquisby.lib.benchmarks.fio.fio import extract_fio_run_data
 from pquisby.lib.benchmarks.uperf.uperf import extract_uperf_data
-from pquisby.lib.logging import logging_configure
+from pquisby.lib import custom_logger
 from pquisby.lib.util import stream_to_csv
 import enum
-
-logging_configure.configure_logging()
 
 class InputType(enum.Enum):
     """Various input types"""
@@ -31,10 +27,10 @@ class BenchmarkName(enum.Enum):
 
 class QuisbyProcessing:
     def extract_data(self, test_name, dataset_name, input_type, data):
-        logging.info("********************** Starting preprocessing of data **********************")
-        logging.info("Input Type: " + str(input_type))
-        logging.info("Benchmark Type: " + str(test_name))
-        logging.info("Dataset Name: " + str(dataset_name))
+        custom_logger.info("********************** Starting preprocessing of data **********************")
+        custom_logger.info("Input Type: " + str(input_type))
+        custom_logger.info("Benchmark Type: " + str(test_name))
+        custom_logger.info("Dataset Name: " + str(dataset_name))
         try:
             path = ""
             if input_type == InputType.STREAM:
@@ -51,7 +47,7 @@ class QuisbyProcessing:
 
             ret_val = []
             json_data = {}
-            logging.info("Start extraction...")
+            custom_logger.info("Start extraction...")
             if test_name == BenchmarkName.UPERF:
                 ret_val, json_data = extract_uperf_data(dataset_name, csv_data)
             if test_name == BenchmarkName.FIO:
@@ -59,14 +55,14 @@ class QuisbyProcessing:
             else:
                 pass
         except Exception as exc:
-            logging.info("!!! PREPROCESSING FAILED !!!")
+            custom_logger.info("!!! PREPROCESSING FAILED !!!")
             exception_type = type(exc)
             return {
                 "status": "failed",
                 "exception": str(exc),
                 "exception_type": exception_type,
             }
-        logging.info("!!! PREPROCESSING COMPLETE !!!")
+        custom_logger.info("!!! PREPROCESSING COMPLETE !!!")
         return {"status": "success", "csv_data": ret_val, "json_data": json_data}
 
     def compare_csv_to_json(self, benchmark_name, input_type, data_stream):
