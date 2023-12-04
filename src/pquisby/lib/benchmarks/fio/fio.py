@@ -75,11 +75,11 @@ def group_data(run_data, json_data, dataset_name, OS_RELEASE):
     json_data["dataset_name"] = dataset_name
     json_data["data"] = []
     grouped_data = []
+    count = 1
     for key, items in groupby(sorted(run_data), key=lambda x: x[0].split("-")):
-        item_json = {}
-        count = 1
         for item in items:
             for value in run_metric[key[1]]:
+                item_json = {}
                 item_json["vm_name"] = ""
                 item_json["test_name"] =  key[0]
                 item_json["metrics_unit"] = f"{key[1]}-{value}"
@@ -98,8 +98,9 @@ def group_data(run_data, json_data, dataset_name, OS_RELEASE):
                     grouped_data.append([row_hash, item[5].strip()])
                     test_json["value"] = item[5].strip()
                 item_json["instances"].append(test_json)
-            count = count + 1
-        json_data["data"].append(item_json)
+                json_data["data"].append(item_json)
+        count = count + 1
+
 
     if grouped_data == [] or json_data == {"dataset_name": "", "data": [], }:
         logging.warning("Found empty values. Please check the logs for details...")

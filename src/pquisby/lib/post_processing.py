@@ -48,6 +48,8 @@ class QuisbyProcessing:
                     elif test_name == BenchmarkName.FIO:
                         csv_data = csv_file.readlines()
                         csv_data[-1] = csv_data[-1].strip()
+                        for i in range(0,len(csv_data)):
+                            csv_data[i]=csv_data[i].split(",")
 
             ret_val = []
             json_data = {}
