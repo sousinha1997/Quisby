@@ -1,8 +1,8 @@
-import logging
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from pquisby.lib.sheet.sheetapi import creds,sheet,file
 from pquisby.lib.util import write_config
+from pquisby.lib import custom_logger
 
 
 def check_sheet_exists(sheet_info, test_name):
@@ -76,12 +76,12 @@ def delete_sheet_content(spreadsheet_id,sheet_title):
     try:
         response = sheet.values().clear(spreadsheetId = spreadsheet_id,range = sheet_title).execute()
     except Exception:
-        logging.warning("Unable to clear chart, might get repetitive data")
+        custom_logger.warning("Unable to clear chart, might get repetitive data")
 def delete_spreadsheet(spreadsheet_id):
     try:
         file.delete(fileId = spreadsheet_id).execute()
     except Exception as exc:
-        logging.error("Unable to delete sheet")
+        custom_logger.error("Unable to delete sheet")
 
 def clear_sheet_charts(spreadsheetId, range="A2:Z1000"):
     # Clear charts

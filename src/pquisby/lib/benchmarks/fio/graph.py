@@ -1,5 +1,4 @@
 import time
-import logging
 
 from pquisby.lib.sheet.sheetapi import sheet
 from pquisby.lib.sheet.sheet_util import (
@@ -8,6 +7,7 @@ from pquisby.lib.sheet.sheet_util import (
     get_sheet,
     append_empty_row_sheet,
 )
+from pquisby.lib import custom_logger
 
 
 def create_series_range_fio(column_count, sheetId, start_index, end_index):
@@ -60,7 +60,7 @@ def graph_fio_run_data(spreadsheetId, test_name):
                 end_index = index
 
         if end_index:
-            logging.info(
+            custom_logger.info(
                 f"Creating graph for table index {start_index}-{end_index} in sheet"
             )
             try:
@@ -68,7 +68,7 @@ def graph_fio_run_data(spreadsheetId, test_name):
 
                 column_count = len(graph_data[2])
             except IndexError:
-                logging.error(f"{test_name}: Data inconsistency at {start_index}-{end_index}. Skipping to next data")
+                custom_logger.error(f"{test_name}: Data inconsistency at {start_index}-{end_index}. Skipping to next data")
                 continue
 
             sheetId = get_sheet(spreadsheetId, test_name)["sheets"][0]["properties"][
@@ -135,7 +135,7 @@ def graph_fio_run_data(spreadsheetId, test_name):
             sheet.batchUpdate(spreadsheetId=spreadsheetId, body=body).execute()
 
             start_index, end_index = None, None
-            logging.info("Sleep for 1sec to workaround Gsheet API")
+            custom_logger.info("Sleep for 1sec to workaround Gsheet API")
 
             time.sleep(1)
 
