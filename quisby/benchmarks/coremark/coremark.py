@@ -1,9 +1,20 @@
 
 """ Custom key to sort the data base don instance name """
 from quisby import custom_logger
-
+import re
 
 from quisby.util import read_config
+
+def extract_prefix_and_number(input_string):
+    match = re.search(r'^(.*?)(\d+)(.*?)$', input_string)
+    if match:
+        prefix = match.group(1)
+        number = int(match.group(2))
+        suffix = match.group(3)
+        return prefix, number, suffix
+    return None, None, None
+
+
 
 def custom_key(item):
     cloud_type = read_config("cloud","cloud_type")
@@ -18,9 +29,9 @@ def custom_key(item):
          instance_number = int(item[1][0].split('-')[-1])
          return (instance_type, instance_number)
     elif cloud_type == "azure":
-        instance_type = item[1][0].split("_")[0]
-        instance_number = item[1][0].split("_")[1]+item[1][0].split("_")[2]
+        instance_type, instance_number, version=extract_prefix_and_number(item[1][0])
         return (instance_type, instance_number)
+
 
 def create_summary_coremark_data(results,OS_RELEASE):
     final_results = []
