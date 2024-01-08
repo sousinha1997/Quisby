@@ -90,9 +90,3 @@ def extract_coremark_data(path, system_name, OS_RELEASE):
 
     return results
 
-results = []
-ret_val = extract_coremark_data("/Users/soumyasinha/Workspace/2024/Quisby/quisby/benchmarks/coremark/results.csv","Standard_D16as_v5","9.3")
-if ret_val:
-    results += ret_val
-create_summary_coremark_data(results,"9.3")
-
