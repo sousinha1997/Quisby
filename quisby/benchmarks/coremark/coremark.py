@@ -17,6 +17,10 @@ def custom_key(item):
          instance_type = item[1][0].split("-")[0]
          instance_number = int(item[1][0].split('-')[-1])
          return (instance_type, instance_number)
+    elif cloud_type == "azure":
+        instance_type = item[1][0].split("_")[0]
+        instance_number = item[1][0].split("_")[1]+item[1][0].split("_")[2]
+        return (instance_type, instance_number)
 
 def create_summary_coremark_data(results,OS_RELEASE):
     final_results = []
@@ -74,3 +78,10 @@ def extract_coremark_data(path, system_name, OS_RELEASE):
     results.append(processed_data)
 
     return results
+
+results = []
+ret_val = extract_coremark_data("/Users/soumyasinha/Workspace/2024/Quisby/quisby/benchmarks/coremark/results.csv","Standard_D16as_v5","9.3")
+if ret_val:
+    results += ret_val
+create_summary_coremark_data(results,"9.3")
+
