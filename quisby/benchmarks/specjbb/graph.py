@@ -131,6 +131,6 @@ def graph_specjbb_data(spreadsheetId, range):
 
                 time.sleep(1)
         except Exception as exc:
-            logging.debug(str(exc))
-            logging.error("Unable to graph specjbb data")
+            custom_logger.debug(str(exc))
+            custom_logger.error("Unable to graph specjbb data")
 
