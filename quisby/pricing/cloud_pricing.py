@@ -52,7 +52,7 @@ def get_azure_pricing(instance_name, region):
         data = fetch_from_url()
     if data is None:
         return data
-    price = data.json()["offers"][vm]['prices']['perhour'][region]["value"]
+    price = data["offers"][vm]['prices']['perhour'][region]["value"]
     custom_logger.info("VM SKU: {}".format(instance_name))
     custom_logger.info("Hourly price: {} USD".format(price))
     return price
@@ -216,9 +216,10 @@ def get_cloud_cpu_count(instance_name, region, cloud_type):
 
 
 if __name__ == "__main__":
-    # print(get_azure_pricing("Standard_D32s_v3",region))
+    print(get_azure_pricing("Standard_D32s_v3","us-east"))
     # print(get_gcp_prices("n2-standard-16",region)
-    region = "us-east-1"  # Replace with your desired AWS region
+    region = "us-east-1"
+    # Replace with your desired AWS region
     instance_type = ["m6i.xlarge", "m6i.24xlarge"]  # Replace with your desired EC2 instance type
     os_type = ["rhel", "Linux", "Ubuntu Pro"]
     list_aws_regions(region)
