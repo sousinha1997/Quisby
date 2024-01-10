@@ -15,6 +15,10 @@ def custom_key(item):
          instance_type = item[1][0].split("-")[0]
          instance_number = int(item[1][0].split('-')[-1])
          return (instance_type, instance_number)
+    elif cloud_type == "azure":
+        instance_type = item[1][0].split("_")[0]
+        instance_number = item[1][0].split("_")[1]+item[1][0].split("_")[2]
+        return (instance_type, instance_number)
 
 def create_summary_coremark_pro_data(results,OS_RELEASE):
     final_results = []
