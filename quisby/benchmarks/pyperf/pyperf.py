@@ -20,13 +20,14 @@ def custom_key(item):
 
 def create_summary_pyperf_data(data,OS_RELEASE):
 
-    results = [['SYSTEM',"NO_OF_TEST_PROCESSES","CPU_INTEGER_MATH", "CPU_FLOATINGPOINT_MATH", "CPU_PRIME", "CPU_SORTING", "CPU_ENCRYPTION", "CPU_COMPRESSION", "CPU_SINGLETHREAD", "CPU_PHYSICS", "CPU_MATRIX_MULT_SSE", "CPU_mm", "CPU_sse", "CPU_fma", "CPU_avx", "CPU_avx512", "m_CPU_enc_SHA", "m_CPU_enc_AES", "m_CPU_enc_ECDSA", "ME_ALLOC_S", "ME_READ_S", "ME_READ_L", "ME_WRITE", "ME_LARGE", "ME_LATENCY", "ME_THREADED", "SUMM_CPU", "SUMM_ME"]]
-    processed_data = None
+    results = []
+    processed_data = []
     gmean_data = []
     SYSTEM_GEOMEAN = []
     end_index = 0
     start_index = 0
     system = ""
+    count = 1
     # Add summary data
     for index, row in enumerate(data):
         if row == [""]:
@@ -39,16 +40,19 @@ def create_summary_pyperf_data(data,OS_RELEASE):
             start_index = end_index + 1
             end_index = 0
         elif start_index:
-            system = row[0]
+            system = ["System",row[0]]
             processed_data.append(system)
             end_index = start_index + 1
             start_index = 0
         elif end_index:
-            if not row[0] == 'NumTestProcesses':
+            if(count == 1):
+                processed_data.append(row)
+                count = count + 1
+            else:
+                processed_data.append(row)
                 gmean_data.append(float(row[1]))
-            processed_data.append(row[1])
-    results.append(processed_data)
-    SYSTEM_GEOMEAN.append([system, gmean(gmean_data)])
+    results.extend(processed_data)
+    SYSTEM_GEOMEAN.append([system[1], gmean(gmean_data)])
     results.append([""])
     results.append(["SYSTEM_NAME", "GEOMEAN"])
     for item in SYSTEM_GEOMEAN:
