@@ -22,6 +22,10 @@ from quisby.benchmarks.pyperf.pyperf import extract_pyperf_data, create_summary_
 from quisby.benchmarks.pyperf.graph import graph_pyperf_data
 from quisby.benchmarks.pyperf.compare import compare_pyperf_results
 
+from quisby.benchmarks.phoronix.phoronix import extract_phoronix_data, create_summary_phoronix_data
+from quisby.benchmarks.phoronix.graph import graph_phoronix_data
+from quisby.benchmarks.phoronix.compare import compare_phoronix_results
+
 from quisby.benchmarks.streams.streams import extract_streams_data, create_summary_streams_data
 from quisby.benchmarks.streams.graph import graph_streams_data
 from quisby.benchmarks.streams.comparison import compare_streams_results
@@ -281,6 +285,10 @@ def data_handler():
                             results += ret_val
                     elif test_name == "pyperf":
                         ret_val = extract_pyperf_data(path, system_name, os_release)
+                        if ret_val:
+                            results += ret_val
+                    elif test_name == "phoronix":
+                        ret_val = extract_phoronix_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
                     else:
