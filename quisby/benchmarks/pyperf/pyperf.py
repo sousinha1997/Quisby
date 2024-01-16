@@ -21,7 +21,7 @@ def custom_key(item):
 def create_summary_pyperf_data(data,OS_RELEASE):
 
     results = []
-    processed_data = []
+    processed_data = None
     gmean_data = []
     SYSTEM_GEOMEAN = []
     end_index = 0
@@ -31,19 +31,20 @@ def create_summary_pyperf_data(data,OS_RELEASE):
     for index, row in enumerate(data):
         if row == [""]:
             if processed_data:
-                SYSTEM_GEOMEAN.append([system[1], gmean(gmean_data)])
+                SYSTEM_GEOMEAN.append([system, gmean(gmean_data)])
             processed_data = []
             gmean_data = []
             system = ""
             start_index = end_index + 1
             end_index = 0
         elif start_index:
-            system = ["System",row[0]]
+            system = row[0]
+            processed_data.append(system)
             end_index = start_index + 1
             start_index = 0
         elif end_index:
             gmean_data.append(float(row[1]))
-    SYSTEM_GEOMEAN.append([system[1], gmean(gmean_data)])
+    SYSTEM_GEOMEAN.append([system, gmean(gmean_data)])
     results.append([""])
     results.append(["SYSTEM_NAME", "GEOMEAN"])
     for item in SYSTEM_GEOMEAN:
