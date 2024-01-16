@@ -27,7 +27,6 @@ def create_summary_pyperf_data(data,OS_RELEASE):
     end_index = 0
     start_index = 0
     system = ""
-    count = 1
     # Add summary data
     for index, row in enumerate(data):
         if row == [""]:
@@ -45,12 +44,8 @@ def create_summary_pyperf_data(data,OS_RELEASE):
             end_index = start_index + 1
             start_index = 0
         elif end_index:
-            if(count == 1):
-                processed_data.append(row)
-                count = count + 1
-            else:
-                processed_data.append(row)
-                gmean_data.append(float(row[1]))
+            processed_data.append(row)
+            gmean_data.append(float(row[1]))
     results.extend(processed_data)
     SYSTEM_GEOMEAN.append([system[1], gmean(gmean_data)])
     results.append([""])
@@ -78,5 +73,5 @@ def extract_pyperf_data(path, system_name, OS_RELEASE):
         pyperf_results[index] = data.strip("\n").split(":")
     results.append([""])
     results.append([system_name])
-    results.extend(pyperf_results)
+    results.extend(pyperf_results[1:])
     return results
