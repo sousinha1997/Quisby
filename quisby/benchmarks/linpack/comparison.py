@@ -9,7 +9,7 @@ from quisby.sheet.sheet_util import (
     get_sheet,
     create_sheet,
 )
-
+from quisby.util import percentage_deviation
 
 def graph_linpack_comparison(spreadsheetId, test_name):
     """
@@ -278,18 +278,6 @@ def graph_linpack_comparison(spreadsheetId, test_name):
             GRAPH_ROW_INDEX += 20
             start_index, end_index = None, None
 
-def percent_deviation(item1,item2):
-    item1 = float(item1)
-    item2 = float(item2)
-    if (item1 == 0.0 == item2):
-        percentage_deviation = 0.0
-    elif (item1 == 0.0):
-        percentage_deviation = item2
-    elif (item2 == 0.0):
-        percentage_deviation = 0.0-item1
-    else:
-        percentage_deviation = ((item2 - item1) / item1) * 100
-    return percentage_deviation
 
 def compare_linpack_results(spreadsheets, spreadsheetId, test_name):
     values = []
@@ -327,11 +315,11 @@ def compare_linpack_results(spreadsheets, spreadsheetId, test_name):
 
                     price_perf.append(float(value[2]) / float(value[4]))
                     price_perf.append(float(ele[2]) / float(ele[4]))
-                    price_perf_diff = percent_deviation(price_perf[0], price_perf[1])
+                    price_perf_diff = percentage_deviation(price_perf[0], price_perf[1])
                     # price_perf_diff = (
                     #     float(price_perf[1]) - float(price_perf[0])
                     # ) / float(price_perf[0])
-                    percentage_diff = percent_deviation(value[2], ele[2])
+                    percentage_diff = percentage_deviation(value[2], ele[2])
                     # percentage_diff = (float(ele[2]) - float(value[2])) / float(
                     #     value[2]
                     # )
