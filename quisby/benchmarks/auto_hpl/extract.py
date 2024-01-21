@@ -29,4 +29,3 @@ def extract_auto_hpl_data(path, system_name):
             else:
                 return None
 
-extract_auto_hpl_data("/Users/soumyasinha/Workspace/2022/rocky_rhel_gvnic/new_pull_aws/m5.metal/pbench-user-benchmark_dvalin_auto_hpl_test_2022.12.02T09.48.46/hpl-Intel_openblas-2022.12.02-09.48.57.csv","n2-standard-8")
