@@ -30,7 +30,7 @@ def are_in_same_group(str1, str2):
     return False
 
 def comparegroup(instances):
-    cloud = "azure"
+    cloud = read_config("cloud","cloud_type")
     if cloud == "azure":
         for i in range(0,2):
             parts = instances[i].rsplit('_', 1)
