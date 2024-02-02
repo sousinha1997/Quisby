@@ -89,11 +89,11 @@ def percentage_deviation(item1,item2):
     item1 = float(item1)
     item2 = float(item2)
     if (item1 == 0.0 == item2):
-        percentage_deviation = 0.0
+        percentage_deviation = None
     elif (item1 == 0.0):
-        percentage_deviation = item2
+        percentage_deviation = None
     elif (item2 == 0.0):
-        percentage_deviation = 0.0 - item1
+        percentage_deviation = None
     else:
         percentage_deviation = ((item2 - item1) / item1) * 100
     return round(percentage_deviation,6)
@@ -109,8 +109,8 @@ def merge_lists_alternately(results, list1, list2):
             dev = percentage_deviation(item1,item2)
             merger_list.append(str(dev))
         except Exception as exc:
-            if(item1 == "fail" or item2 == "fail"):
-                merger_list.append("-")
+            if(item1 == "fail" or item2 == "fail" or item1 == 0.0 or item2 == 0.0):
+                merger_list.append("One or both test failed !")
             else:
                 merger_list.append("%Diff")
     results.append(merger_list)
@@ -141,7 +141,7 @@ def combine_two_array_alternating(results, value, ele):
                 dev = percentage_deviation(item1,item2)
                 holder_list.append(dev)
             except Exception:
-                if (item1 == "fail" or item2 == "fail"):
+                if (item1 == "fail" or item2 == "fail" or item1 == 0.0 or item2 == 0.0):
                     holder_list.append("-")
                 else:
                     holder_list.append("%Diff")
