@@ -12,8 +12,8 @@ def extract_auto_hpl_data(path, system_name):
             file_data = file.readlines()
 
             if len(file_data) > 1:
-                header_row = file_data[0].strip().split(":")
-                data_row = file_data[1].strip().split(":")
+                header_row = file_data[-2].strip().split(":")
+                data_row = file_data[-1].strip().split(":")
 
                 data_dict = {}
                 for key, value in zip(header_row, data_row):
@@ -28,3 +28,4 @@ def extract_auto_hpl_data(path, system_name):
 
             else:
                 return None
+

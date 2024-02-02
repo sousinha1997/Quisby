@@ -12,7 +12,7 @@ from quisby.util import combine_two_array_alternating, merge_lists_alternately
 from quisby.benchmarks.coremark.graph import graph_coremark_data
 
 
-def compare_coremark_results(spreadsheets, spreadsheetId, test_name, table_name=["System Name"]):
+def compare_coremark_results(spreadsheets, spreadsheetId, test_name, table_name=["System name"]):
     values = []
     results = []
     spreadsheet_name = []
@@ -30,13 +30,12 @@ def compare_coremark_results(spreadsheets, spreadsheetId, test_name, table_name=
         for ele in list_2:
             # Check max throughput
             if value[0][0] in table_name and ele[0][0] in table_name:
-                if value[1][0].split(".")[0] == ele[1][0].split(".")[0]:
-                    results.append([""])
-                    for item1 in value:
-                        for item2 in ele:
-                            if item1[0] == item2[0]:
-                                results = merge_lists_alternately(results, item1, item2)
-                    break
+                results.append([""])
+                for item1 in value:
+                    for item2 in ele:
+                        if item1[0] == item2[0]:
+                            results = merge_lists_alternately(results, item1, item2)
+                break
 
             elif value[1][0] == ele[1][0]:
                 if value[0][0] == ele[0][0]:
