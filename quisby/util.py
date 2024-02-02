@@ -123,7 +123,7 @@ def merge_lists_alternately(results, list1, list2):
             else:
                 merger_list.append(ANSI.color_text((31) + str(dev)))
         except Exception as exc:
-            if(item1 == "fail" or item2 == "fail" or float(item1) == 0.0 or float(item2) == 0.0):
+            if(item1 == "fail" or item2 == "fail" or item1 == str(0) or item2 == str(0)):
                 merger_list.append(ANSI.color_text((33) + "One or both test failed !"))
             else:
                 merger_list.append("%Diff")
@@ -158,7 +158,7 @@ def combine_two_array_alternating(results, value, ele):
                 else:
                     holder_list.append(ANSI.color_text((31) + str(dev)))
             except Exception:
-                if (item1 == "fail" or item2 == "fail" or float(item1) == 0.0 or float(item2) == 0.0):
+                if (item1 == "fail" or item2 == "fail" or item1 == str(0) or item2 == str(0)):
                     holder_list.append(ANSI.color_text((33) + "One or both test failed !"))
                 else:
                     holder_list.append("%Diff")
