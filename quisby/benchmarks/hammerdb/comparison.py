@@ -36,6 +36,10 @@ def comparegroup(instances):
             parts = instances[i].rsplit('_', 1)
             instances[i] = parts[0]+"_"
         return are_in_same_group(instances[0], instances[1])
+    elif cloud == "aws":
+        if instances[0].split(".")[0] == instances[1].split(".")[0]:
+            return True
+        return False
 
 
 def compare_hammerdb_results(spreadsheets, spreadsheetId, test_name):

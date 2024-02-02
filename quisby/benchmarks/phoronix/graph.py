@@ -38,8 +38,9 @@ def graph_phoronix_data(spreadsheetId,range):
     data = read_sheet(spreadsheetId, range)
 
     for index, row in enumerate(data):
-        if "GEOMEAN" in row:
-            start_index = index
+        for col in row:
+            if "GEOMEAN" in col:
+                start_index = index
         a = len(data)
         if start_index:
             if row == []:

@@ -51,7 +51,7 @@ def create_summary_passmark_data(data,OS_RELEASE):
     results.append(processed_data)
     SYSTEM_GEOMEAN.append([system, gmean(gmean_data)])
     results.append([""])
-    results.append(["SYSTEM_NAME","GEOMEAN"])
+    results.append(["SYSTEM_NAME","GEOMEAN-"+str(OS_RELEASE)])
     sorted_data = sorted(SYSTEM_GEOMEAN,key=custom_key)
     for item in sorted_data:
         results.append(item)
