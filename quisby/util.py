@@ -119,12 +119,12 @@ def merge_lists_alternately(results, list1, list2):
         try:
             dev = percentage_deviation(item1, item2)
             if(dev >= 0):
-                merger_list.append(ANSI.color_text((32) + str(dev)))
+                merger_list.append(ANSI.color_text(32) + str(dev))
             else:
-                merger_list.append(ANSI.color_text((31) + str(dev)))
+                merger_list.append(ANSI.color_text(31) + str(dev))
         except Exception as exc:
             if(item1 == "fail" or item2 == "fail" or str(item1) == str(0) or str(item2) == str(0)):
-                merger_list.append(ANSI.color_text((33) + "One or both test failed !"))
+                merger_list.append(ANSI.color_text(33) + "One or both test failed !")
             else:
                 merger_list.append("%Diff")
     results.append(merger_list)
@@ -154,12 +154,12 @@ def combine_two_array_alternating(results, value, ele):
             try:
                 dev = percentage_deviation(item1, item2)
                 if (dev >= 0):
-                    holder_list.append(ANSI.color_text((32) + str(dev)))
+                    holder_list.append(ANSI.color_text(32) + str(dev))
                 else:
-                    holder_list.append(ANSI.color_text((31) + str(dev)))
+                    holder_list.append(ANSI.color_text(31) + str(dev))
             except Exception:
-                if (item1 == "fail" or item2 == "fail" or item1 == str(0) or item2 == str(0)):
-                    holder_list.append(ANSI.color_text((33) + "One or both test failed !"))
+                if (item1 == "fail" or item2 == "fail" or str(item1) == str(0) or str(item2) == str(0)):
+                    holder_list.append(ANSI.color_text(33) + "One or both test failed !")
                 else:
                     holder_list.append("%Diff")
 
