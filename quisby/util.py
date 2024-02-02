@@ -127,6 +127,7 @@ def merge_lists_alternately(results, list1, list2):
                 merger_list.append(ANSI.color_text(33) + "One or both test failed !")
             else:
                 merger_list.append("%Diff")
+        merger_list.append([""])
     results.append(merger_list)
     return results
 
@@ -162,8 +163,7 @@ def combine_two_array_alternating(results, value, ele):
                     holder_list.append(ANSI.color_text(33) + "One or both test failed !")
                 else:
                     holder_list.append("%Diff")
-
+            holder_list.append([""])
         results.append(holder_list)
-
     return results
 
