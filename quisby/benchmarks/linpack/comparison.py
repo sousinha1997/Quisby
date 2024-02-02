@@ -312,18 +312,10 @@ def compare_linpack_results(spreadsheets, spreadsheetId, test_name):
             else:
                 if value[0] == ele[0]:
                     price_perf = []
-
                     price_perf.append(float(value[2]) / float(value[4]))
                     price_perf.append(float(ele[2]) / float(ele[4]))
                     price_perf_diff = percentage_deviation(price_perf[0], price_perf[1])
-                    # price_perf_diff = (
-                    #     float(price_perf[1]) - float(price_perf[0])
-                    # ) / float(price_perf[0])
                     percentage_diff = percentage_deviation(value[2], ele[2])
-                    # percentage_diff = (float(ele[2]) - float(value[2])) / float(
-                    #     value[2]
-                    # )
-
                     results.append(
                         [
                             value[0],

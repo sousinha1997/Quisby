@@ -7,6 +7,17 @@ config_location = None
 
 invalid_compare_list = ["pig"]
 
+
+class ANSI():
+    def background(code):
+        return "\33[{code}m".format(code=code)
+
+    def style_text(code):
+        return "\33[{code}m".format(code=code)
+
+    def color_text(code):
+        return "\33[{code}m".format(code=code)
+
 def create_parser():
     configur = ConfigParser()
     return configur
@@ -96,7 +107,7 @@ def percentage_deviation(item1,item2):
         percentage_deviation = None
     else:
         percentage_deviation = ((item2 - item1) / item1) * 100
-    return round(percentage_deviation,6)
+    return round(percentage_deviation, 6)
 
 
 def merge_lists_alternately(results, list1, list2):
@@ -106,11 +117,14 @@ def merge_lists_alternately(results, list1, list2):
         merger_list.append(item1)
         merger_list.append(item2)
         try:
-            dev = percentage_deviation(item1,item2)
-            merger_list.append(str(dev))
+            dev = percentage_deviation(item1, item2)
+            if(dev >= 0):
+                merger_list.append(ANSI.background((42) + str(dev)))
+            else:
+                merger_list.append(ANSI.background((41) + str(dev)))
         except Exception as exc:
             if(item1 == "fail" or item2 == "fail" or item1 == 0.0 or item2 == 0.0):
-                merger_list.append("One or both test failed !")
+                merger_list.append(ANSI.background((43) + "One or both test failed !"))
             else:
                 merger_list.append("%Diff")
     results.append(merger_list)
@@ -138,7 +152,7 @@ def combine_two_array_alternating(results, value, ele):
             holder_list.append(item1)
             holder_list.append(item2)
             try:
-                dev = percentage_deviation(item1,item2)
+                dev = percentage_deviation(item1, item2)
                 holder_list.append(dev)
             except Exception:
                 if (item1 == "fail" or item2 == "fail" or item1 == 0.0 or item2 == 0.0):
