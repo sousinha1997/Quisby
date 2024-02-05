@@ -123,4 +123,4 @@ def graph_coremark_pro_data(spreadsheetId,range):
             # Reset variables
             start_index, end_index = 0, 0
 
-            time.sleep(1)
+            time.sleep(3)

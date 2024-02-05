@@ -145,7 +145,7 @@ def graph_streams_data(spreadsheetId, test_name):
 
                 sheet.batchUpdate(spreadsheetId=spreadsheetId, body=body).execute()
 
-                time.sleep(1)
+                time.sleep(3)
 
             # Reset variables
             start_index, end_index = 0, 0

@@ -125,4 +125,4 @@ def graph_aim_data(spreadsheetId, test_name):
 
             start_index, end_index = None, None
 
-            time.sleep(1)
+            time.sleep(3)
