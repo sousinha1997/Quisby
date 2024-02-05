@@ -32,12 +32,16 @@ def are_in_same_group(str1, str2):
 def comparegroup(instances):
     cloud = read_config("cloud","cloud_type")
     if cloud == "azure":
-        for i in range(0,2):
+        for i in range(0, 2):
             parts = instances[i].rsplit('_', 1)
             instances[i] = parts[0]+"_"
         return are_in_same_group(instances[0], instances[1])
     elif cloud == "aws":
         if instances[0].split(".")[0] == instances[1].split(".")[0]:
+            return True
+        return False
+    elif cloud == "gcp":
+        if(instances[0].split("-")[0] == instances[1].split("-")[0]):
             return True
         return False
 
