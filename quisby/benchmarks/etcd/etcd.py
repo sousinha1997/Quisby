@@ -25,8 +25,8 @@ def create_summary_etcd_data(results):
     return create_summary_fio_run_data(results)
 
 
-def graph_etcd_data(spreadsheetId, test_name):
-    return graph_fio_run_data(spreadsheetId, test_name)
+def graph_etcd_data(spreadsheetId, test_name, action):
+    return graph_fio_run_data(spreadsheetId, test_name, action)
 
 
 def compare_etcd_results(spreadsheets, spreadsheetId, test_name):

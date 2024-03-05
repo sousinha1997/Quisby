@@ -10,9 +10,53 @@ from quisby.sheet.sheet_util import (
 )
 
 
-def create_series_range_list_stream(
-    column_index, len_of_func, sheetId, start_index, end_index
-):
+def create_series_range_list_stream_compare(column_index, len_of_func, sheetId, start_index, end_index):
+    series = []
+    len_of_func = column_index + len_of_func
+    while(column_index < len_of_func):
+        series.append(
+        {
+            "series": {
+                "sourceRange": {
+                    "sources": [
+                        {
+                            "sheetId": sheetId,
+                            "startRowIndex": start_index,
+                            "endRowIndex": end_index,
+                            "startColumnIndex": column_index,
+                            "endColumnIndex": column_index+1,
+                        }
+                    ]
+                }
+            },
+            "targetAxis": "LEFT_AXIS",
+            "type": "COLUMN",
+        },)
+        column_index = column_index + 1
+
+    series.append({
+        "series": {
+            "sourceRange": {
+                "sources": [
+                    {
+                        "sheetId": sheetId,
+                        "startRowIndex": start_index,
+                        "endRowIndex": end_index,
+                        "startColumnIndex": column_index,
+                        "endColumnIndex": column_index+1,
+                    }
+                ]
+            }
+        },
+        "targetAxis": "RIGHT_AXIS",
+        "type": "LINE",
+    },)
+    column_index = column_index+1
+
+    return series, column_index
+
+
+def create_series_range_list_stream_process(column_index, len_of_func, sheetId, start_index, end_index):
     series = []
 
     for index in range(len_of_func):
@@ -40,7 +84,7 @@ def create_series_range_list_stream(
     return series, column_index
 
 
-def graph_streams_data(spreadsheetId, test_name):
+def graph_streams_data(spreadsheetId, test_name, action):
     """
     Retreive each streams results and graph them up indvidually
 
@@ -53,10 +97,10 @@ def graph_streams_data(spreadsheetId, test_name):
     GRAPH_ROW_INDEX = 0
     start_index = 0
     end_index = 0
-    data = read_sheet(spreadsheetId,"streams")
+    data = read_sheet(spreadsheetId, "streams")
 
     for index, row in enumerate(data):
-        if "Max Throughput" in row:
+        if "Max Througput" in row:
             start_index = index
 
         if start_index:
@@ -82,9 +126,7 @@ def graph_streams_data(spreadsheetId, test_name):
                     "properties"
                 ]["sheetId"]
 
-                series, column = create_series_range_list_stream(
-                    column, len_of_func, sheetId, start_index, end_index
-                )
+                series, column = globals()[f'create_series_range_list_stream_{action}'](column, len_of_func, sheetId, start_index, end_index)
 
                 requests = {
                     "addChart": {
@@ -92,13 +134,17 @@ def graph_streams_data(spreadsheetId, test_name):
                             "spec": {
                                 "title": "%s: %s" % (test_name, graph_data[0][0]),
                                 "basicChart": {
-                                    "chartType": "COLUMN",
+                                    "chartType": "COMBO",
                                     "legendPosition": "BOTTOM_LEGEND",
                                     "axis": [
                                         {"position": "BOTTOM_AXIS", "title": ""},
                                         {
                                             "position": "LEFT_AXIS",
                                             "title": "Throughput (MB/s)",
+                                        },
+                                        {
+                                            "position": "RIGHT_AXIS",
+                                            "title": "%Diff",
                                         },
                                     ],
                                     "domains": [

@@ -40,7 +40,6 @@ def compare_uperf_results(spreadsheets, spreadsheetId, test_name):
         clear_sheet_data(spreadsheetId, test_name)
         custom_logger.info("Appending new " + test_name + " data to sheet...")
         append_to_sheet(spreadsheetId, results, test_name)
-        graph_uperf_data(spreadsheetId, test_name)
     except Exception as exc:
         custom_logger.debug(str(exc))
         custom_logger.error("Failed to append data to sheet")

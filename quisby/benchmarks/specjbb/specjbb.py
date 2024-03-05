@@ -86,30 +86,11 @@ def extract_specjbb_data(path, system_name,OS_RELEASE):
         custom_logger.error(str(exc))
         return None
 
-    # Find position of SPEC Scores
-    # start_index, end_index = 0, 0
-    # for index, row in enumerate(specjbb_results):
-
-    #     if "SPEC scores" in row:
-    #         start_index = index + 2
-
-    #     if start_index:
-    #         if not row.strip("\n"):
-    #             end_index = index - 2
-    #             break
     results.append(["Warehouses", f"Thrput-{OS_RELEASE}"])
     for data_dict in specjbb_results[1:]:
         if data_dict["Warehouses"] == "Warehouses" or data_dict["Bops"] == "Bops":
             pass
         else:
             results.append([data_dict["Warehouses"], data_dict["Bops"]])
-    # # Extract data and convert to a list
-    # for row in specjbb_results[start_index:end_index]:
-    #     row = row.strip(" ").strip("*").strip(" ").strip("\n").split(" ")
-
-    #     if row[-1] == "Thrput":
-    #         row[-1] = row[-1] + f"-{config.OS_RELEASE}"
-
-    #     results.append([row[0], row[-1]])
    
     return results

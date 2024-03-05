@@ -13,8 +13,7 @@ from quisby.sheet.sheet_util import (
 )
 
 
-def series_range_uperf(column_count, sheetId, start_index, end_index):
-
+def series_range_uperf_process(column_count, sheetId, start_index, end_index):
     series = []
 
     for index in range(column_count):

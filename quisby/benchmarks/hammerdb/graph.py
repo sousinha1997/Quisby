@@ -10,8 +10,7 @@ from quisby.sheet.sheet_util import (
 )
 
 
-def series_range_hammerdb(column_count, sheetId, start_index, end_index):
-
+def series_range_hammerdb_process(column_count, sheetId, start_index, end_index):
     series = []
 
     for index in range(column_count):
@@ -38,12 +37,59 @@ def series_range_hammerdb(column_count, sheetId, start_index, end_index):
     return series
 
 
-def graph_hammerdb_data(spreadsheetId, range):
+def series_range_hammerdb_compare(column_count, sheetId, start_index, end_index):
+    series = []
+    column_index = 1
+    while column_index < column_count:
+        series.extend([
+            {
+                "series": {
+                    "sourceRange": {
+                        "sources": [
+                            {
+                                "sheetId": sheetId,
+                                "startRowIndex": start_index,
+                                "endRowIndex": end_index,
+                                "startColumnIndex": column_index,
+                                "endColumnIndex": column_index + 1,
+                            }
+                        ]
+                    }
+                },
+                "targetAxis": "LEFT_AXIS",
+                "type": "COLUMN",
+            },
+            {
+                "series": {
+                    "sourceRange": {
+                        "sources": [
+                            {
+                                "sheetId": sheetId,
+                                "startRowIndex": start_index,
+                                "endRowIndex": end_index,
+                                "startColumnIndex": column_index + 1,
+                                "endColumnIndex": column_index + 2,
+                            }
+                        ]
+                    }
+                },
+                "targetAxis": "LEFT_AXIS",
+                "type": "COLUMN",
+            },
+        ])
+        column_index = column_index + 3
+
+    return series
+
+
+def graph_hammerdb_data(spreadsheetId, range, action):
     """"""
-    GRAPH_COL_INDEX, GRAPH_ROW_INDEX = 8, 0
-    start_index, end_index = 0, 0
 
     hammerdb_results = read_sheet(spreadsheetId, range)
+    LAST_ROW = len(hammerdb_results)
+
+    GRAPH_COL_INDEX, GRAPH_ROW_INDEX = 0, LAST_ROW+1
+    start_index, end_index = 0, 0
 
     for index, row in enumerate(hammerdb_results):
 
@@ -53,7 +99,7 @@ def graph_hammerdb_data(spreadsheetId, range):
                 start_index = index
 
         if start_index:
-            if row == []:
+            if not row:
                 end_index = index
             if index + 1 == len(hammerdb_results):
                 end_index = index + 1
@@ -72,7 +118,7 @@ def graph_hammerdb_data(spreadsheetId, range):
                         "spec": {
                             "title": f"{header_name}",
                             "basicChart": {
-                                "chartType": "COLUMN",
+                                "chartType": "COMBO",
                                 "legendPosition": "BOTTOM_LEGEND",
                                 "axis": [
                                     {
@@ -82,6 +128,10 @@ def graph_hammerdb_data(spreadsheetId, range):
                                     {
                                         "position": "LEFT_AXIS",
                                         "title": f"TPMs",
+                                    },
+                                    {
+                                        "position": "RIGHT_AXIS",
+                                        "title": "%Diff",
                                     },
                                 ],
                                 "domains": [
@@ -101,7 +151,7 @@ def graph_hammerdb_data(spreadsheetId, range):
                                         }
                                     }
                                 ],
-                                "series": series_range_hammerdb(
+                                "series": globals()[f'series_range_hammerdb_{action}'](
                                     column_count, sheetId, start_index, end_index
                                 ),
                                 "headerCount": 1,
@@ -120,11 +170,11 @@ def graph_hammerdb_data(spreadsheetId, range):
                 }
             }
 
-            if GRAPH_COL_INDEX >= 15:
+            if GRAPH_COL_INDEX >= 10:
                 GRAPH_ROW_INDEX += 20
-                GRAPH_COL_INDEX = 8
+                GRAPH_COL_INDEX = 0
             else:
-                GRAPH_COL_INDEX += 8
+                GRAPH_COL_INDEX += 6
 
             body = {"requests": requests}
 

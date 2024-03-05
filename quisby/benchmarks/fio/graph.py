@@ -10,12 +10,11 @@ from quisby.sheet.sheet_util import (
 )
 
 
-def create_series_range_fio(column_count, sheetId, start_index, end_index):
+def create_series_range_fio_process(column_count, sheetId, start_index, end_index, graph):
     """"""
     series = []
 
     for index in range(column_count):
-
         series.append(
             {
                 "series": {
@@ -38,19 +37,88 @@ def create_series_range_fio(column_count, sheetId, start_index, end_index):
     return series
 
 
-def graph_fio_run_data(spreadsheetId, test_name):
+def create_series_range_fio_compare(column_count, sheetId, start_index, end_index, graph):
+    series = [
+        {
+            "series": {
+                "sourceRange": {
+                    "sources": [
+                        {
+                            "sheetId": sheetId,
+                            "startRowIndex": start_index + 1,
+                            "endRowIndex": end_index,
+                            "startColumnIndex": 1,
+                            "endColumnIndex": 2,
+                        }
+                    ]
+                }
+            },
+            "targetAxis": "LEFT_AXIS",
+            "type": "COLUMN",
+        },
+        {
+            "series": {
+                "sourceRange": {
+                    "sources": [
+                        {
+                            "sheetId": sheetId,
+                            "startRowIndex": start_index + 1,
+                            "endRowIndex": end_index,
+                            "startColumnIndex": 2,
+                            "endColumnIndex": 3,
+                        }
+                    ]
+                }
+            },
+            "targetAxis": "LEFT_AXIS",
+            "type": "COLUMN",
+        },
+        {
+            "series": {
+                "sourceRange": {
+                    "sources": [
+                        {
+                            "sheetId": sheetId,
+                            "startRowIndex": start_index + 1,
+                            "endRowIndex": end_index,
+                            "startColumnIndex": 3,
+                            "endColumnIndex": 4,
+                        }
+                    ]
+                }
+            },
+            "targetAxis": "RIGHT_AXIS",
+            "type": graph,
+        },
+    ]
+    return series
+
+
+def graph_fio_run_data(spreadsheetId, test_name, action):
     GRAPH_COL_INDEX = 5
     GRAPH_ROW_INDEX = 1
     start_index, end_index = None, None
+    measurement = {
+        "iops": "Mb/sec",
+        "lat": "secs",
+    }
+    left_axis = ""
 
     data = read_sheet(spreadsheetId, test_name)
 
-    if len(data) > 1000:
-        append_empty_row_sheet(spreadsheetId, 500, test_name)
-
+    if len(data) > 2000:
+        append_empty_row_sheet(spreadsheetId, 1000, test_name)
+    elif len(data) > 1000:
+        append_empty_row_sheet(spreadsheetId, 1000, test_name)
     for index, row in enumerate(data):
         if "iteration_name" in row:
             start_index = index - 1
+            test_det = row[1]
+            left_axis = ""
+            for key in measurement:
+                if key in test_det:
+                    left_axis = measurement.get(key)
+                    break
             continue
 
         if start_index:
@@ -60,15 +128,19 @@ def graph_fio_run_data(spreadsheetId, test_name):
                 end_index = index
 
         if end_index:
+            if(end_index - start_index == 3):
+                graph = "COLUMN"
+            else:
+                graph = "LINE"
             custom_logger.info(
                 f"Creating graph for table index {start_index}-{end_index} in sheet"
             )
             try:
                 graph_data = data[start_index:end_index]
-
                 column_count = len(graph_data[2])
             except IndexError:
-                custom_logger.error(f"{test_name}: Data inconsistency at {start_index}-{end_index}. Skipping to next data")
+                custom_logger.error(
+                    f"{test_name}: Data inconsistency at {start_index}-{end_index}. Skipping to next data")
                 continue
 
             sheetId = get_sheet(spreadsheetId, test_name)["sheets"][0]["properties"][
@@ -82,11 +154,20 @@ def graph_fio_run_data(spreadsheetId, test_name):
                             "title": f"{graph_data[0][2].split('-')[1]}:{graph_data[0][1]} {graph_data[0][2].split('-')[0]}",
                             "subtitle": f"{graph_data[0][0]} | d:Disks, j:Jobs, iod:IODepth",
                             "basicChart": {
-                                "chartType": "COLUMN",
+                                "chartType": "COMBO",
+                                "legendPosition": "BOTTOM_LEGEND",
                                 "axis": [
                                     {
                                         "position": "LEFT_AXIS",
-                                        "title": "Mb/sec",
+                                        "title": left_axis,
+                                    },
+                                    {
+                                        "position": "RIGHT_AXIS",
+                                        "title": "%Diff",
+                                    },
+                                    {
+                                        "position": "BOTTOM_AXIS",
+                                        "title": "",
                                     },
                                 ],
                                 "domains": [
@@ -106,8 +187,8 @@ def graph_fio_run_data(spreadsheetId, test_name):
                                         }
                                     }
                                 ],
-                                "series": create_series_range_fio(
-                                    column_count, sheetId, start_index, end_index + 1
+                                "series": globals()[f'create_series_range_fio_{action}'](
+                                    column_count, sheetId, start_index, end_index + 1,graph
                                 ),
                                 "headerCount": 1,
                             },

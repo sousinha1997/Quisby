@@ -31,7 +31,7 @@ def compare_streams_results(
     for value in list_1:
         for ele in list_2:
             # Check max throughput
-            if value[0][0] in table_name and ele[0][0] in table_name:
+            if value[0][0] == ele[0][0] == table_name[0]:
                 if value[1][0].split(".")[0] == ele[1][0].split(".")[0]:
                     results.append([""])
                     for item1 in value:

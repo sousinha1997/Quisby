@@ -1,9 +1,9 @@
-
 from quisby.sheet.sheet_util import read_sheet,clear_sheet_charts,get_sheet
 from quisby.sheet.sheetapi import sheet
 import time
 
-def create_series_range_list_passmark(column_count, sheetId, start_index, end_index):
+
+def create_series_range_list_passmark_process(column_count, sheetId, start_index, end_index):
     series = []
 
     for index in range(column_count):
@@ -29,7 +29,65 @@ def create_series_range_list_passmark(column_count, sheetId, start_index, end_in
 
     return series
 
-def graph_passmark_data(spreadsheetId,range):
+
+def create_series_range_list_passmark_compare(column_count, sheetId, start_index, end_index):
+    series = [
+        {
+            "series": {
+                "sourceRange": {
+                    "sources": [
+                        {
+                            "sheetId": sheetId,
+                            "startRowIndex": start_index,
+                            "endRowIndex": end_index,
+                            "startColumnIndex": 1,
+                            "endColumnIndex": 2,
+                        }
+                    ]
+                }
+            },
+            "targetAxis": "LEFT_AXIS",
+            "type": "COLUMN",
+        },
+        {
+            "series": {
+                "sourceRange": {
+                    "sources": [
+                        {
+                            "sheetId": sheetId,
+                            "startRowIndex": start_index,
+                            "endRowIndex": end_index,
+                            "startColumnIndex": 2,
+                            "endColumnIndex": 3,
+                        }
+                    ]
+                }
+            },
+            "targetAxis": "LEFT_AXIS",
+            "type": "COLUMN",
+        },
+        {
+            "series": {
+                "sourceRange": {
+                    "sources": [
+                        {
+                            "sheetId": sheetId,
+                            "startRowIndex": start_index,
+                            "endRowIndex": end_index,
+                            "startColumnIndex": 3,
+                            "endColumnIndex": 4,
+                        }
+                    ]
+                }
+            },
+            "targetAxis": "RIGHT_AXIS",
+            "type": "LINE",
+        },
+    ]
+    return series
+
+
+def graph_passmark_data(spreadsheetId, range, action):
     GRAPH_COL_INDEX = 3
     GRAPH_ROW_INDEX = 10
     start_index = 0
@@ -38,11 +96,11 @@ def graph_passmark_data(spreadsheetId,range):
     data = read_sheet(spreadsheetId, range)
 
     for index, row in enumerate(data):
-        if "GEOMEAN" in row:
-            start_index = index
-        a = len(data)
+        for col in row:
+            if "GEOMEAN" in col:
+                start_index = index
         if start_index:
-            if row == []:
+            if not row:
                 end_index = index - 1
             if index + 1 == len(data):
                 end_index = index + 1
@@ -62,13 +120,17 @@ def graph_passmark_data(spreadsheetId,range):
                         "spec": {
                             "title": "%s : %s" % (range, "GEOMEAN"),
                             "basicChart": {
-                                "chartType": "COLUMN",
+                                "chartType": "COMBO",
                                 "legendPosition": "BOTTOM_LEGEND",
                                 "axis": [
                                     {"position": "BOTTOM_AXIS", "title": ""},
                                     {
                                         "position": "LEFT_AXIS",
-                                        "title": "geomean",
+                                        "title": "Geomean",
+                                    },
+                                    {
+                                        "position": "RIGHT_AXIS",
+                                        "title": "%Diff",
                                     },
                                 ],
                                 "domains": [
@@ -88,9 +150,9 @@ def graph_passmark_data(spreadsheetId,range):
                                         }
                                     }
                                 ],
-                                "series": create_series_range_list_passmark(
-                                    column_count, sheetId, start_index, end_index
-                                ),
+                                "series": globals()[f'create_series_range_list_passmark_{action}'](column_count,
+                                                                                                   sheetId, start_index,
+                                                                                                   end_index),
                                 "headerCount": 1,
                             },
                         },

@@ -4,7 +4,7 @@ from quisby.sheet.sheetapi import sheet
 from quisby.sheet.sheet_util import read_sheet, clear_sheet_charts, get_sheet
 
 
-def create_series_range_speccpu(column_count, sheetId, start_index, end_index):
+def create_series_range_speccpu_process(column_count, sheetId, start_index, end_index):
     """"""
     series = []
 
@@ -32,7 +32,64 @@ def create_series_range_speccpu(column_count, sheetId, start_index, end_index):
     return series
 
 
-def graph_speccpu_data(spreadsheetId, test_name):
+def create_series_range_speccpu_compare(column_count, sheetId, start_index, end_index):
+    series = [
+        {
+            "series": {
+                "sourceRange": {
+                    "sources": [
+                        {
+                            "sheetId": sheetId,
+                            "startRowIndex": start_index + 1,
+                            "endRowIndex": end_index,
+                            "startColumnIndex": 1,
+                            "endColumnIndex": 2,
+                        }
+                    ]
+                }
+            },
+            "targetAxis": "LEFT_AXIS",
+            "type": "COLUMN",
+        },
+        {
+            "series": {
+                "sourceRange": {
+                    "sources": [
+                        {
+                            "sheetId": sheetId,
+                            "startRowIndex": start_index + 1,
+                            "endRowIndex": end_index,
+                            "startColumnIndex": 2,
+                            "endColumnIndex": 3,
+                        }
+                    ]
+                }
+            },
+            "targetAxis": "LEFT_AXIS",
+            "type": "COLUMN",
+        },
+        {
+            "series": {
+                "sourceRange": {
+                    "sources": [
+                        {
+                            "sheetId": sheetId,
+                            "startRowIndex": start_index + 1,
+                            "endRowIndex": end_index,
+                            "startColumnIndex": 3,
+                            "endColumnIndex": 4,
+                        }
+                    ]
+                }
+            },
+            "targetAxis": "RIGHT_AXIS",
+            "type": "LINE",
+        },
+    ]
+    return series
+
+
+def graph_speccpu_data(spreadsheetId, test_name, action):
     """"""
     GRAPH_COL_INDEX = 1
     GRAPH_ROW_INDEX = 0
@@ -65,13 +122,17 @@ def graph_speccpu_data(spreadsheetId, test_name):
                             "title": f"{test_name}",
                             "subtitle": f"{graph_data[0][0]}, {graph_data[0][1]}",
                             "basicChart": {
-                                "chartType": "COLUMN",
+                                "chartType": "COMBO",
                                 "legendPosition": "BOTTOM_LEGEND",
                                 "axis": [
                                     {"position": "BOTTOM_AXIS", "title": "Benchmark"},
                                     {
                                         "position": "LEFT_AXIS",
                                         "title": "base Rate",
+                                    },
+                                    {
+                                        "position": "RIGHT_AXIS",
+                                        "title": "%Diff",
                                     },
                                 ],
                                 "domains": [
@@ -82,7 +143,7 @@ def graph_speccpu_data(spreadsheetId, test_name):
                                                     {
                                                         "sheetId": sheetId,
                                                         "startRowIndex": start_index
-                                                        + 1,
+                                                                         + 1,
                                                         "endRowIndex": end_index,
                                                         "startColumnIndex": 0,
                                                         "endColumnIndex": 1,
@@ -92,7 +153,7 @@ def graph_speccpu_data(spreadsheetId, test_name):
                                         }
                                     }
                                 ],
-                                "series": create_series_range_speccpu(
+                                "series": globals()[f'create_series_range_speccpu_{action}'](
                                     column_count, sheetId, start_index, end_index
                                 ),
                                 "headerCount": 1,

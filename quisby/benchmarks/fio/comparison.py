@@ -11,7 +11,7 @@ from quisby.util import combine_two_array_alternating
 from quisby.benchmarks.fio.graph import graph_fio_run_data
 
 
-def compare_fio_run_results(spreadsheets, spreadsheetId, test_name="fio"):
+def compare_fio_run_results(spreadsheets, spreadsheetId, test_name):
     spreadsheet_name = []
     values = []
     results = []
