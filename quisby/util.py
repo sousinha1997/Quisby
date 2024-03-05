@@ -7,9 +7,11 @@ config_location = None
 
 invalid_compare_list = ["pig"]
 
+
 def create_parser():
     configur = ConfigParser()
     return configur
+
 
 def read_config(section, key):
     global config_location
@@ -85,15 +87,37 @@ def mk_int(string):
     else:
         return 1
 
+def percentage_deviation(item1,item2):
+    item1 = float(item1)
+    item2 = float(item2)
+
+    if (item1 == 0.0 == item2):
+        percentage_deviation = None
+    elif (item1 == 0.0):
+        percentage_deviation = None
+    elif (item2 == 0.0):
+        percentage_deviation = None
+    else:
+        percentage_deviation = ((item2 - item1) / item1) * 100
+    return round(percentage_deviation, 6)
+
 
 def merge_lists_alternately(results, list1, list2):
-    merger_list = []
-
-    merger_list.append(list1[0])
+    merger_list = [list1[0]]
     for item1, item2 in zip(list1[1:], list2[1:]):
         merger_list.append(item1)
         merger_list.append(item2)
-
+        try:
+            dev = percentage_deviation(item1, item2)
+            if dev >= 0:
+                merger_list.append(dev)
+            else:
+                merger_list.append(dev)
+        except Exception as exc:
+            if item1 == "fail" or item2 == "fail":
+                merger_list.append("Failed")
+            else:
+                merger_list.append("%Diff")
     results.append(merger_list)
 
     # row = [None] * (len(item1[1:]) + len(item2[1:]))
@@ -106,7 +130,7 @@ def merge_lists_alternately(results, list1, list2):
 
 def combine_two_array_alternating(results, value, ele):
     indexer = []
-    test_name=read_config("test","test_name")
+    test_name = read_config("test", "test_name")
 
     for lindex, item1 in enumerate(value[0][1:]):
         for rindex, item2 in enumerate(ele[0][1:]):
@@ -114,16 +138,26 @@ def combine_two_array_alternating(results, value, ele):
                 indexer.append([lindex, rindex])
             elif test_name in invalid_compare_list:
                 indexer.append([lindex, rindex])
- 
+
     for list1, list2 in zip(value, ele):
-        holder_list = []
-        holder_list.append(list1[0])
+        holder_list = [list1[0]]
 
         for index in indexer:
-            holder_list.append(list1[index[0] + 1])
-            holder_list.append(list2[index[1] + 1])
-
+            item1 = list1[index[0] + 1]
+            item2 = list2[index[1] + 1]
+            holder_list.append(item1)
+            holder_list.append(item2)
+            try:
+                dev = percentage_deviation(item1, item2)
+                if dev >= 0:
+                    holder_list.append(dev)
+                else:
+                    holder_list.append(dev)
+            except Exception as exc:
+                if item1 == "fail" or item2 == "fail":
+                    holder_list.append("Failed")
+                else:
+                    holder_list.append("%Diff")
         results.append(holder_list)
-
     return results
 
