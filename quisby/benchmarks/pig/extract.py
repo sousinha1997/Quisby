@@ -39,7 +39,7 @@ def extract_pig_data(path, system_name,OS_RELEASE):
 
     results.append([""])
     results.append([system_name, f"CpuCount: {cpu_count}"])
-    results.append(["Threads", f"{OS_RELEASE}"])
+    results.append(["Threads", "rhel-"+f"{OS_RELEASE}"])
     results += result_data
 
     return results

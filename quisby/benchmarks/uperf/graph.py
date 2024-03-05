@@ -39,6 +39,32 @@ def series_range_uperf_process(column_count, sheetId, start_index, end_index):
 
     return series
 
+def series_range_uperf_compare(column_count, sheetId, start_index, end_index):
+    series = []
+
+    for index in range(column_count):
+
+        series.append(
+            {
+                "series": {
+                    "sourceRange": {
+                        "sources": [
+                            {
+                                "sheetId": sheetId,
+                                "startRowIndex": start_index + 1,
+                                "endRowIndex": end_index,
+                                "startColumnIndex": index + 1,
+                                "endColumnIndex": index + 2,
+                            }
+                        ]
+                    }
+                },
+                "type": "COLUMN",
+            }
+        )
+
+    return series
+
 
 def graph_uperf_data(spreadsheetId, range,action):
     """"""

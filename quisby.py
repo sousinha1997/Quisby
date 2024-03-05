@@ -335,7 +335,7 @@ def compare_results(spreadsheets):
         for sheets in sheet_list[1:]:
             comparison_list.intersection_update(sheets)
         comparison_list = list(comparison_list)
-
+    custom_logger.info("Comparison list : "+str(comparison_list))
     spreadsheet_name = " and ".join(spreadsheet_name)
     spreadsheetid = read_config('spreadsheet', 'comp_id')
 
@@ -356,7 +356,7 @@ def compare_results(spreadsheets):
 
     for index, test_name in enumerate(comparison_list):
         try:
-            custom_logger.info("Comparing " + test_name + " value...")
+            custom_logger.info("**************************************** Comparing " + test_name + " value **************************************** ")
             write_config("test", "test_name", test_name)
             if check_test_is_hammerdb(test_name):
                 compare_hammerdb_results(spreadsheets, spreadsheetid, test_name)
@@ -412,6 +412,7 @@ if __name__ == "__main__":
     if not args.compare:
         custom_logger.warning("Proceeding with default action...")
         reduce_data()
+        exit(0)
 
     if args.compare:
         try:
@@ -421,6 +422,5 @@ if __name__ == "__main__":
             raise Exception
         except Exception as exc:
             custom_logger.error(str(exc))
-            custom_logger.error("Please provide a valid list of spreadsheets to compare")
             exit(0)
 
