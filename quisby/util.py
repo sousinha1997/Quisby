@@ -114,7 +114,7 @@ def merge_lists_alternately(results, list1, list2):
             else:
                 merger_list.append(dev)
         except Exception as exc:
-            if item1 == "fail" or item2 == "fail":
+            if item1 == "fail" or item2 == "fail" or str(item1) == str(0) or str(item2) == str(0):
                 merger_list.append("Failed")
             else:
                 merger_list.append("%Diff")
@@ -154,7 +154,7 @@ def combine_two_array_alternating(results, value, ele):
                 else:
                     holder_list.append(dev)
             except Exception as exc:
-                if item1 == "fail" or item2 == "fail":
+                if item1 == "fail" or item2 == "fail" or str(item1) == str(0) or str(item2) == str(0):
                     holder_list.append("Failed")
                 else:
                     holder_list.append("%Diff")
