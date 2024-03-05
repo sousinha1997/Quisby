@@ -40,7 +40,7 @@ def series_range_uperf_process(column_count, sheetId, start_index, end_index):
     return series
 
 
-def graph_uperf_data(spreadsheetId, range):
+def graph_uperf_data(spreadsheetId, range,action):
     """"""
     GRAPH_COL_INDEX, GRAPH_ROW_INDEX = 2, 0
     start_index, end_index = 0, 0
@@ -109,9 +109,9 @@ def graph_uperf_data(spreadsheetId, range):
                                         }
                                     }
                                 ],
-                                "series": series_range_uperf(
-                                    column_count, sheetId, start_index, end_index
-                                ),
+                                "series": globals()[f'series_range_uperf_coremark_{action}'](column_count,
+                                                                                         sheetId, start_index,
+                                                                                         end_index),
                                 "headerCount": 1,
                             },
                         },
