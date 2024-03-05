@@ -109,7 +109,7 @@ def graph_uperf_data(spreadsheetId, range,action):
                                         }
                                     }
                                 ],
-                                "series": globals()[f'series_range_uperf_coremark_{action}'](column_count,
+                                "series": globals()[f'series_range_uperf_{action}'](column_count,
                                                                                          sheetId, start_index,
                                                                                          end_index),
                                 "headerCount": 1,
