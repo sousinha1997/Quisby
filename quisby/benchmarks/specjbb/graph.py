@@ -129,7 +129,7 @@ def graph_specjbb_data(spreadsheetId, range):
                 # Reset variables
                 start_index, end_index = 0, 0
 
-                time.sleep(1)
+                time.sleep(3)
         except Exception as exc:
             custom_logger.debug(str(exc))
             custom_logger.error("Unable to graph specjbb data")
