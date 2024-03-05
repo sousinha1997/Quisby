@@ -6,7 +6,7 @@ from quisby.sheet.sheet_util import (
     clear_sheet_charts,
     append_to_sheet,
     read_sheet,
-    get_sheet,
+    get_sheet, append_empty_row_sheet
 )
 
 
@@ -98,9 +98,10 @@ def graph_streams_data(spreadsheetId, test_name, action):
     start_index = 0
     end_index = 0
     data = read_sheet(spreadsheetId, "streams")
-
+    if len(data) > 1000:
+        append_empty_row_sheet(spreadsheetId, 1000, test_name)
     for index, row in enumerate(data):
-        if "Max Througput" in row:
+        if "Max Throughput" in row:
             start_index = index
 
         if start_index:
