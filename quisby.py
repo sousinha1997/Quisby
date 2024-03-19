@@ -323,6 +323,8 @@ def compare_results(spreadsheets):
         sheets = get_sheet(spreadsheet, test_name=test_name)
         spreadsheet_name.append(get_sheet(spreadsheet, test_name=[])["properties"]["title"].strip())
         for sheet in sheets.get("sheets"):
+            if(sheet["properties"]["title"].strip()=="summary"):
+                continue
             sheet_names.append(sheet["properties"]["title"].strip())
         sheet_list.append(sheet_names)
 
