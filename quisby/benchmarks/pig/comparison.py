@@ -19,7 +19,7 @@ def compare_pig_results(spreadsheets, spreadsheetId, test_name):
 
     for spreadsheet in spreadsheets:
         values.append(read_sheet(spreadsheet, range=test_name))
-        spreadsheet_name.append(get_sheet(spreadsheet, range=[])["properties"]["title"])
+        spreadsheet_name.append(get_sheet(spreadsheet, test_name)["properties"]["title"])
 
     for index, value in enumerate(values):
         values[index] = (list(g) for k, g in groupby(value, key=lambda x: x != []) if k)
@@ -41,7 +41,6 @@ def compare_pig_results(spreadsheets, spreadsheetId, test_name):
         clear_sheet_data(spreadsheetId, test_name)
         custom_logger.info("Appending new " + test_name + " data to sheet...")
         append_to_sheet(spreadsheetId, results, test_name)
-        graph_pig_data(spreadsheetId, test_name)
     except Exception as exc:
         custom_logger.debug(str(exc))
         custom_logger.error("Failed to append data to sheet")

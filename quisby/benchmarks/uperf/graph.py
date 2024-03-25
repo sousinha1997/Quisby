@@ -13,8 +13,7 @@ from quisby.sheet.sheet_util import (
 )
 
 
-def series_range_uperf(column_count, sheetId, start_index, end_index):
-
+def series_range_uperf_process(column_count, sheetId, start_index, end_index):
     series = []
 
     for index in range(column_count):
@@ -40,8 +39,34 @@ def series_range_uperf(column_count, sheetId, start_index, end_index):
 
     return series
 
+def series_range_uperf_compare(column_count, sheetId, start_index, end_index):
+    series = []
 
-def graph_uperf_data(spreadsheetId, range):
+    for index in range(column_count):
+
+        series.append(
+            {
+                "series": {
+                    "sourceRange": {
+                        "sources": [
+                            {
+                                "sheetId": sheetId,
+                                "startRowIndex": start_index + 1,
+                                "endRowIndex": end_index,
+                                "startColumnIndex": index + 1,
+                                "endColumnIndex": index + 2,
+                            }
+                        ]
+                    }
+                },
+                "type": "LINE",
+            }
+        )
+
+    return series
+
+
+def graph_uperf_data(spreadsheetId, range,action):
     """"""
     GRAPH_COL_INDEX, GRAPH_ROW_INDEX = 2, 0
     start_index, end_index = 0, 0
@@ -80,7 +105,7 @@ def graph_uperf_data(spreadsheetId, range):
                             "title": f"Uperf : {measurement[graph_data[0][2]]} | {graph_data[0][1]}",
                             "subtitle": f"{graph_data[0][0]}",
                             "basicChart": {
-                                "chartType": "COLUMN",
+                                "chartType": "COMBO",
                                 "legendPosition": "BOTTOM_LEGEND",
                                 "axis": [
                                     {
@@ -90,6 +115,10 @@ def graph_uperf_data(spreadsheetId, range):
                                     {
                                         "position": "LEFT_AXIS",
                                         "title": f"{graph_data[0][2]}",
+                                    },
+                                    {
+                                        "position": "RIGHT_AXIS",
+                                        "title": "%Diff",
                                     },
                                 ],
                                 "domains": [
@@ -110,9 +139,9 @@ def graph_uperf_data(spreadsheetId, range):
                                         }
                                     }
                                 ],
-                                "series": series_range_uperf(
-                                    column_count, sheetId, start_index, end_index
-                                ),
+                                "series": globals()[f'series_range_uperf_{action}'](column_count,
+                                                                                         sheetId, start_index,
+                                                                                         end_index),
                                 "headerCount": 1,
                             },
                         },
@@ -142,4 +171,4 @@ def graph_uperf_data(spreadsheetId, range):
             # Reset variables
             start_index, end_index = 0, 0
 
-            time.sleep(1)
+            time.sleep(3)

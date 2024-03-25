@@ -35,7 +35,7 @@ def custom_key(item):
 
 def create_summary_coremark_data(results,OS_RELEASE):
     final_results = []
-    cal_data = [["System name","test passes"]]
+    cal_data = [["System name", "test passes_"+OS_RELEASE]]
 
     # Sort data based on instance name
     sorted_data = sorted(results, key=custom_key)

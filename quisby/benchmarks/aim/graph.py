@@ -32,7 +32,7 @@ def create_series_range_aim(column_count, sheetId, start_index, end_index):
     return series
 
 
-def graph_aim_data(spreadsheetId, test_name):
+def graph_aim_data(spreadsheetId, test_name, action):
     """"""
     GRAPH_COL_INDEX = 5
     GRAPH_ROW_INDEX = 1
@@ -125,4 +125,4 @@ def graph_aim_data(spreadsheetId, test_name):
 
             start_index, end_index = None, None
 
-            time.sleep(1)
+            time.sleep(3)

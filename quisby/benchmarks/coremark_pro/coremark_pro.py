@@ -33,8 +33,8 @@ def custom_key(item):
 
 def create_summary_coremark_pro_data(results,OS_RELEASE):
     final_results = []
-    multi_iter = [["Multi Iterations"],["System name", "Score"]]
-    single_iter = [["Single Iterations"],["System name", "Score"]]
+    multi_iter = [["Multi Iterations"],["System name", "Score_"+OS_RELEASE]]
+    single_iter = [["Single Iterations"],["System name", "Score_"+OS_RELEASE]]
     # Sort data based on instance name
     sorted_data = sorted(results, key=custom_key)
     # Add summary data

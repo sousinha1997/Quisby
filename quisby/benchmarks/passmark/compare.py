@@ -30,13 +30,13 @@ def compare_passmark_results(spreadsheets, spreadsheetId, test_name, table_name=
         for ele in list_2:
             # Check max throughput
             if value[0][0] in table_name and ele[0][0] in table_name:
-                    results.append([""])
-                    results.append(value[0])
-                    for item1 in value[1:]:
-                        for item2 in ele[1:]:
-                            if item1[0] == item2[0]:
-                                results = merge_lists_alternately(results, item1, item2)
-                    break
+                results.append([""])
+                results.append(value[0])
+                for item1 in value[1:]:
+                    for item2 in ele[1:]:
+                        if item1[0] == item2[0]:
+                            results = merge_lists_alternately(results, item1, item2)
+                break
 
             elif value[1][0] == ele[1][0]:
                 if value[0][0] == ele[0][0]:
@@ -60,8 +60,6 @@ def compare_passmark_results(spreadsheets, spreadsheetId, test_name, table_name=
         return spreadsheetId
 
 
-
-
 if __name__ == "__main__":
     spreadsheets = [
         "1MsO506DIQOt_fcDqwJr3mFOqi_77fQxnWvj6k4qFpZk",
@@ -69,5 +67,5 @@ if __name__ == "__main__":
     ]
     test_name = "passmark"
 
-    compare_passmark_results(spreadsheets,"1x-XjP0S74D-dbsBMmHufLHhjsiK994h29QcOUxNwdcE", test_name,
-                            table_name=["SYSTEM_NAME"])
+    compare_passmark_results(spreadsheets, "1x-XjP0S74D-dbsBMmHufLHhjsiK994h29QcOUxNwdcE", test_name,
+                             table_name=["SYSTEM_NAME"])

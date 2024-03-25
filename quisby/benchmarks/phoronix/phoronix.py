@@ -46,7 +46,7 @@ def create_summary_phoronix_data(data,OS_RELEASE):
             gmean_data.append(float(row[1]))
     SYSTEM_GEOMEAN.append([system, gmean(gmean_data)])
     results.append([""])
-    results.append(["SYSTEM_NAME", "GEOMEAN"])
+    results.append(["SYSTEM_NAME", "GEOMEAN-"+str(OS_RELEASE)])
     for item in SYSTEM_GEOMEAN:
         results.append(item)
     return results

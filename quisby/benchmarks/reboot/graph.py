@@ -32,7 +32,7 @@ def create_series_range_boot(column_count, sheetId, start_index, end_index):
     return series
 
 
-def graph_boot_data(spreadsheetId, test_name):
+def graph_boot_data(spreadsheetId, test_name, action):
     GRAPH_COL_INDEX = 1
     GRAPH_ROW_INDEX = 0
     start_index, end_index = None, None
@@ -121,4 +121,4 @@ def graph_boot_data(spreadsheetId, test_name):
 
             start_index, end_index = None, None
 
-            time.sleep(1)
+            time.sleep(3)

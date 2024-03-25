@@ -35,13 +35,15 @@ from quisby.benchmarks.uperf.graph import graph_uperf_data
 from quisby.benchmarks.uperf.comparison import compare_uperf_results
 
 from quisby.benchmarks.specjbb.specjbb import extract_specjbb_data, create_summary_specjbb_data
-from quisby.benchmarks.specjbb.comparison import compare_specjbb_results
 from quisby.benchmarks.specjbb.graph import graph_specjbb_data
+from quisby.benchmarks.specjbb.comparison import compare_specjbb_results
+
 
 from quisby.benchmarks.pig.extract import extract_pig_data
-from quisby.benchmarks.pig.graph import graph_pig_data
 from quisby.benchmarks.pig.summary import create_summary_pig_data
+from quisby.benchmarks.pig.graph import graph_pig_data
 from quisby.benchmarks.pig.comparison import compare_pig_results
+
 
 from quisby.benchmarks.linpack.extract import extract_linpack_data
 from quisby.benchmarks.linpack.summary import create_summary_linpack_data
@@ -61,10 +63,12 @@ from quisby.benchmarks.fio.comparison import compare_fio_run_results
 from quisby.benchmarks.reboot.reboot import extract_boot_data
 from quisby.benchmarks.reboot.summary import create_summary_boot_data
 from quisby.benchmarks.reboot.graph import graph_boot_data
+from quisby.benchmarks.reboot.comparison import compare_reboot_data
 
 from quisby.benchmarks.aim.extract import extract_aim_data
 from quisby.benchmarks.aim.summary import create_summary_aim_data
 from quisby.benchmarks.aim.graph import graph_aim_data
+from quisby.benchmarks.aim.comparison import compare_aim_data
 
 from quisby.benchmarks.auto_hpl.extract import extract_auto_hpl_data
 from quisby.benchmarks.auto_hpl.summary import create_summary_auto_hpl_data
@@ -76,12 +80,10 @@ from quisby.benchmarks.speccpu.summary import create_summary_speccpu_data
 from quisby.benchmarks.speccpu.graph import graph_speccpu_data
 from quisby.benchmarks.speccpu.comparison import compare_speccpu_results
 
-from quisby.benchmarks.etcd.etcd import extract_etcd_data, create_summary_etcd_data, graph_etcd_data, \
-    compare_etcd_results
+from quisby.benchmarks.etcd.etcd import extract_etcd_data, create_summary_etcd_data, graph_etcd_data, compare_etcd_results
 
 from quisby.util import read_config, write_config
-from quisby.sheet.sheet_util import clear_sheet_charts, clear_sheet_data, get_sheet, create_sheet, append_to_sheet, \
-    create_spreadsheet, permit_users
+from quisby.sheet.sheet_util import clear_sheet_charts, clear_sheet_data, get_sheet, create_sheet, append_to_sheet, create_spreadsheet, permit_users
 from quisby import custom_logger
 
 
@@ -123,12 +125,12 @@ def process_results(results, test_name, cloud_type, os_type, os_release, spreads
     try:
         custom_logger.info("Graphing " + test_name + " data...")
         if check_test_is_hammerdb(test_name):
-            graph_hammerdb_data(spreadsheetid, test_name)
+            graph_hammerdb_data(spreadsheetid, test_name, "process")
         else:
-            globals()[f"graph_{test_name}_data"](spreadsheetid, test_name)
+            globals()[f"graph_{test_name}_data"](spreadsheetid, test_name, "process")
     except Exception as exc:
         custom_logger.error(str(exc))
-        custom_logger.error("Failed to graph data")
+        custom_logger.error("Failed to graph processed data")
         return spreadsheetid
 
     return spreadsheetid
@@ -321,6 +323,8 @@ def compare_results(spreadsheets):
         sheets = get_sheet(spreadsheet, test_name=test_name)
         spreadsheet_name.append(get_sheet(spreadsheet, test_name=[])["properties"]["title"].strip())
         for sheet in sheets.get("sheets"):
+            if(sheet["properties"]["title"].strip()=="summary"):
+                continue
             sheet_names.append(sheet["properties"]["title"].strip())
         sheet_list.append(sheet_names)
 
@@ -333,7 +337,7 @@ def compare_results(spreadsheets):
         for sheets in sheet_list[1:]:
             comparison_list.intersection_update(sheets)
         comparison_list = list(comparison_list)
-
+    custom_logger.info("Comparison list : "+str(comparison_list))
     spreadsheet_name = " and ".join(spreadsheet_name)
     spreadsheetid = read_config('spreadsheet', 'comp_id')
 
@@ -354,7 +358,7 @@ def compare_results(spreadsheets):
 
     for index, test_name in enumerate(comparison_list):
         try:
-            custom_logger.info("Comparing " + test_name + " value...")
+            custom_logger.info("**************************************** Comparing " + test_name + " value **************************************** ")
             write_config("test", "test_name", test_name)
             if check_test_is_hammerdb(test_name):
                 compare_hammerdb_results(spreadsheets, spreadsheetid, test_name)
@@ -368,6 +372,17 @@ def compare_results(spreadsheets):
         except Exception as exc:
             custom_logger.error(str(exc))
             custom_logger.error("Benchmark " + test_name + " comparison failed")
+
+        try:
+            custom_logger.info("Graphing " + test_name + " comparison data...")
+            if check_test_is_hammerdb(test_name):
+                graph_hammerdb_data(spreadsheetid, test_name, "compare")
+            else:
+                globals()[f"graph_{test_name}_data"](spreadsheetid, test_name, "compare")
+        except Exception as exc:
+            custom_logger.error(str(exc))
+            custom_logger.error("Failed to graph data")
+            return spreadsheetid
 
     custom_logger.info(f"https://docs.google.com/spreadsheets/d/{spreadsheetid}")
     register_details_json(spreadsheet_name, spreadsheetid)
@@ -399,6 +414,7 @@ if __name__ == "__main__":
     if not args.compare:
         custom_logger.warning("Proceeding with default action...")
         reduce_data()
+        exit(0)
 
     if args.compare:
         try:
@@ -408,6 +424,5 @@ if __name__ == "__main__":
             raise Exception
         except Exception as exc:
             custom_logger.error(str(exc))
-            custom_logger.error("Please provide a valid list of spreadsheets to compare")
             exit(0)
 
