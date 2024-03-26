@@ -108,7 +108,7 @@ def graph_fio_run_data(spreadsheetId, test_name, action):
 
     if len(data) > 2000:
         append_empty_row_sheet(spreadsheetId, 1000, test_name)
-    elif len(data) > 1000:
+    elif len(data) > 500:
         append_empty_row_sheet(spreadsheetId, 1000, test_name)
     for index, row in enumerate(data):
         if "iteration_name" in row:
