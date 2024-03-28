@@ -2,10 +2,13 @@ import argparse
 import json
 import os.path
 import fileinput
+import shutil
 import sys
 import time
-from quisby import util
+from datetime import datetime
 
+from quisby import util
+from health_check import *
 from quisby.benchmarks.coremark.coremark import extract_coremark_data, create_summary_coremark_data
 from quisby.benchmarks.coremark.graph import graph_coremark_data
 from quisby.benchmarks.coremark.compare import compare_coremark_results
@@ -147,7 +150,7 @@ def register_details_json(spreadsheet_name, spreadsheet_id):
     else:
         with open(filename, "r") as f:
             data = json.load(f)
-        data["chartlist"][spreadsheet_name] = spreadsheet_id
+        data["chartlist"][str(datetime.now())+": " + spreadsheet_name] = spreadsheet_id
         with open(filename, "w") as f:
             json.dump(data, f)
     custom_logger.info({spreadsheet_name: spreadsheet_id})
@@ -397,8 +400,6 @@ def compare_data(s_list):
 
 
 if __name__ == "__main__":
-    custom_logger.info("**************************************** STARTING QUISBY APPLICATION "
-          "**************************************** ")
     parser = argparse.ArgumentParser(description="A script to take name, age, and city.")
     parser.add_argument("--config", type=str, required=False, help="Location to config file")
     parser.add_argument("--compare", type=str, required=False, help="Location to config file")
@@ -406,9 +407,13 @@ if __name__ == "__main__":
     if not (args.config):
         home_dir = os.getenv("HOME")
         util.config_location = home_dir + "/.config/quisby/config.ini"
+        if not os.path.exists(util.config_location):
+            shutil.copy("./quisby/example.ini", util.config_location)
     else:
         util.config_location = args.config
 
+    check_config_file(util.config_location)
+    custom_logger.info("Health check complete...")
     custom_logger.info("Config path : " + util.config_location)
 
     if not args.compare:
