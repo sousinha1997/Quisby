@@ -406,15 +406,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if not (args.config):
         home_dir = os.getenv("HOME")
-        util.config_location = home_dir + "/.config/quisby/config.ini"
+        util.config_location = home_dir + "/.quisby/config/config.ini"
         if not os.path.exists(util.config_location):
             shutil.copy("./quisby/example.ini", util.config_location)
     else:
         util.config_location = args.config
-
+    custom_logger.info("Config path : " + util.config_location)
     check_config_file(util.config_location)
     custom_logger.info("Health check complete...")
-    custom_logger.info("Config path : " + util.config_location)
 
     if not args.compare:
         custom_logger.warning("Proceeding with default action...")

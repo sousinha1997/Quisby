@@ -5,7 +5,7 @@ from logging.handlers import RotatingFileHandler
 
 def configure_custom_logging():
     home_dir = os.getenv("HOME")
-    log_location = home_dir + "/.quisby/"
+    log_location = home_dir + "/.quisby/logs/"
     log_level = "INFO"
 
     if not os.path.exists(log_location):
