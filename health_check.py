@@ -8,6 +8,15 @@ import time
 
 from quisby import custom_logger
 
+def check_google_credentials_exist():
+
+    home_dir = os.getenv("HOME")
+    SERVICE_ACCOUNT_FILE = home_dir + '/.config/quisby/credentials.json'
+    if not os.path.exists(SERVICE_ACCOUNT_FILE):
+        custom_logger.error("Google service account credentials not found !!!")
+        sys.exit(1)
+
+
 def is_package_installed(package_name):
     try:
         # Run pip show command to get information about the package
@@ -113,6 +122,7 @@ def validate_config_values(config):
 
     # Validate cloud_type
     if cloud_type not in ['aws', 'gcp', 'azure', 'localhost']:
+        custom_logger.error("Cloud type incorrect. Valid values : [aws/gcp/azure/localhost] !")
         flag = 1
 
     if cloud_type != "locahost":
@@ -174,6 +184,7 @@ def check_config_file(config_file):
 custom_logger.info("**************************************** RUNNING QUISBY APPLICATION "
                        "**************************************** ")
 custom_logger.info("Initial Health check running...")
+check_google_credentials_exist()
 check_virtual_environment()
 check_python_version()
 check_and_install_requirements()

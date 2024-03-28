@@ -2,6 +2,7 @@ import argparse
 import json
 import os.path
 import fileinput
+import shutil
 import sys
 import time
 from datetime import datetime
@@ -406,6 +407,8 @@ if __name__ == "__main__":
     if not (args.config):
         home_dir = os.getenv("HOME")
         util.config_location = home_dir + "/.config/quisby/config.ini"
+        if not os.path.exists(util.config_location):
+            shutil.copy("./quisby/example.ini", util.config_location)
     else:
         util.config_location = args.config
 
