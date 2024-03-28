@@ -1,15 +1,14 @@
 import configparser
+import os
 import re
-import shutil
 import subprocess
 import sys
-import os
 import time
 
 from quisby import custom_logger
 
-def check_google_credentials_exist():
 
+def check_google_credentials_exist():
     home_dir = os.getenv("HOME")
     SERVICE_ACCOUNT_FILE = home_dir + '/.config/quisby/credentials.json'
     if not os.path.exists(SERVICE_ACCOUNT_FILE):
@@ -20,12 +19,13 @@ def check_google_credentials_exist():
 def is_package_installed(package_name):
     try:
         # Run pip show command to get information about the package
-        result = subprocess.run(['python3.9','-m','pip', 'show', package_name], capture_output=True, text=True)
+        result = subprocess.run(['python3.9', '-m', 'pip', 'show', package_name], capture_output=True, text=True)
         # Check if the package information contains the package name
         return package_name in result.stdout
     except Exception as e:
         print(f"Error occurred: {e}")
         return False
+
 
 def check_and_install_requirements():
     """Install required packages from requirements.txt if not installed."""
@@ -35,7 +35,7 @@ def check_and_install_requirements():
 
         # Extract package names and hashes using regular expressions
         package_info = re.findall(r"([a-zA-Z0-9_-]+)==[\d.]+(?:;\s+.*?)*(?:\s+--hash=([\w:]+))", packages)
-        req=[]
+        req = []
         # Fetch each package using pip
         for package, hashes in package_info:
             custom_logger.info(f"Checking for installation: {package}...")
@@ -49,6 +49,7 @@ def check_and_install_requirements():
         custom_logger.error(f"Failed to install required packages: {e}")
         sys.exit(1)
 
+
 def create_virtual_environment(env_dir):
     """Create a Python virtual environment."""
     try:
@@ -57,6 +58,7 @@ def create_virtual_environment(env_dir):
     except subprocess.CalledProcessError:
         custom_logger.error("Failed to create virtual environment.")
         sys.exit(1)
+
 
 def enter_virtual_environment(env_dir):
     """Activate the Python virtual environment."""
@@ -75,6 +77,7 @@ def enter_virtual_environment(env_dir):
         custom_logger.error("Error: Virtual environment activation script not found.")
         sys.exit(1)
 
+
 def check_virtual_environment():
     """Check if we are inside a Python 3.9 virtual environment."""
     if hasattr(sys, 'real_prefix') or (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix):
@@ -87,6 +90,7 @@ def check_virtual_environment():
         time.sleep(10)
         # create_virtual_environment()
         # enter_virtual_environment()
+
 
 def check_python_version():
     """Check if the current Python version is 3.9."""
@@ -126,7 +130,8 @@ def validate_config_values(config):
         flag = 1
 
     if cloud_type != "locahost":
-        custom_logger.warning("Check if format of regions are correctly mentioned.\nExample:\naws : us-east-1\nazure : us-east\ngcp : us-east-1")
+        custom_logger.warning(
+            "Check if format of regions are correctly mentioned.\nExample:\naws : us-east-1\nazure : us-east\ngcp : us-east-1")
 
     # Warn if users is empty
     if config.has_option('access', 'users'):
@@ -157,8 +162,8 @@ def check_for_config_fields(config_file):
         flag = 1
         for section, fields in required_fields.items():
             for field in fields:
-                if not config.has_option(section,field):
-                    custom_logger.error("Missing ["+section+"] : "+field+" field in configuration file !")
+                if not config.has_option(section, field):
+                    custom_logger.error("Missing [" + section + "] : " + field + " field in configuration file !")
                     flag = 0
         if not flag:
             sys.exit(1)
@@ -171,6 +176,7 @@ def check_for_config_fields(config_file):
         sys.exit(1)
     pass
 
+
 def check_config_file(config_file):
     """Check if config.ini exists."""
     custom_logger.info("Validating configuration file. ")
@@ -182,10 +188,9 @@ def check_config_file(config_file):
 
 
 custom_logger.info("**************************************** RUNNING QUISBY APPLICATION "
-                       "**************************************** ")
+                   "**************************************** ")
 custom_logger.info("Initial Health check running...")
 check_google_credentials_exist()
 check_virtual_environment()
 check_python_version()
 check_and_install_requirements()
-
