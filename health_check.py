@@ -10,9 +10,9 @@ from quisby import custom_logger
 
 def check_google_credentials_exist():
     home_dir = os.getenv("HOME")
-    SERVICE_ACCOUNT_FILE = home_dir + '/.config/quisby/credentials.json'
+    SERVICE_ACCOUNT_FILE = home_dir + '/.quisby/config/credentials.json'
     if not os.path.exists(SERVICE_ACCOUNT_FILE):
-        custom_logger.error("Google service account credentials not found !!!")
+        custom_logger.error("Google service account credentials not found at "+home_dir+"/.quisby/config/")
         sys.exit(1)
 
 
