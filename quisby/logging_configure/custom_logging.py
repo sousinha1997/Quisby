@@ -5,17 +5,18 @@ from logging.handlers import RotatingFileHandler
 
 def configure_custom_logging():
     home_dir = os.getenv("HOME")
-    log_location = home_dir + "/.pquisby/"
+    log_location = home_dir + "/.quisby/"
     log_level = "INFO"
 
     if not os.path.exists(log_location):
         os.makedirs(log_location)
-    log_filename = log_location + "pquisby.log"
+    log_filename = log_location + "quisby.log"
+    print("[ LOG LOCATION : " + log_filename+" ]")
     log_file_max_bytes = 5
     log_backup_count = 3
 
     # Create a custom logger
-    custom_logger = logging.getLogger("pquisby_logger")
+    custom_logger = logging.getLogger("quisby_logger")
     custom_logger.setLevel(log_level)
 
     # Create a rotating file handler
