@@ -142,7 +142,7 @@ def process_results(results, test_name, cloud_type, os_type, os_release, spreads
 def register_details_json(spreadsheet_name, spreadsheet_id):
     custom_logger.info("Collecting spreadsheet information...")
     home_dir = os.getenv("HOME")
-    filename = home_dir + "/.config/quisby/charts.json"
+    filename = home_dir + "/.quisby/config/charts.json"
     if not os.path.exists(filename):
         data = {"chartlist": {spreadsheet_name: spreadsheet_id}}
         with open(filename, "w") as f:
