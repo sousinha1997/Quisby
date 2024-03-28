@@ -166,8 +166,8 @@ def get_aws_pricing(instance_type, region, os_type):
             for _, term_info in terms.items():
                 for _, price_dimension in term_info["priceDimensions"].items():
                     price_per_hour = price_dimension["pricePerUnit"]["USD"]
-                    print(
-                        f"Price per Hour: for " + instance_type + " for os " + os_type + " in region " + region + " is " + price_per_hour + " USD")
+                    #print(
+                    #    f"Price per Hour: for " + instance_type + " for os " + os_type + " in region " + region + " is " + price_per_hour + " USD")
                     return price_per_hour
         except Exception as exc:
             print("Unable to fetch prices of " + instance_type + " for os_type " + os_type + " in region " + region)
