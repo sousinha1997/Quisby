@@ -1,105 +1,58 @@
-# Quisby 
+# Quisby
 
-###### (Unoffical name) Quisby: An idler; one who does not or will not work. (noun)
+## Overview
 
-Quisby is a tool to provide first view into the results from various benchmarks such as linpack, streams, fio etc. It doesn't aim to replace existing data viz tool but rather to provide a simplified view to the data with basic metric to understand the benchmark results from a higher level view. For detailed view, there are other tools such as pbench-dashboard, js-charts etc at hand.
+Quisby is an advanced data preprocessing and visualization tool designed to transform benchmark regression data into comprehensible formats within Google Spreadsheets. It simplifies the intricate process of benchmark data analysis by offering intuitive functionalities, allowing users to obtain actionable insights more effortlessly.
 
-Bechmarks currently supported:
+## Target Audience
 
-|   Benchmark   |   Source data  |
-|---|---|
-| linpack | Benchmark result     |
-| streams | Summary result       |
-| uperf   | Summary csv result   |
-| specjbb | Benchmark result     |
-| pig     | Benchmark  result    |
-| hammerDB| Benchmark  result    |
-| fio     | pbench result        |
-| autohpl | Summary  result      |
-| aim     | Benchmark  result    |
-| etcd    | pbench  result       |
-| reboot  | Benchmark  result    |
-| speccpu | Benchmark  result    |
+Quisby is tailored for individuals, data scientists, researchers, and professionals who seek to plot and analyze benchmark results.
 
+## Main Features
 
-### What it does
+### Benchmark Data Plotting
 
-It extracts data from benchmark results file or summary results produced by wrapper benchmark programs and move that results to Google Sheet via sheets API V4. 
+Quisby supports a variety of popular benchmarks including but not limited to:
+- linpack
+- streams
+- specjbb
+- speccpu
+- fio
+- uperf
+- coremark
+- coremark_pro
+- passmark
+- pypref
+- phoronix
+- etcd
+- auto_hpl
+- hammerdb
+- aim
+- pig
+- reboot
 
+### Spreadsheet Comparison
 
-### Executable creation
-pyinstaller --noconfirm --log-level=INFO -p quisby/ quisby.py
+Users have the capability to compare two benchmark data spreadsheets, facilitating a holistic analysis.
 
-This command creates quisby executable. It binds all the dependencies into a file, making it easy to use.
+## Prerequisites
 
-## Prerequisites to run quisby executable
+### Software
 
-1. A google service account credentials(credentials.json) to hit various google APIs. 
-2. Create a folder ~/.config/quisby/ if it doesn't exist. 
-3. Copy credentials.json to the created folder.
-4. Copy example.ini file to ~/.config/quisby/config.ini.
+- Python version 3.9 or above.
 
-test_name(Name of test)                        
-test_path( Path to test results directory )                        
-results_location( Path to results_location file )                  
-system_name( Mention cloud/baremetal system )
-spreadsheetId( Mention spreadsheet ID if exists, otherwise quisby creates a new one for you ) 
-users( Mention the users you need to give access too. Example - abc@gmail.com,xyz@gmail.com )                                
+### Google Service Account
 
-# How to run quisby
+To utilize Google Sheets API, you need to set up a Google Service Account. Follow the steps mentioned [here](https://docs.google.com/document/d/19M2sG6BZXch7F91oYmAKtMlgrhjc0Z749PmF8YeugVE/edit).
 
-1. Extract the tar to the executable
-2. Fill out the fields in config.ini file.
-3. Run ./quisby.app 
+### Other Requirements
 
+- Install additional dependencies from the `requirements.txt` file provided in the Quisby repository.
+- Create a `config.ini` file with the specified content.
 
-### Run quisby using pip
-```bash
-$ 
-```
-$ pip install quisby
+## Installation Process
 
-``` 
-test: results_linpack
-</path/to/results>
-...
-test: pbench_fio
-<http url with results>
-...
-```
-
-Then you can run
-```bash
-$ quisby process --os-type <add-here> --os-release <add-here> --cloud-type <add-here>  location_file`
-```
-For more information on options, run:
+1. Clone the Quisby Repository:
 
 ```bash
-$ quisby -h
-```
-
-*That's it. It will return a google sheet. Visit the google sheet page and you will see a newly created spreadsheet with the data populated and graphed.*
-
-### Comparison
-
-If you want to compare two different OS release of similar system type then there are scripts that will help you to create a spreadsheet for the same. 
-
-and then run:
-
-```bash
-quisby compare --test-name <benchmark-name-(optional)>  --spreadsheets <spreadsheet1,spreadsheet2>
-```
-and it would return a newly created spreadsheet with the comparison data.
-
-## Development 
-
-#Clone the repo
-git clone git@github.com:sousinha1997/quisby.git
-
-# Installation
-source ./install.sh
-(optional, for configuring aws and/or azure cli)
-source ./install -aws -azure
-
-## Contributing
-Create issues and create a seperate feature branch to work on it. Push the changes to your clone repo and then create a pull request to the master branch of the origin repo.
+git clone https://github.com/sousinha1997/Quisby.git
