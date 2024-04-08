@@ -84,6 +84,7 @@ from quisby.benchmarks.speccpu.graph import graph_speccpu_data
 from quisby.benchmarks.speccpu.comparison import compare_speccpu_results
 
 from quisby.benchmarks.etcd.etcd import extract_etcd_data, create_summary_etcd_data, graph_etcd_data, compare_etcd_results
+from quisby.sheet.sheetapi import initialise_google_api_service
 
 from quisby.util import read_config, write_config
 from quisby.sheet.sheet_util import clear_sheet_charts, clear_sheet_data, get_sheet, create_sheet, append_to_sheet, create_spreadsheet, permit_users
@@ -144,7 +145,7 @@ def register_details_json(spreadsheet_name, spreadsheet_id):
     home_dir = os.getenv("HOME")
     filename = home_dir + "/.quisby/config/charts.json"
     if not os.path.exists(filename):
-        data = {"chartlist": {spreadsheet_name: spreadsheet_id}}
+        data = {"chartlist": {str(datetime.now() +": "+ spreadsheet_name) : spreadsheet_id}}
         with open(filename, "w") as f:
             json.dump(data, f)
     else:
@@ -400,11 +401,20 @@ def compare_data(s_list):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="A script to take name, age, and city.")
-    parser.add_argument("--config", type=str, required=False, help="Location to config file")
-    parser.add_argument("--compare", type=str, required=False, help="Location to config file")
+    parser = argparse.ArgumentParser(description="Tool to preprocess and visualise datasets")
+    parser.add_argument("--config", type=str, required=False, help="Location to configuration file")
+    parser.add_argument("--process",action='store_true',help="To preprocess and visualise a single dataset")
+    parser.add_argument("--compare", type=str, required=False, help="To compare and plot two datasets")
     args = parser.parse_args()
-    if not (args.config):
+
+    if not (args.process or args.compare):
+        parser.print_help()
+        exit(0)
+
+    health_check()
+
+    if not args.config:
+        custom_logger.warning("No configuration path mentioned. Using default. ")
         home_dir = os.getenv("HOME")
         util.config_location = home_dir + "/.quisby/config/config.ini"
         if not os.path.exists(util.config_location):
@@ -414,19 +424,29 @@ if __name__ == "__main__":
     custom_logger.info("Config path : " + util.config_location)
     check_config_file(util.config_location)
     custom_logger.info("Health check complete...")
+    print("**********************************************************************************************")
+    print("**********************************************************************************************")
 
-    if not args.compare:
-        custom_logger.warning("Proceeding with default action...")
+    initialise_google_api_service()
+
+    if args.process:
         reduce_data()
         exit(0)
-
-    if args.compare:
+    elif args.compare:
         try:
             s_list = args.compare.split(",")
             if len(s_list) > 1:
                 compare_data(s_list)
-            raise Exception
+                exit(0)
+            else:
+                custom_logger.error("Provide two or more sheets to compare.")
+                exit(0)
         except Exception as exc:
-            custom_logger.error(str(exc))
+            custom_logger.error("Comparison failed. Check arguments.")
             exit(0)
+
+
+
+
+
 

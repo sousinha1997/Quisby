@@ -8,6 +8,16 @@ import time
 from quisby import custom_logger
 
 
+def check_predefined_folders():
+    home_dir = os.getenv("HOME")
+    folders = [home_dir+'/.quisby/config/',home_dir+'/.quisby/logs/']
+    for folder_path in folders:
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+            custom_logger.info(f"Folder '{folder_path}' created.")
+        else:
+            custom_logger.info(f"Folder '{folder_path}' exists...")
+
 def check_google_credentials_exist():
     home_dir = os.getenv("HOME")
     SERVICE_ACCOUNT_FILE = home_dir + '/.quisby/config/credentials.json'
@@ -38,7 +48,7 @@ def check_and_install_requirements():
         req = []
         # Fetch each package using pip
         for package, hashes in package_info:
-            custom_logger.info(f"Checking for installation: {package}...")
+            custom_logger.info(f"Checking for installation: {package}")
             if not (is_package_installed(package)):
                 req.append(package)
         if req:
@@ -86,10 +96,11 @@ def check_virtual_environment():
             custom_logger.info("You are not using Python 3.9 within the virtual environment.")
             sys.exit(1)
     else:
-        custom_logger.warning("Not running inside a virtual environment. Quit to stop the application")
-        time.sleep(10)
+        custom_logger.warning("Not running inside a virtual environment. Create a virtual environment with python3.9. Steps: \n 1. Create environment. < Ex: python3.9 -m venv 3.9-env >\n 2. Enter the environment. < Ex: source 3.9-env/bin/activate >")
+        # time.sleep(10)
         # create_virtual_environment()
         # enter_virtual_environment()
+        sys.exit(1)
 
 
 def check_python_version():
@@ -140,6 +151,7 @@ def validate_config_values(config):
             custom_logger.warning("No users mentioned !")
 
     if flag:
+        custom_logger.error("Fix the issues and try again.")
         sys.exit(1)
 
 
@@ -179,7 +191,7 @@ def check_for_config_fields(config_file):
 
 def check_config_file(config_file):
     """Check if config.ini exists."""
-    custom_logger.info("Validating configuration file. ")
+    custom_logger.info(" !!! VALIDATING CONFIGURATION FILE !!!")
     if not os.path.isfile(config_file):
         custom_logger.error("Config.ini does not exist.")
         sys.exit(1)
@@ -187,10 +199,15 @@ def check_config_file(config_file):
         check_for_config_fields(config_file)
 
 
-custom_logger.info("**************************************** RUNNING QUISBY APPLICATION "
-                   "**************************************** ")
-custom_logger.info("Initial Health check running...")
-check_google_credentials_exist()
-check_virtual_environment()
-check_python_version()
-check_and_install_requirements()
+
+def health_check():
+    custom_logger.info("**************************************** RUNNING QUISBY APPLICATION "
+                       "**************************************** ")
+    custom_logger.info(
+        "User documentation at : https://docs.google.com/document/d/1g3kzp3pSMN_JVGFrFBWTXOeKaWG0jmA9x0QMAp299NI ")
+    custom_logger.info("Initial Health check running...")
+    check_predefined_folders()
+    check_google_credentials_exist()
+    check_virtual_environment()
+    check_python_version()
+    check_and_install_requirements()
