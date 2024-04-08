@@ -1,12 +1,15 @@
 # Quisby
 
+
 ## Overview
 
 Quisby is an advanced data preprocessing and visualization tool designed to transform benchmark regression data into comprehensible formats within Google Spreadsheets. It simplifies the intricate process of benchmark data analysis by offering intuitive functionalities, allowing users to obtain actionable insights more effortlessly.
 
+
 ## Target Audience
 
 Quisby is tailored for individuals, data scientists, researchers, and professionals who seek to plot and analyze benchmark results.
+
 
 ## Main Features
 
@@ -35,6 +38,7 @@ Quisby supports a variety of popular benchmarks including but not limited to:
 
 Users have the capability to compare two benchmark data spreadsheets, facilitating a holistic analysis.
 
+
 ## Prerequisites
 
 ### Software
@@ -49,6 +53,7 @@ To utilize Google Sheets API, you need to set up a Google Service Account. Follo
 
 - Install additional dependencies from the `requirements.txt` file provided in the Quisby repository.
 - Create a `config.ini` file with the specified content.
+
 
 ## Installation Process
 
@@ -99,7 +104,7 @@ Dive into the quisby.log to get detailed information about the operations. This 
 
 The charts.json file serves as a repository for your spreadsheet names and IDs. Regularly back up this file to prevent any data loss. Additionally, this file can be used to quickly access or reference your spreadsheets without manually navigating through Google Sheets.
 
-###Feedback and Troubleshooting:
+### Feedback and Troubleshooting:
 
 If you encounter any issues or anomalies, first check the logs for any specific error messages. The log details combined with the structured data in charts.json will often provide clues to address the issue. If problems persist, consider reaching out to the application's support or development team.
 
