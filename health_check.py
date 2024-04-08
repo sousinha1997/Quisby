@@ -18,12 +18,7 @@ def check_predefined_folders():
         else:
             custom_logger.info(f"Folder '{folder_path}' exists...")
 
-def check_google_credentials_exist():
-    home_dir = os.getenv("HOME")
-    SERVICE_ACCOUNT_FILE = home_dir + '/.quisby/config/credentials.json'
-    if not os.path.exists(SERVICE_ACCOUNT_FILE):
-        custom_logger.error("Google service account credentials not found at "+home_dir+"/.quisby/config/")
-        sys.exit(1)
+
 
 
 def is_package_installed(package_name):
@@ -207,7 +202,6 @@ def health_check():
         "User documentation at : https://docs.google.com/document/d/1g3kzp3pSMN_JVGFrFBWTXOeKaWG0jmA9x0QMAp299NI ")
     custom_logger.info("Initial Health check running...")
     check_predefined_folders()
-    check_google_credentials_exist()
     check_virtual_environment()
     check_python_version()
     check_and_install_requirements()

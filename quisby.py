@@ -84,7 +84,6 @@ from quisby.benchmarks.speccpu.graph import graph_speccpu_data
 from quisby.benchmarks.speccpu.comparison import compare_speccpu_results
 
 from quisby.benchmarks.etcd.etcd import extract_etcd_data, create_summary_etcd_data, graph_etcd_data, compare_etcd_results
-from quisby.sheet.sheetapi import initialise_google_api_service
 
 from quisby.util import read_config, write_config
 from quisby.sheet.sheet_util import clear_sheet_charts, clear_sheet_data, get_sheet, create_sheet, append_to_sheet, create_spreadsheet, permit_users
@@ -145,7 +144,7 @@ def register_details_json(spreadsheet_name, spreadsheet_id):
     home_dir = os.getenv("HOME")
     filename = home_dir + "/.quisby/config/charts.json"
     if not os.path.exists(filename):
-        data = {"chartlist": {str(datetime.now() +": "+ spreadsheet_name) : spreadsheet_id}}
+        data = {"chartlist": {str(datetime.now()) +": "+ spreadsheet_name : spreadsheet_id}}
         with open(filename, "w") as f:
             json.dump(data, f)
     else:
@@ -426,8 +425,6 @@ if __name__ == "__main__":
     custom_logger.info("Health check complete...")
     print("**********************************************************************************************")
     print("**********************************************************************************************")
-
-    initialise_google_api_service()
 
     if args.process:
         reduce_data()
