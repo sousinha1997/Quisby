@@ -3,22 +3,19 @@ import os
 import re
 import subprocess
 import sys
-import time
 
 from quisby import custom_logger
 
 
 def check_predefined_folders():
     home_dir = os.getenv("HOME")
-    folders = [home_dir+'/.quisby/config/',home_dir+'/.quisby/logs/']
+    folders = [home_dir+'/.quisby/config/', home_dir+'/.quisby/logs/']
     for folder_path in folders:
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
             custom_logger.info(f"Folder '{folder_path}' created.")
         else:
             custom_logger.info(f"Folder '{folder_path}' exists...")
-
-
 
 
 def is_package_installed(package_name):
@@ -91,7 +88,9 @@ def check_virtual_environment():
             custom_logger.info("You are not using Python 3.9 within the virtual environment.")
             sys.exit(1)
     else:
-        custom_logger.warning("Not running inside a virtual environment. Create a virtual environment with python3.9. Steps: \n 1. Create environment. < Ex: python3.9 -m venv 3.9-env >\n 2. Enter the environment. < Ex: source 3.9-env/bin/activate >")
+        custom_logger.warning("Not running inside a virtual environment. Create a virtual environment with python3.9. "
+                              "Steps: \n 1. Create environment. < Ex: python3.9 -m venv 3.9-env >\n 2. Enter the "
+                              "environment. < Ex: source 3.9-env/bin/activate >")
         # time.sleep(10)
         # create_virtual_environment()
         # enter_virtual_environment()
@@ -137,7 +136,8 @@ def validate_config_values(config):
 
     if cloud_type != "locahost":
         custom_logger.warning(
-            "Check if format of regions are correctly mentioned.\nExample:\naws : us-east-1\nazure : us-east\ngcp : us-east-1")
+            "Check if format of regions are correctly mentioned.\nExample:\naws : us-east-1\nazure : us-east\ngcp : "
+            "us-east-1")
 
     # Warn if users is empty
     if config.has_option('access', 'users'):
@@ -192,7 +192,6 @@ def check_config_file(config_file):
         sys.exit(1)
     else:
         check_for_config_fields(config_file)
-
 
 
 def health_check():

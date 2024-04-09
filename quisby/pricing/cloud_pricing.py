@@ -85,6 +85,8 @@ def get_gcp_prices(instance_name, region):
                 if region == key:
                     return gcp_price_list[name][region]
             return
+
+
 def list_aws_regions(region):
     try:
         ec2 = boto3.client('ec2',region)
@@ -94,6 +96,7 @@ def list_aws_regions(region):
     except Exception as exc:
         print("Unable to fetch aws regions")
         return None
+
 
 def list_operating_systems(region):
     try:
@@ -115,6 +118,7 @@ def list_operating_systems(region):
     except Exception as exc:
         print("Unable to fetch OS list")
         return None
+
 
 def get_aws_instance_info(instance_name, region):
     """
@@ -147,31 +151,38 @@ def get_aws_instance_info(instance_name, region):
 
 
 def get_aws_pricing(instance_type, region, os_type):
-    product = "AmazonEC2"
-    client = boto3.client('pricing', region_name=region)
-    filters = [
-        {"Type": "TERM_MATCH", "Field": "regionCode", "Value": region},
-        {"Type": "TERM_MATCH", "Field": "instanceType", "Value": instance_type},
-        {"Type": "TERM_MATCH", "Field": "operatingSystem", "Value": os_type},
-    ]
+    try:
+        max_price = 0.0
+        filters = [
+                {'Type': 'TERM_MATCH', 'Field': 'servicecode', 'Value': 'AmazonEC2'},
+                {'Type': 'TERM_MATCH', 'Field': 'instanceType', 'Value': instance_type},
+                {'Type': 'TERM_MATCH', 'Field': 'tenancy', 'Value': 'Shared'},
+                {'Type': 'TERM_MATCH', 'Field': 'operatingSystem', 'Value': 'Linux'},
+                {'Type': 'TERM_MATCH', 'Field': 'regionCode', 'Value': region},
+                {'Type': 'TERM_MATCH', 'Field': 'capacitystatus', 'Value': 'Used'},
+                {'Type': 'TERM_MATCH', 'Field': 'preInstalledSw', 'Value': 'NA'},
+            ]
 
-    response = client.get_products(ServiceCode=product, Filters=filters)
+        ec2_client = boto3.client('pricing', region_name='us-east-1')
+        pricing_data_list = ec2_client.get_products(ServiceCode='AmazonEC2',
+                                                    Filters=filters)['PriceList']
+        for pricing_data in pricing_data_list:
+            pricing_data = json.loads(pricing_data)
+            product_dict = pricing_data.get('product')
+            product_sku = product_dict['sku']
+            on_demand_terms = pricing_data.get('terms', {}).get('OnDemand', {})
+            for product_key, product_values in on_demand_terms.items():
+                if product_sku in product_key:
+                    ondemand_sku = product_values.get('sku')
+                    for price_key, price_values in product_values.get('priceDimensions', {}).items():
 
-    if "PriceList" in response:
-        try:
-            price_list = json.loads(response["PriceList"][0])
-
-            # Extract pricing information as needed
-            terms = price_list["terms"]["OnDemand"]
-            for _, term_info in terms.items():
-                for _, price_dimension in term_info["priceDimensions"].items():
-                    price_per_hour = price_dimension["pricePerUnit"]["USD"]
-                    #print(
-                    #    f"Price per Hour: for " + instance_type + " for os " + os_type + " in region " + region + " is " + price_per_hour + " USD")
-                    return price_per_hour
-        except Exception as exc:
-            print("Unable to fetch prices of " + instance_type + " for os_type " + os_type + " in region " + region)
-            return None
+                        if ondemand_sku in price_key:
+                            max_price = max(max_price, float(price_values.get('pricePerUnit', {}).get('USD', 0)))
+                            return max_price
+    except Exception as exc:
+        print("Unable to fetch prices of " + instance_type + " for os_type " + os_type + " in region " + region)
+        return None
+    return max_price
 
 
 def get_instance_vcpu_count(instance_type, region):

@@ -410,7 +410,7 @@ if __name__ == "__main__":
         parser.print_help()
         exit(0)
 
-    health_check()
+    # health_check()
 
     if not args.config:
         custom_logger.warning("No configuration path mentioned. Using default. ")
@@ -421,7 +421,7 @@ if __name__ == "__main__":
     else:
         util.config_location = args.config
     custom_logger.info("Config path : " + util.config_location)
-    check_config_file(util.config_location)
+    # check_config_file(util.config_location)
     custom_logger.info("Health check complete...")
     print("**********************************************************************************************")
     print("**********************************************************************************************")
