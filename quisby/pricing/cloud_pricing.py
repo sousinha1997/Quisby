@@ -1,7 +1,6 @@
 # Using this package which is a HTTP library
 from quisby import custom_logger
 import sys
-import time
 import json
 import requests
 import boto3
@@ -9,7 +8,7 @@ from quisby.util import process_instance, read_config
 import os
 
 homedir = os.getenv("HOME")
-json_path = homedir + "/.config/quisby/azure_prices.json"
+json_path = homedir + "/.quisby/config/azure_prices.json"
 
 
 def fetch_from_url():
@@ -70,11 +69,9 @@ def get_gcp_prices(instance_name, region):
         return None
     prefix = ""
     gcp_price_list = google_ext_prices["gcp_price_list"]
-    machine_fam = instance_name.split("-")[0].upper()
-    if machine_fam in ("N2", "N2D", "T2D", "T2A", "C2", "C2D", "M1", "M2"):
-        prefix = "CP-COMPUTEENGINE-" + machine_fam + "-PREDEFINED-VM-CORE".strip()
-    elif machine_fam in ("N1", "E2"):
-        prefix = 'CP-COMPUTEENGINE-VMIMAGE-' + instance_name.upper().strip()
+    family, model, cpu = instance_name.split("-")
+    if family in ("N2", "N2D", "T2D", "T2A", "C2", "C2D", "M1", "M2", "N1", "E2"):
+        prefix = "CP-COMPUTEENGINE-" + family + "-PREDEFINED-VM-CORE".strip()
     else:
         custom_logger.error("This machine price is not available")
         return
@@ -83,8 +80,42 @@ def get_gcp_prices(instance_name, region):
         if prefix == name:
             for key, price in prices.items():
                 if region == key:
-                    return gcp_price_list[name][region]
-            return
+                    return gcp_price_list[name][region] * float(cpu)
+            return 0.0
+
+
+def get_aws_pricing(instance_type, region, os_type):
+    try:
+        max_price = 0.0
+        filters = [
+                {'Type': 'TERM_MATCH', 'Field': 'servicecode', 'Value': 'AmazonEC2'},
+                {'Type': 'TERM_MATCH', 'Field': 'instanceType', 'Value': instance_type},
+                {'Type': 'TERM_MATCH', 'Field': 'tenancy', 'Value': 'Shared'},
+                {'Type': 'TERM_MATCH', 'Field': 'operatingSystem', 'Value': 'Linux'},
+                {'Type': 'TERM_MATCH', 'Field': 'regionCode', 'Value': region},
+                {'Type': 'TERM_MATCH', 'Field': 'capacitystatus', 'Value': 'Used'},
+                {'Type': 'TERM_MATCH', 'Field': 'preInstalledSw', 'Value': 'NA'},
+            ]
+
+        ec2_client = boto3.client('pricing', region_name='us-east-1')
+        pricing_data_list = ec2_client.get_products(ServiceCode='AmazonEC2',
+                                                    Filters=filters)['PriceList']
+        for pricing_data in pricing_data_list:
+            pricing_data = json.loads(pricing_data)
+            product_dict = pricing_data.get('product')
+            product_sku = product_dict['sku']
+            on_demand_terms = pricing_data.get('terms', {}).get('OnDemand', {})
+            for product_key, product_values in on_demand_terms.items():
+                if product_sku in product_key:
+                    ondemand_sku = product_values.get('sku')
+                    for price_key, price_values in product_values.get('priceDimensions', {}).items():
+
+                        if ondemand_sku in price_key:
+                            max_price = max(max_price, float(price_values.get('pricePerUnit', {}).get('USD', 0)))
+    except Exception as exc:
+        print("Unable to fetch prices of " + instance_type + " for os_type " + os_type + " in region " + region)
+        return None
+    return max_price
 
 
 def list_aws_regions(region):
@@ -148,41 +179,6 @@ def get_aws_instance_info(instance_name, region):
     )
 
     return response['PriceList']
-
-
-def get_aws_pricing(instance_type, region, os_type):
-    try:
-        max_price = 0.0
-        filters = [
-                {'Type': 'TERM_MATCH', 'Field': 'servicecode', 'Value': 'AmazonEC2'},
-                {'Type': 'TERM_MATCH', 'Field': 'instanceType', 'Value': instance_type},
-                {'Type': 'TERM_MATCH', 'Field': 'tenancy', 'Value': 'Shared'},
-                {'Type': 'TERM_MATCH', 'Field': 'operatingSystem', 'Value': 'Linux'},
-                {'Type': 'TERM_MATCH', 'Field': 'regionCode', 'Value': region},
-                {'Type': 'TERM_MATCH', 'Field': 'capacitystatus', 'Value': 'Used'},
-                {'Type': 'TERM_MATCH', 'Field': 'preInstalledSw', 'Value': 'NA'},
-            ]
-
-        ec2_client = boto3.client('pricing', region_name='us-east-1')
-        pricing_data_list = ec2_client.get_products(ServiceCode='AmazonEC2',
-                                                    Filters=filters)['PriceList']
-        for pricing_data in pricing_data_list:
-            pricing_data = json.loads(pricing_data)
-            product_dict = pricing_data.get('product')
-            product_sku = product_dict['sku']
-            on_demand_terms = pricing_data.get('terms', {}).get('OnDemand', {})
-            for product_key, product_values in on_demand_terms.items():
-                if product_sku in product_key:
-                    ondemand_sku = product_values.get('sku')
-                    for price_key, price_values in product_values.get('priceDimensions', {}).items():
-
-                        if ondemand_sku in price_key:
-                            max_price = max(max_price, float(price_values.get('pricePerUnit', {}).get('USD', 0)))
-                            return max_price
-    except Exception as exc:
-        print("Unable to fetch prices of " + instance_type + " for os_type " + os_type + " in region " + region)
-        return None
-    return max_price
 
 
 def get_instance_vcpu_count(instance_type, region):
