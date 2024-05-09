@@ -101,11 +101,14 @@ def process_results(results, test_name, cloud_type, os_type, os_release, spreads
 
     # Summarise data
     try:
-        if check_test_is_hammerdb(test_name):
-            results = create_summary_hammerdb_data(results)
+        if results:
+            if check_test_is_hammerdb(test_name):
+                results = create_summary_hammerdb_data(results)
+            else:
+                custom_logger.info("Summarize " + test_name + " data...")
+                results = globals()[f"create_summary_{test_name}_data"](results, os_release)
         else:
-            custom_logger.info("Summarize " + test_name + " data...")
-            results = globals()[f"create_summary_{test_name}_data"](results, os_release)
+            custom_logger.error("No data found")
     except Exception as exc:
         custom_logger.error(str(exc))
         custom_logger.error("Failed to summarise data")

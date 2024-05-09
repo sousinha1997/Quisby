@@ -32,6 +32,7 @@ def is_package_installed(package_name):
 def check_and_install_requirements():
     """Install required packages from requirements.txt if not installed."""
     try:
+        custom_logger.info("Checking if all the required packages are installed...")
         with open("requirements.txt", "r") as file:
             packages = file.read()
 

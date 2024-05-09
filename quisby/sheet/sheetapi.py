@@ -15,6 +15,8 @@ DISCOVERY_SERVICE_URL = 'https://sheets.googleapis.com/$discovery/rest?version=v
 def check_google_credentials_exist():
     if not os.path.exists(SERVICE_ACCOUNT_FILE):
         custom_logger.error("Google service account credentials not found at " + home_dir + "/.quisby/config/")
+        if not os.path.exists(home_dir + "/.quisby/config/"):
+            os.makedirs(home_dir + "/.quisby/config/")
         sys.exit(1)
 
 

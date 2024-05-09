@@ -17,19 +17,23 @@ def extract_prefix_and_number(input_string):
 
 def custom_key(item):
     cloud_type = read_config("cloud","cloud_type")
-    if item[1][0] == "localhost":
-        return (item[1][0])
-    elif cloud_type == "aws":
-        instance_type =item[1][0].split(".")[0]
-        instance_number = item[1][0].split(".")[1]
-        return (instance_type, instance_number)
-    elif cloud_type == "gcp":
-         instance_type = item[1][0].split("-")[0]
-         instance_number = int(item[1][0].split('-')[-1])
-         return (instance_type, instance_number)
-    elif cloud_type == "azure":
-        instance_type, instance_number, version=extract_prefix_and_number(item[1][0])
-        return (instance_type, instance_number)
+    try:
+        if item[1][0] == "localhost":
+            return (item[1][0])
+        elif cloud_type == "aws":
+            instance_type =item[1][0].split(".")[0]
+            instance_number = item[1][0].split(".")[1]
+            return (instance_type, instance_number)
+        elif cloud_type == "gcp":
+             instance_type = item[1][0].split("-")[0]
+             instance_number = int(item[1][0].split('-')[-1])
+             return (instance_type, instance_number)
+        elif cloud_type == "azure":
+            instance_type, instance_number, version=extract_prefix_and_number(item[1][0])
+            return (instance_type, instance_number)
+    except Exception as exc:
+        custom_logger.error(str(exc))
+        return ("","")
 
 def create_summary_coremark_pro_data(results,OS_RELEASE):
     final_results = []
