@@ -91,7 +91,7 @@ from quisby import custom_logger
 
 
 def check_test_is_hammerdb(test_name):
-    if test_name in ["hammerdb_pg", "hammerdb_maria", "hammerdb_mssql"]:
+    if test_name in ["hammerdb_pg", "hammerdb_maria", "hammerdb_mssql"] and (benchmark == "all" or benchmark in ["hammerdb_pg", "hammerdb_maria", "hammerdb_mssql"]):
         return True
     else:
         return False
@@ -160,7 +160,7 @@ def register_details_json(spreadsheet_name, spreadsheet_id):
 
 
 # TODO: simplify functions once data location is exact
-def data_handler():
+def data_handler(benchmark):
     """"""
     global test_name
     global source
@@ -226,23 +226,23 @@ def data_handler():
                         path, system_name = data.split(",")
                     path = test_path + "/" + path.strip()
                     custom_logger.debug(path)
-                    if test_name == "streams":
+                    if test_name == "streams" and (benchmark == "all" or benchmark == "streams"):
                         ret_val = extract_streams_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "uperf":
+                    elif test_name == "uperf" and (benchmark == "all" or benchmark == "uperf"):
                         ret_val = extract_uperf_data(path, system_name)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "linpack":
+                    elif test_name == "linpack" and (benchmark == "all" or benchmark == "linpack"):
                         ret_val = extract_linpack_data(path, system_name)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "specjbb":
+                    elif test_name == "specjbb" and (benchmark == "all" or benchmark == "specjbb"):
                         ret_value = extract_specjbb_data(path, system_name, os_release)
                         if ret_value is not None:
                             results.append(ret_value)
-                    elif test_name == "pig":
+                    elif test_name == "pig" and (benchmark == "all" or benchmark == "pig"):
                         ret_val = extract_pig_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
@@ -250,7 +250,7 @@ def data_handler():
                         ret_val = extract_hammerdb_data(path, system_name, test_name, os_release)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "fio_run":
+                    elif test_name == "fio_run" and (benchmark == "all" or benchmark == "fio_run"):
                         ret_val = None
                         if source == "results":
                             ret_val = extract_fio_run_data(path, system_name, os_release)
@@ -259,43 +259,43 @@ def data_handler():
                         if ret_val:
                             results += ret_val
                         pass
-                    elif test_name == "boot":
+                    elif test_name == "boot" and (benchmark == "all" or benchmark == "boot"):
                         ret_val = extract_boot_data(path, system_name)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "aim":
+                    elif test_name == "aim" and (benchmark == "all" or benchmark == "aim"):
                         ret_val = extract_aim_data(path, system_name)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "auto_hpl":
+                    elif test_name == "auto_hpl" and (benchmark == "all" or benchmark == "auto_hpl"):
                         ret_val = extract_auto_hpl_data(path, system_name)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "speccpu":
+                    elif test_name == "speccpu" and (benchmark == "all" or benchmark == "speccpu"):
                         ret_val = extract_speccpu_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "etcd":
+                    elif test_name == "etcd" and (benchmark == "all" or benchmark == "etcd"):
                         ret_val = extract_etcd_data(path, system_name)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "coremark":
+                    elif test_name == "coremark" and (benchmark == "all" or benchmark == "coremark"):
                         ret_val = extract_coremark_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "coremark_pro":
+                    elif test_name == "coremark_pro" and (benchmark == "all" or benchmark == "coremark_pro"):
                         ret_val = extract_coremark_pro_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "passmark":
+                    elif test_name == "passmark" and (benchmark == "all" or benchmark == "passmark"):
                         ret_val = extract_passmark_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "pyperf":
+                    elif test_name == "pyperf" and (benchmark == "all" or benchmark == "pyperf"):
                         ret_val = extract_pyperf_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "phoronix":
+                    elif test_name == "phoronix" and (benchmark == "all" or benchmark == "phoronix"):
                         ret_val = extract_phoronix_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
@@ -394,8 +394,8 @@ def compare_results(spreadsheets):
     register_details_json(spreadsheet_name, spreadsheetid)
 
 
-def reduce_data():
-    data_handler()
+def reduce_data(benchmark):
+    data_handler(benchmark)
 
 
 def compare_data(s_list):
@@ -407,6 +407,7 @@ if __name__ == "__main__":
     parser.add_argument("--config", type=str, required=False, help="Location to configuration file")
     parser.add_argument("--process",action='store_true',help="To preprocess and visualise a single dataset")
     parser.add_argument("--compare", type=str, required=False, help="To compare and plot two datasets")
+    parser.add_argument("--benchmark", type=str, required=False, help="Process or compare only mentioned benchmark")
     args = parser.parse_args()
 
     if not (args.process or args.compare):
@@ -430,7 +431,11 @@ if __name__ == "__main__":
     print("**********************************************************************************************")
 
     if args.process:
-        reduce_data()
+        if args.benchmark:
+            benchmark = args.benchmark
+        else:
+            benchmark = "all"
+        reduce_data(benchmark)
         exit(0)
     elif args.compare:
         try:
