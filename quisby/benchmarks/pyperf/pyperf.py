@@ -57,7 +57,7 @@ def extract_pyperf_data(path, system_name, OS_RELEASE):
     results = []
     # Extract data from file
     try:
-        if path.endswith("results.csv"):
+        if path:
             with open(path) as file:
                 pyperf_results = file.readlines()
         else:
