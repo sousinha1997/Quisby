@@ -29,21 +29,24 @@ def create_summary_pyperf_data(data,OS_RELEASE):
     system = ""
     # Add summary data
     for index, row in enumerate(data):
-        if row == [""]:
-            if processed_data:
-                SYSTEM_GEOMEAN.append([system, gmean(gmean_data)])
-            processed_data = []
-            gmean_data = []
-            system = ""
-            start_index = end_index + 1
-            end_index = 0
-        elif start_index:
-            system = row[0]
-            processed_data.append(system)
-            end_index = start_index + 1
-            start_index = 0
-        elif end_index:
-            gmean_data.append(float(row[1]))
+        try:
+            if row == [""]:
+                if processed_data:
+                    SYSTEM_GEOMEAN.append([system, gmean(gmean_data)])
+                processed_data = []
+                gmean_data = []
+                system = ""
+                start_index = end_index + 1
+                end_index = 0
+            elif start_index:
+                system = row[0]
+                processed_data.append(system)
+                end_index = start_index + 1
+                start_index = 0
+            elif end_index:
+                gmean_data.append(float(row[1]))
+        except Exception as exc:
+            custom_logger.error(str(exc))
     SYSTEM_GEOMEAN.append([system, gmean(gmean_data)])
     results.append([""])
     results.append(["SYSTEM_NAME", "GEOMEAN-"+str(OS_RELEASE)])
@@ -57,7 +60,7 @@ def extract_pyperf_data(path, system_name, OS_RELEASE):
     results = []
     # Extract data from file
     try:
-        if path.endswith("results.csv"):
+        if path:
             with open(path) as file:
                 pyperf_results = file.readlines()
         else:
