@@ -407,7 +407,17 @@ if __name__ == "__main__":
     parser.add_argument("--config", type=str, required=False, help="Location to configuration file")
     parser.add_argument("--process",action='store_true',help="To preprocess and visualise a single dataset")
     parser.add_argument("--compare", type=str, required=False, help="To compare and plot two datasets")
+    parser.add_argument("--list-benchmarks",action='store_true', help="To list supported benchmarks")
     args = parser.parse_args()
+
+    supported_benchmarks = ['aim', 'auto_hpl','boot', 'coremark', 'coremark_pro', 'etcd', 'fio_run', 'hammerdb_maria', 'hammerdb_mssql', 'hammerdb_pg', 'linpack', 'passmark', 'phoronix', 'pig', 'pyperf', 'specjbb', 'speccpu', 'streams', 'uperf']
+
+    if args.list_benchmarks:
+        custom_logger.info("Supported benchmarks :")
+        for i in supported_benchmarks:
+            print(i)
+        exit(0)
+
 
     if not (args.process or args.compare):
         parser.print_help()
