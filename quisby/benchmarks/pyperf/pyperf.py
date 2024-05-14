@@ -32,6 +32,7 @@ def create_summary_pyperf_data(data,OS_RELEASE):
         try:
             if row == [""]:
                 if processed_data:
+                    results.append(processed_data)
                     SYSTEM_GEOMEAN.append([system, gmean(gmean_data)])
                 processed_data = []
                 gmean_data = []
@@ -45,12 +46,17 @@ def create_summary_pyperf_data(data,OS_RELEASE):
                 start_index = 0
             elif end_index:
                 gmean_data.append(float(row[1]))
+                processed_data.append(row[0]+" :"+row[1])
+                if(float(row[1] == 0.0)):
+                    custom_logger.warning("Value for test: "+row[0]+" is 0.0 for machine "+system)
         except Exception as exc:
             custom_logger.error(str(exc))
+    results.append(processed_data)
     SYSTEM_GEOMEAN.append([system, gmean(gmean_data)])
     results.append([""])
     results.append(["SYSTEM_NAME", "GEOMEAN-"+str(OS_RELEASE)])
-    for item in SYSTEM_GEOMEAN:
+    sorted_data = sorted(SYSTEM_GEOMEAN,key=custom_key)
+    for item in sorted_data:
         results.append(item)
     return results
 
