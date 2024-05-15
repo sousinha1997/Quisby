@@ -178,7 +178,8 @@ def data_handler():
 
     if not spreadsheetid:
         custom_logger.info("Creating a new spreadsheet... ")
-        spreadsheet_name = f"{cloud_type}-{os_type}-{os_release}-{spreadsheet_name}"
+        if not spreadsheet_name:
+            spreadsheet_name = f"{cloud_type}-{os_type}-{os_release}-regression-test"
         spreadsheetid = create_spreadsheet(spreadsheet_name, "summary")
         write_config("spreadsheet", "spreadsheet_id", spreadsheetid)
         write_config("spreadsheet", "spreadsheet_name", spreadsheet_name)

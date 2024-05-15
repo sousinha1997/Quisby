@@ -79,5 +79,5 @@ def extract_pyperf_data(path, system_name, OS_RELEASE):
         pyperf_results[index] = data.strip("\n").split(":")
     results.append([""])
     results.append([system_name])
-    results.extend(pyperf_results[1:])
+    results.extend(pyperf_results[0:])
     return results
