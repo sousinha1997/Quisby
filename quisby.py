@@ -389,7 +389,7 @@ def compare_results(spreadsheets):
         except Exception as exc:
             custom_logger.error(str(exc))
             custom_logger.error("Failed to graph data")
-            return spreadsheetid
+
 
     custom_logger.info(f"https://docs.google.com/spreadsheets/d/{spreadsheetid}")
     register_details_json(spreadsheet_name, spreadsheetid)

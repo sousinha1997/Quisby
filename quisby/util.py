@@ -103,6 +103,8 @@ def percentage_deviation(item1,item2):
 
 
 def merge_lists_alternately(results, list1, list2):
+    if list1[0] != list2[0]:
+        return results
     merger_list = [list1[0]]
     for item1, item2 in zip(list1[1:], list2[1:]):
         merger_list.append(item1)

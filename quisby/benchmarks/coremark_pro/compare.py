@@ -29,7 +29,7 @@ def compare_coremark_pro_results(spreadsheets, spreadsheetId, test_name, table_n
     for value in list_1:
         for ele in list_2:
             # Check max throughput
-            if value[0][0] in table_name and ele[0][0] in table_name:
+            if value[0][0] == ele[0][0] and  value[1][0] == ele[1][0]:
                 if value[1][0].split(".")[0] == ele[1][0].split(".")[0]:
                     results.append([""])
                     for item1 in value:

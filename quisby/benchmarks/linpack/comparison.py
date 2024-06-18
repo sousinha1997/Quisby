@@ -32,9 +32,10 @@ def compare_linpack_results(spreadsheets, spreadsheetId, test_name):
                         value[1],
                         value[2],
                         ele[2],
-                        "% Diff",
+                        "% Gflops Diff",
                         value[3],
                         ele[3],
+                        "% Scaling Diff",
                         value[4],
                         value[5],
                         ele[5],
@@ -49,6 +50,7 @@ def compare_linpack_results(spreadsheets, spreadsheetId, test_name):
                     price_perf.append(float(ele[2]) / float(ele[4]))
                     price_perf_diff = percentage_deviation(price_perf[0], price_perf[1])
                     percentage_diff = percentage_deviation(value[2], ele[2])
+                    gflop_diff = percentage_deviation(value[3],ele[3])
                     results.append(
                         [
                             value[0],
@@ -58,6 +60,7 @@ def compare_linpack_results(spreadsheets, spreadsheetId, test_name):
                             percentage_diff,
                             value[3],
                             ele[3],
+                            gflop_diff,
                             value[4],
                             price_perf[0],
                             price_perf[1],

@@ -105,11 +105,8 @@ def graph_fio_run_data(spreadsheetId, test_name, action):
     left_axis = ""
 
     data = read_sheet(spreadsheetId, test_name)
-
-    if len(data) > 2000:
-        append_empty_row_sheet(spreadsheetId, 1000, test_name)
-    elif len(data) > 500:
-        append_empty_row_sheet(spreadsheetId, 1000, test_name)
+    if len(data) > 500:
+        append_empty_row_sheet(spreadsheetId, 3000, test_name)
     for index, row in enumerate(data):
         if "iteration_name" in row:
             start_index = index - 1
