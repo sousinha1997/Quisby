@@ -122,7 +122,7 @@ def graph_pig_data(spreadsheetId, test_name, action):
                 "sheetId"
             ]
 
-            series = globals()[f'create_series_range_list_pig_{action}'](column_count, sheetId, start_index, end_index)
+            series = globals()[f'create_series_range_pig_{action}'](column_count, sheetId, start_index, end_index)
 
             requests = {
                 "addChart": {
