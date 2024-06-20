@@ -77,23 +77,23 @@ def series_range_uperf_compare(column_count, sheetId, start_index, end_index):
             "targetAxis":"LEFT_AXIS",
             "type": "COLUMN",
         })
-        series.append({
-                "series": {
-                    "sourceRange": {
-                        "sources": [
-                            {
-                                "sheetId": sheetId,
-                                "startRowIndex": start_index + 1,
-                                "endRowIndex": end_index,
-                                "startColumnIndex": index + 2,
-                                "endColumnIndex": index + 3,
-                            }
-                        ]
-                    }
-                },
-                "targetAxis": "RIGHT_AXIS",
-                "type": "COLUMN",
-            })
+        # series.append({
+        #         "series": {
+        #             "sourceRange": {
+        #                 "sources": [
+        #                     {
+        #                         "sheetId": sheetId,
+        #                         "startRowIndex": start_index + 1,
+        #                         "endRowIndex": end_index,
+        #                         "startColumnIndex": index + 2,
+        #                         "endColumnIndex": index + 3,
+        #                     }
+        #                 ]
+        #             }
+        #         },
+        #         "targetAxis": "RIGHT_AXIS",
+        #         "type": "COLUMN",
+        #     })
 
 
     return series
