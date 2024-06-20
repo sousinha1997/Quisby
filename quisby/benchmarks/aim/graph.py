@@ -1,7 +1,7 @@
 import time
 
 from quisby.sheet.sheetapi import sheet
-from quisby.sheet.sheet_util import read_sheet, clear_sheet_charts, get_sheet
+from quisby.sheet.sheet_util import read_sheet, clear_sheet_charts, get_sheet,append_empty_row_sheet
 
 
 def create_series_range_aim(column_count, sheetId, start_index, end_index):
@@ -39,6 +39,8 @@ def graph_aim_data(spreadsheetId, test_name, action):
     start_index, end_index = None, None
 
     data = read_sheet(spreadsheetId, test_name)
+    if len(data) > 500:
+        append_empty_row_sheet(spreadsheetId, 3000, test_name)
 
     for index, row in enumerate(data):
         if row == [] and start_index is None:

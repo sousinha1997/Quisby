@@ -1,7 +1,7 @@
 
 
 
-from quisby.sheet.sheet_util import read_sheet,clear_sheet_charts,get_sheet
+from quisby.sheet.sheet_util import read_sheet,clear_sheet_charts,get_sheet,append_empty_row_sheet
 from quisby.sheet.sheetapi import sheet
 import time
 
@@ -97,6 +97,9 @@ def graph_coremark_pro_data(spreadsheetId, range, action):
     end_index = 0
 
     data = read_sheet(spreadsheetId, range)
+    if len(data) > 500:
+        append_empty_row_sheet(spreadsheetId, 3000, "coremark_pro")
+
     header = []
     for index, row in enumerate(data):
         if "System name" in row:

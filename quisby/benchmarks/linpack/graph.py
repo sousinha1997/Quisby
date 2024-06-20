@@ -7,7 +7,7 @@ from quisby.sheet.sheet_util import (
     clear_sheet_data,
     append_to_sheet,
     read_sheet,
-    get_sheet,
+    get_sheet,append_empty_row_sheet
 )
 
 
@@ -59,6 +59,8 @@ def graph_linpack_compare(spreadsheetId, test_name, action):
     start_index, end_index = None, None
 
     data = read_sheet(spreadsheetId, test_name)
+    if len(data) > 500:
+        append_empty_row_sheet(spreadsheetId, 3000, test_name)
     header_row = data[0]
     last_row = len(data)
     GRAPH_ROW_INDEX = last_row + 1

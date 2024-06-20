@@ -7,7 +7,7 @@ from quisby.sheet.sheet_util import (
     clear_sheet_charts,
     append_to_sheet,
     read_sheet,
-    get_sheet,
+    get_sheet,append_empty_row_sheet
 )
 
 
@@ -102,6 +102,8 @@ def graph_specjbb_data(spreadsheetId, range, action):
     end_index = 0
 
     data = read_sheet(spreadsheetId, range)
+    if len(data) > 500:
+        append_empty_row_sheet(spreadsheetId, 3000, range)
 
     for index, row in enumerate(data):
         try:

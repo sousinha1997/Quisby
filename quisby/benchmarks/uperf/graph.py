@@ -9,7 +9,7 @@ from quisby.sheet.sheet_util import (
     clear_sheet_data,
     append_to_sheet,
     read_sheet,
-    get_sheet,
+    get_sheet,append_empty_row_sheet
 )
 
 
@@ -92,7 +92,7 @@ def series_range_uperf_compare(column_count, sheetId, start_index, end_index):
                     }
                 },
                 "targetAxis": "RIGHT_AXIS",
-                "type": "LINE",
+                "type": "COLUMN",
             })
 
 
@@ -110,6 +110,8 @@ def graph_uperf_data(spreadsheetId, range,action):
     }
 
     uperf_results = read_sheet(spreadsheetId, range)
+    if len(uperf_results) > 500:
+        append_empty_row_sheet(spreadsheetId, 3000, range)
 
     for index, row in enumerate(uperf_results):
         if row:

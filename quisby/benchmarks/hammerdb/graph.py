@@ -6,7 +6,7 @@ from quisby.sheet.sheet_util import (
     clear_sheet_data,
     append_to_sheet,
     read_sheet,
-    get_sheet,
+    get_sheet,append_empty_row_sheet
 )
 
 
@@ -90,6 +90,8 @@ def graph_hammerdb_data(spreadsheetId, range, action):
 
     GRAPH_COL_INDEX, GRAPH_ROW_INDEX = 0, LAST_ROW+1
     start_index, end_index = 0, 0
+    if len(hammerdb_results) > 500:
+        append_empty_row_sheet(spreadsheetId, 3000, range)
 
     for index, row in enumerate(hammerdb_results):
 
