@@ -399,73 +399,71 @@ def reduce_data():
     data_handler()
 
 
-def compare_data(s_list, comp_list):
+def compare_data(s_list,comp_list):
     compare_results(s_list, comp_list)
 
 
 if __name__ == "__main__":
-    # compare_data(["1JkKA_xJ8E7QyWoH24ObSL9_40QoGribboGhQQSJiM44","1xOduFJi8tNGVtFlJnTGCB-KFvficex83G8qMHiK141c"],["specjbb"])
-    compare_data(["1txvknVTkhJrhSlVfFbKQP4zRRBTKwA0GONiHgSJU5Yo","1RiAmCkWr82lCqOMQBtXD_XMMiX2FV6bLl26A0MNMa-g"],["specjbb"])
-    # parser = argparse.ArgumentParser(description="Tool to preprocess and visualise datasets")
-    # parser.add_argument("--config", type=str, required=False, help="Location to configuration file")
-    # parser.add_argument("--process",action='store_true',help="To preprocess and visualise a single dataset")
-    # parser.add_argument("--compare", type=str, required=False, help="To compare and plot two datasets")
-    # parser.add_argument("--list-benchmarks",action='store_true', help="To list supported benchmarks")
-    # parser.add_argument("--compare-list", type=str, required=False, help="Give specific benchmark to compare")
-    # parser.add_argument("--no-check", action='store_true',help="No health check")
-    # args = parser.parse_args()
-    #
-    # supported_benchmarks = ['aim', 'auto_hpl','boot', 'coremark', 'coremark_pro', 'etcd', 'fio_run', 'hammerdb_maria', 'hammerdb_mssql', 'hammerdb_pg', 'linpack', 'passmark', 'phoronix', 'pig', 'pyperf', 'specjbb', 'speccpu', 'streams', 'uperf']
-    #
-    # if args.list_benchmarks:
-    #     custom_logger.info("Supported benchmarks :")
-    #     for i in supported_benchmarks:
-    #         print(i)
-    #     exit(0)
-    #
-    #
-    # if not (args.process or args.compare):
-    #     parser.print_help()
-    #     exit(0)
-    #
-    # if not args.no_check:
-    #     health_check()
-    #
-    # if not args.config:
-    #     custom_logger.warning("No configuration path mentioned. Using default. ")
-    #     home_dir = os.getenv("HOME")
-    #     util.config_location = home_dir + "/.quisby/config/config.ini"
-    #     if not os.path.exists(util.config_location):
-    #         shutil.copy("./quisby/example.ini", util.config_location)
-    # else:
-    #     util.config_location = args.config
-    # custom_logger.info("Config path : " + util.config_location)
-    # check_config_file(util.config_location)
-    # custom_logger.info("Health check complete...")
-    # print("**********************************************************************************************")
-    # print("**********************************************************************************************")
-    #
-    # if args.process:
-    #     reduce_data()
-    #     exit(0)
-    # elif args.compare:
-    #     comp_list = ["phoronix"]
-    #     if args.compare_list:
-    #         comp_list = args.compare_list.split(",")
-    #     try:
-    #         s_list = args.compare.split(",")
-    #         if len(s_list) > 1:
-    #             compare_data(s_list,comp_list)
-    #             exit(0)
-    #         else:
-    #             custom_logger.error("Provide two or more sheets to compare.")
-    #             exit(0)
-    #     except Exception as exc:
-    #         custom_logger.error("Comparison failed. Check arguments.")
-    #         exit(0)
-    #
-    #
-    #
-    #
-    #
-    #
+    parser = argparse.ArgumentParser(description="Tool to preprocess and visualise datasets")
+    parser.add_argument("--config", type=str, required=False, help="Location to configuration file")
+    parser.add_argument("--process",action='store_true',help="To preprocess and visualise a single dataset")
+    parser.add_argument("--compare", type=str, required=False, help="To compare and plot two datasets")
+    parser.add_argument("--list-benchmarks",action='store_true', help="To list supported benchmarks")
+    parser.add_argument("--compare-list", type=str, required=False, help="Give specific benchmark to compare")
+    parser.add_argument("--no-check", action='store_true',help="No health check")
+    args = parser.parse_args()
+
+    supported_benchmarks = ['aim', 'auto_hpl','boot', 'coremark', 'coremark_pro', 'etcd', 'fio_run', 'hammerdb_maria', 'hammerdb_mssql', 'hammerdb_pg', 'linpack', 'passmark', 'phoronix', 'pig', 'pyperf', 'specjbb', 'speccpu', 'streams', 'uperf']
+
+    if args.list_benchmarks:
+        custom_logger.info("Supported benchmarks :")
+        for i in supported_benchmarks:
+            print(i)
+        exit(0)
+
+
+    if not (args.process or args.compare):
+        parser.print_help()
+        exit(0)
+
+    if not args.no_check:
+        health_check()
+
+    if not args.config:
+        custom_logger.warning("No configuration path mentioned. Using default. ")
+        home_dir = os.getenv("HOME")
+        util.config_location = home_dir + "/.quisby/config/config.ini"
+        if not os.path.exists(util.config_location):
+            shutil.copy("./quisby/example.ini", util.config_location)
+    else:
+        util.config_location = args.config
+    custom_logger.info("Config path : " + util.config_location)
+    check_config_file(util.config_location)
+    custom_logger.info("Health check complete...")
+    print("**********************************************************************************************")
+    print("**********************************************************************************************")
+
+    if args.process:
+        reduce_data()
+        exit(0)
+    elif args.compare:
+        comp_list = []
+        if args.compare_list:
+            comp_list = args.compare_list.split(",")
+        try:
+            s_list = args.compare.split(",")
+            if len(s_list) > 1:
+                compare_data(s_list,comp_list)
+                exit(0)
+            else:
+                custom_logger.error("Provide two or more sheets to compare.")
+                exit(0)
+        except Exception as exc:
+            custom_logger.error("Comparison failed. Check arguments.")
+            exit(0)
+
+
+
+
+
+
