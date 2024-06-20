@@ -2,15 +2,15 @@ from itertools import groupby
 
 from quisby.util import mk_int, process_instance
 
+
 def hammerdb_sort_data_by_system_family(results):
     sorted_result = []
 
     results = [list(g) for k, g in groupby(results, key=lambda x: x != [""]) if k]
 
-    results.sort(key=lambda x: str(process_instance(x[0][1], "family","version","feature")))
+    results.sort(key=lambda x: str(process_instance(x[0][1], "family", "version", "feature")))
 
-    for _, items in groupby(results, key=lambda x: process_instance(x[0][1], "family","version","feature")):
-
+    for _, items in groupby(results, key=lambda x: process_instance(x[0][1], "family", "version", "feature")):
         sorted_result.append(
             sorted(list(items), key=lambda x: mk_int(process_instance(x[0][1], "size")))
         )

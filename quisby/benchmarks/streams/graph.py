@@ -1,37 +1,37 @@
 import time
 from itertools import groupby
 
-from quisby.sheet.sheetapi import sheet
+from quisby.formatting.add_formatting import update_conditional_formatting
 from quisby.sheet.sheet_util import (
-    clear_sheet_charts,
-    append_to_sheet,
     read_sheet,
     get_sheet, append_empty_row_sheet
 )
+from quisby.sheet.sheetapi import sheet
 
 
 def create_series_range_list_stream_compare(column_index, len_of_func, sheetId, start_index, end_index):
     series = []
     len_of_func = column_index + len_of_func
-    while(column_index < len_of_func):
+    diff_col = []
+    while column_index < len_of_func:
         series.append(
-        {
-            "series": {
-                "sourceRange": {
-                    "sources": [
-                        {
-                            "sheetId": sheetId,
-                            "startRowIndex": start_index,
-                            "endRowIndex": end_index,
-                            "startColumnIndex": column_index,
-                            "endColumnIndex": column_index+1,
-                        }
-                    ]
-                }
-            },
-            "targetAxis": "LEFT_AXIS",
-            "type": "COLUMN",
-        },)
+            {
+                "series": {
+                    "sourceRange": {
+                        "sources": [
+                            {
+                                "sheetId": sheetId,
+                                "startRowIndex": start_index,
+                                "endRowIndex": end_index,
+                                "startColumnIndex": column_index,
+                                "endColumnIndex": column_index + 1,
+                            }
+                        ]
+                    }
+                },
+                "targetAxis": "LEFT_AXIS",
+                "type": "COLUMN",
+            }, )
         column_index = column_index + 1
 
     series.append({
@@ -43,24 +43,24 @@ def create_series_range_list_stream_compare(column_index, len_of_func, sheetId, 
                         "startRowIndex": start_index,
                         "endRowIndex": end_index,
                         "startColumnIndex": column_index,
-                        "endColumnIndex": column_index+1,
+                        "endColumnIndex": column_index + 1,
                     }
                 ]
             }
         },
         "targetAxis": "RIGHT_AXIS",
         "type": "LINE",
-    },)
-    column_index = column_index+1
+    }, )
+    diff_col.append(column_index)
+    column_index = column_index + 1
 
-    return series, column_index
+    return series, column_index, diff_col
 
 
 def create_series_range_list_stream_process(column_index, len_of_func, sheetId, start_index, end_index):
     series = []
 
     for index in range(len_of_func):
-
         series.append(
             {
                 "series": {
@@ -97,6 +97,8 @@ def graph_streams_data(spreadsheetId, test_name, action):
     GRAPH_ROW_INDEX = 0
     start_index = 0
     end_index = 0
+    sheetId = -1
+    diff_col = []
     data = read_sheet(spreadsheetId, "streams")
     if len(data) > 500:
         append_empty_row_sheet(spreadsheetId, 3000, test_name)
@@ -129,7 +131,9 @@ def graph_streams_data(spreadsheetId, test_name, action):
                     "properties"
                 ]["sheetId"]
 
-                series, column = globals()[f'create_series_range_list_stream_{action}'](column, len_of_func, sheetId, start_index, end_index)
+                series, column,col = globals()[f'create_series_range_list_stream_{action}'](column, len_of_func, sheetId,
+                                                                                        start_index, end_index)
+                diff_col.extend(col)
 
                 requests = {
                     "addChart": {
@@ -198,3 +202,11 @@ def graph_streams_data(spreadsheetId, test_name, action):
 
             # Reset variables
             start_index, end_index = 0, 0
+
+    if sheetId != -1:
+        for col in set(diff_col):
+            try:
+                update_conditional_formatting(spreadsheetId, sheetId, col)
+            except Exception as exc:
+                print(str(exc))
+                pass
