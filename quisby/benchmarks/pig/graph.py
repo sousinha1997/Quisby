@@ -58,7 +58,7 @@ def create_series_range_pig_compare(column_count, sheetId, start_index, end_inde
                     "sources": [
                         {
                             "sheetId": sheetId,
-                            "startRowIndex": start_index,
+                            "startRowIndex": start_index+1,
                             "endRowIndex": end_index,
                             "startColumnIndex": 2,
                             "endColumnIndex": 3,
@@ -75,7 +75,7 @@ def create_series_range_pig_compare(column_count, sheetId, start_index, end_inde
                     "sources": [
                         {
                             "sheetId": sheetId,
-                            "startRowIndex": start_index,
+                            "startRowIndex": start_index+1,
                             "endRowIndex": end_index,
                             "startColumnIndex": 3,
                             "endColumnIndex": 4,
@@ -151,8 +151,7 @@ def graph_pig_data(spreadsheetId, test_name, action):
                                                 "sources": [
                                                     {
                                                         "sheetId": sheetId,
-                                                        "startRowIndex": start_index
-                                                        + 1,
+                                                        "startRowIndex": start_index + 1,
                                                         "endRowIndex": end_index,
                                                         "startColumnIndex": 0,
                                                         "endColumnIndex": 1,
