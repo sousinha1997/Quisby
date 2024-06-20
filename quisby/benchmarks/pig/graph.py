@@ -95,10 +95,11 @@ def graph_pig_data(spreadsheetId, test_name, action):
     """"""
     GRAPH_COL_INDEX = 1
     GRAPH_ROW_INDEX = 0
-    start_index, end_index = None, None
+    start_index, end_index = None,None
     sheetId = -1
 
     data = read_sheet(spreadsheetId, test_name)
+
     if len(data) > 500:
         append_empty_row_sheet(spreadsheetId, 3000, test_name)
 
@@ -151,7 +152,7 @@ def graph_pig_data(spreadsheetId, test_name, action):
                                                 "sources": [
                                                     {
                                                         "sheetId": sheetId,
-                                                        "startRowIndex": start_index + 1,
+                                                        "startRowIndex": start_index+1,
                                                         "endRowIndex": end_index,
                                                         "startColumnIndex": 0,
                                                         "endColumnIndex": 1,
