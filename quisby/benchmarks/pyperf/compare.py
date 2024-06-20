@@ -1,15 +1,13 @@
-from quisby import custom_logger
 from itertools import groupby
 
+from quisby import custom_logger
 from quisby.sheet.sheet_util import (
-    create_spreadsheet,
     append_to_sheet,
     read_sheet,
     get_sheet,
     create_sheet, clear_sheet_data, clear_sheet_charts,
 )
-from quisby.util import combine_two_array_alternating, merge_lists_alternately
-from quisby.benchmarks.pyperf.graph import graph_pyperf_data
+from quisby.util import merge_lists_alternately
 
 
 def compare_pyperf_results(spreadsheets, spreadsheetId, test_name, table_name=["SYSTEM_NAME"]):
@@ -59,14 +57,12 @@ def compare_pyperf_results(spreadsheets, spreadsheetId, test_name, table_name=["
         return spreadsheetId
 
 
-
-
 if __name__ == "__main__":
     spreadsheets = [
-        "1MsO506DIQOt_fcDqwJr3mFOqi_77fQxnWvj6k4qFpZk",
-        "1Z9YUCM22mD2mJ_NeudaMJmdeQhUHsshmGb-3XQRVd5Y",
+        "",
+        "",
     ]
     test_name = "pyperf"
 
-    compare_pyperf_results(spreadsheets,"1x-XjP0S74D-dbsBMmHufLHhjsiK994h29QcOUxNwdcE", test_name,
-                            table_name=["SYSTEM_NAME"])
+    compare_pyperf_results(spreadsheets, "", test_name,
+                           table_name=["SYSTEM_NAME"])

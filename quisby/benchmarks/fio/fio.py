@@ -1,11 +1,11 @@
-import re
 import os
-from quisby import custom_logger
+import re
 from itertools import groupby
 
 import requests
 from bs4 import BeautifulSoup
 
+from quisby import custom_logger
 
 # TODO: Maybe we can do away with clat, lat, slat
 HEADER_TO_EXTRACT = [
@@ -38,8 +38,7 @@ def extract_csv_data(csv_data, path):
     return results
 
 
-def group_data(run_data, system_name,OS_RELEASE):
-
+def group_data(run_data, system_name, OS_RELEASE):
     """ Groups data into similar metric groups
         Parameters
         ----------
@@ -84,7 +83,6 @@ def retreive_data_from_url(URL, page_content):
 
 
 def scrape_page(URL):
-
     page = requests.get(URL)
     soup = BeautifulSoup(page.content, "html.parser")
     page_content = soup.table.find_all("tr")
@@ -104,7 +102,7 @@ def process_fio_run_result(URL, system_name):
     return group_data(results, system_name)
 
 
-def extract_fio_run_data(path, system_name,OS_RELEASE):
+def extract_fio_run_data(path, system_name, OS_RELEASE):
     """Extracts raw data from results location and groups into a specific format
             Parameters
             ----------
@@ -120,7 +118,7 @@ def extract_fio_run_data(path, system_name,OS_RELEASE):
             csv_data = csv_file.readlines()
             csv_data[-1] = csv_data[-1].strip()
             results += extract_csv_data(csv_data, os.path.basename(path))
-        return group_data(results, system_name,OS_RELEASE)
+        return group_data(results, system_name, OS_RELEASE)
     except Exception as exc:
         custom_logger.error("Unable to find fio path")
         custom_logger.error(str(exc))

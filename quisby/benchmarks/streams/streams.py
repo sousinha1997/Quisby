@@ -9,21 +9,20 @@ def stream_sort_data_by_system_family(results):
     sorted_result = []
 
     for index in range(0, len(results), 7):
-        stream_data.append(results[index : index + 7])
+        stream_data.append(results[index: index + 7])
 
     stream_data.sort(
         key=lambda x: str(process_instance(x[2][0], "family", "version", "feature"))
     )
 
     for _, items in groupby(
-        stream_data,
-        key=lambda x: process_instance(x[2][0], "family", "version", "feature"),
+            stream_data,
+            key=lambda x: process_instance(x[2][0], "family", "version", "feature"),
     ):
-
         sorted_result.append(
             sorted(list(items), key=lambda x: mk_int(process_instance(x[2][0], "size")))
         )
-        
+
     return sorted_result
 
 
@@ -45,7 +44,7 @@ def calc_max_throughput(data):
     ]
 
 
-def create_summary_streams_data(stream_data,OS_RELEASE):
+def create_summary_streams_data(stream_data, OS_RELEASE):
     """
     Create summary data for Max throughput and Scaling
     """
@@ -74,7 +73,7 @@ def create_summary_streams_data(stream_data,OS_RELEASE):
     return results
 
 
-def extract_streams_data(path, system_name,OS_RELEASE):
+def extract_streams_data(path, system_name, OS_RELEASE):
     """
     Extracts streams data and appends empty list for each seperate stream runs
 
@@ -96,7 +95,7 @@ def extract_streams_data(path, system_name,OS_RELEASE):
     proccessed_data = []
     length = len(streams_results)
     pos = 7
-    memory=""
+    memory = ""
     if not streams_results:
         return None
     for i in range(0, length):

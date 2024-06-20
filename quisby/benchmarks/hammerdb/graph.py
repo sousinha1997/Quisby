@@ -1,20 +1,17 @@
-from itertools import groupby
 import time
-from quisby.sheet.sheetapi import sheet
+
+from quisby.formatting.add_formatting import update_conditional_formatting
 from quisby.sheet.sheet_util import (
-    clear_sheet_charts,
-    clear_sheet_data,
-    append_to_sheet,
     read_sheet,
-    get_sheet,append_empty_row_sheet
+    get_sheet, append_empty_row_sheet, append_empty_col_sheet
 )
+from quisby.sheet.sheetapi import sheet
 
 
 def series_range_hammerdb_process(column_count, sheetId, start_index, end_index):
     series = []
 
     for index in range(column_count):
-
         series.append(
             {
                 "series": {
@@ -40,6 +37,7 @@ def series_range_hammerdb_process(column_count, sheetId, start_index, end_index)
 def series_range_hammerdb_compare(column_count, sheetId, start_index, end_index):
     series = []
     column_index = 1
+    diff_col = []
     while column_index < column_count:
         series.extend([
             {
@@ -77,9 +75,10 @@ def series_range_hammerdb_compare(column_count, sheetId, start_index, end_index)
                 "type": "COLUMN",
             },
         ])
+        diff_col.append(column_index + 2)
         column_index = column_index + 3
 
-    return series
+    return series, diff_col
 
 
 def graph_hammerdb_data(spreadsheetId, range, action):
@@ -87,8 +86,10 @@ def graph_hammerdb_data(spreadsheetId, range, action):
 
     hammerdb_results = read_sheet(spreadsheetId, range)
     LAST_ROW = len(hammerdb_results)
+    diff_col = []
+    sheetId = -1
 
-    GRAPH_COL_INDEX, GRAPH_ROW_INDEX = 0, LAST_ROW+1
+    GRAPH_COL_INDEX, GRAPH_ROW_INDEX = 0, LAST_ROW + 1
     start_index, end_index = 0, 0
     if len(hammerdb_results) > 500:
         append_empty_row_sheet(spreadsheetId, 3000, range)
@@ -110,9 +111,15 @@ def graph_hammerdb_data(spreadsheetId, range, action):
             graph_data = hammerdb_results[start_index:end_index]
             column_count = len(graph_data[0])
 
+            if column_count > 10:
+                append_empty_col_sheet(spreadsheetId, 20, range)
+
             sheetId = get_sheet(spreadsheetId, range)["sheets"][0]["properties"][
                 "sheetId"
             ]
+
+            series, col = globals()[f'series_range_hammerdb_{action}'](column_count, sheetId, start_index, end_index)
+            diff_col.extend(col)
 
             requests = {
                 "addChart": {
@@ -153,9 +160,7 @@ def graph_hammerdb_data(spreadsheetId, range, action):
                                         }
                                     }
                                 ],
-                                "series": globals()[f'series_range_hammerdb_{action}'](
-                                    column_count, sheetId, start_index, end_index
-                                ),
+                                "series": series,
                                 "headerCount": 1,
                             },
                         },
@@ -185,3 +190,11 @@ def graph_hammerdb_data(spreadsheetId, range, action):
             # Reset variables
             start_index, end_index = 0, 0
             time.sleep(3)
+
+    if sheetId != -1:
+        for col in set(diff_col):
+            try:
+                update_conditional_formatting(spreadsheetId, sheetId, col)
+            except Exception as exc:
+                print(str(exc))
+                pass

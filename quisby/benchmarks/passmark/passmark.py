@@ -1,27 +1,31 @@
-from quisby import custom_logger
-
 from scipy.stats import gmean
 
+from quisby import custom_logger
 from quisby.util import read_config
 
+
 def custom_key(item):
-    cloud_type = read_config("cloud","cloud_type")
+    cloud_type = read_config("cloud", "cloud_type")
     if item[0] == "localhost":
-        return (item[0])
+        return item[0]
     elif cloud_type == "aws":
-        instance_type =item[0].split(".")[0]
+        instance_type = item[0].split(".")[0]
         instance_number = item[0].split(".")[1]
-        return (instance_type, instance_number)
+        return instance_type, instance_number
     elif cloud_type == "gcp":
-         instance_type = item[0].split("-")[0]
-         instance_number = int(item[0].split('-')[-1])
-         return (instance_type, instance_number)
+        instance_type = item[0].split("-")[0]
+        instance_number = int(item[0].split('-')[-1])
+        return instance_type, instance_number
 
 
-def create_summary_passmark_data(data,OS_RELEASE):
-
-    results = [['SYSTEM',"NO_OF_TEST_PROCESSES","CPU_INTEGER_MATH", "CPU_FLOATINGPOINT_MATH", "CPU_PRIME", "CPU_SORTING", "CPU_ENCRYPTION", "CPU_COMPRESSION", "CPU_SINGLETHREAD", "CPU_PHYSICS", "CPU_MATRIX_MULT_SSE", "CPU_mm", "CPU_sse", "CPU_fma", "CPU_avx", "CPU_avx512", "m_CPU_enc_SHA", "m_CPU_enc_AES", "m_CPU_enc_ECDSA", "ME_ALLOC_S", "ME_READ_S", "ME_READ_L", "ME_WRITE", "ME_LARGE", "ME_LATENCY", "ME_THREADED", "SUMM_CPU", "SUMM_ME"
-]]
+def create_summary_passmark_data(data, OS_RELEASE):
+    results = [
+        ['SYSTEM', "NO_OF_TEST_PROCESSES", "CPU_INTEGER_MATH", "CPU_FLOATINGPOINT_MATH", "CPU_PRIME", "CPU_SORTING",
+         "CPU_ENCRYPTION", "CPU_COMPRESSION", "CPU_SINGLETHREAD", "CPU_PHYSICS", "CPU_MATRIX_MULT_SSE", "CPU_mm",
+         "CPU_sse", "CPU_fma", "CPU_avx", "CPU_avx512", "m_CPU_enc_SHA", "m_CPU_enc_AES", "m_CPU_enc_ECDSA",
+         "ME_ALLOC_S", "ME_READ_S", "ME_READ_L", "ME_WRITE", "ME_LARGE", "ME_LATENCY", "ME_THREADED", "SUMM_CPU",
+         "SUMM_ME"
+         ]]
     processed_data = None
     gmean_data = []
     SYSTEM_GEOMEAN = []
@@ -51,8 +55,8 @@ def create_summary_passmark_data(data,OS_RELEASE):
     results.append(processed_data)
     SYSTEM_GEOMEAN.append([system, gmean(gmean_data)])
     results.append([""])
-    results.append(["SYSTEM_NAME","GEOMEAN-"+str(OS_RELEASE)])
-    sorted_data = sorted(SYSTEM_GEOMEAN,key=custom_key)
+    results.append(["SYSTEM_NAME", "GEOMEAN-" + str(OS_RELEASE)])
+    sorted_data = sorted(SYSTEM_GEOMEAN, key=custom_key)
     for item in sorted_data:
         results.append(item)
     return results

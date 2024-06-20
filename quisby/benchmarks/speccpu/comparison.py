@@ -1,6 +1,7 @@
-from quisby import custom_logger
 from itertools import groupby
 
+from quisby import custom_logger
+from quisby.benchmarks.speccpu.graph import graph_speccpu_data
 from quisby.sheet.sheet_util import (
     append_to_sheet,
     read_sheet,
@@ -8,7 +9,6 @@ from quisby.sheet.sheet_util import (
     create_sheet, clear_sheet_data, clear_sheet_charts,
 )
 from quisby.util import combine_two_array_alternating
-from quisby.benchmarks.speccpu.graph import graph_speccpu_data
 
 
 def compare_speccpu_results(spreadsheets, spreadsheetId, test_name):
@@ -40,10 +40,8 @@ def compare_speccpu_results(spreadsheets, spreadsheetId, test_name):
         clear_sheet_data(spreadsheetId, test_name)
         custom_logger.info("Appending new " + test_name + " data to sheet...")
         append_to_sheet(spreadsheetId, results, test_name)
-        graph_speccpu_data(spreadsheetId, test_name,"compare")
+        graph_speccpu_data(spreadsheetId, test_name, "compare")
     except Exception as exc:
         custom_logger.debug(str(exc))
         custom_logger.error("Failed to append data to sheet")
         return spreadsheetId
-
-

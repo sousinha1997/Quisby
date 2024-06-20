@@ -1,7 +1,8 @@
 import time
 
+from quisby.formatting.add_formatting import update_conditional_formatting
+from quisby.sheet.sheet_util import read_sheet, get_sheet, append_empty_row_sheet
 from quisby.sheet.sheetapi import sheet
-from quisby.sheet.sheet_util import read_sheet, clear_sheet_charts, get_sheet,append_empty_row_sheet
 
 
 def create_series_range_speccpu_process(column_count, sheetId, start_index, end_index):
@@ -9,7 +10,6 @@ def create_series_range_speccpu_process(column_count, sheetId, start_index, end_
     series = []
 
     for index in range(column_count):
-
         series.append(
             {
                 "series": {
@@ -94,6 +94,8 @@ def graph_speccpu_data(spreadsheetId, test_name, action):
     GRAPH_COL_INDEX = 1
     GRAPH_ROW_INDEX = 0
     start_index, end_index = None, None
+    sheetId = -1
+    diff_col = [3]
 
     data = read_sheet(spreadsheetId, test_name)
     if len(data) > 500:
@@ -104,7 +106,7 @@ def graph_speccpu_data(spreadsheetId, test_name, action):
             start_index = index - 1
 
         if start_index:
-            if row == []:
+            if not row:
                 end_index = index
             elif index + 1 == len(data):
                 end_index = index + 1
@@ -116,6 +118,8 @@ def graph_speccpu_data(spreadsheetId, test_name, action):
             sheetId = get_sheet(spreadsheetId, test_name)["sheets"][0]["properties"][
                 "sheetId"
             ]
+
+            series = globals()[f'create_series_range_speccpu_{action}'](column_count, sheetId, start_index, end_index)
 
             requests = {
                 "addChart": {
@@ -155,9 +159,7 @@ def graph_speccpu_data(spreadsheetId, test_name, action):
                                         }
                                     }
                                 ],
-                                "series": globals()[f'create_series_range_speccpu_{action}'](
-                                    column_count, sheetId, start_index, end_index
-                                ),
+                                "series": series,
                                 "headerCount": 1,
                             },
                         },
@@ -186,3 +188,6 @@ def graph_speccpu_data(spreadsheetId, test_name, action):
             start_index, end_index = None, None
 
             time.sleep(3)
+    if sheetId != -1:
+        for col in diff_col:
+            update_conditional_formatting(spreadsheetId, sheetId, col)

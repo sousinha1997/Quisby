@@ -206,3 +206,21 @@ def append_empty_row_sheet(spreadsheetId, rows,range):
     }
 
     sheet.batchUpdate(spreadsheetId=spreadsheetId, body=body).execute()
+
+
+def append_empty_col_sheet(spreadsheetId, cols, range):
+    sheetId = get_sheet(spreadsheetId, range)["sheets"][0]["properties"]["sheetId"]
+
+    body = {
+        "requests": [
+            {
+                "appendDimension": {
+                    "sheetId": sheetId,
+                    "dimension": "COLUMNS",
+                    "length": cols
+                }
+            }
+        ]
+    }
+
+    sheet.batchUpdate(spreadsheetId=spreadsheetId, body=body).execute()

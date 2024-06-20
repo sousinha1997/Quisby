@@ -1,15 +1,15 @@
 import time
 
+from quisby.formatting.add_formatting import update_conditional_formatting
+from quisby.sheet.sheet_util import read_sheet, get_sheet, append_empty_row_sheet
 from quisby.sheet.sheetapi import sheet
-from quisby.sheet.sheet_util import read_sheet, clear_sheet_charts, get_sheet,append_empty_row_sheet
 
 
-def create_series_range_pig(column_count, sheetId, start_index, end_index):
+def create_series_range_pig_process(column_count, sheetId, start_index, end_index):
     """"""
     series = []
 
     for index in range(column_count):
-
         series.append(
             {
                 "series": {
@@ -32,22 +32,85 @@ def create_series_range_pig(column_count, sheetId, start_index, end_index):
     return series
 
 
+def create_series_range_pig_compare(column_count, sheetId, start_index, end_index):
+    """"""
+    series = [
+        {
+            "series": {
+                "sourceRange": {
+                    "sources": [
+                        {
+                            "sheetId": sheetId,
+                            "startRowIndex": start_index+1,
+                            "endRowIndex": end_index,
+                            "startColumnIndex": 1,
+                            "endColumnIndex": 2,
+                        }
+                    ]
+                }
+            },
+            "targetAxis": "LEFT_AXIS",
+            "type": "COLUMN",
+        },
+        {
+            "series": {
+                "sourceRange": {
+                    "sources": [
+                        {
+                            "sheetId": sheetId,
+                            "startRowIndex": start_index+1,
+                            "endRowIndex": end_index,
+                            "startColumnIndex": 2,
+                            "endColumnIndex": 3,
+                        }
+                    ]
+                }
+            },
+            "targetAxis": "LEFT_AXIS",
+            "type": "COLUMN",
+        },
+        {
+            "series": {
+                "sourceRange": {
+                    "sources": [
+                        {
+                            "sheetId": sheetId,
+                            "startRowIndex": start_index+1,
+                            "endRowIndex": end_index,
+                            "startColumnIndex": 3,
+                            "endColumnIndex": 4,
+                        }
+                    ]
+                }
+            },
+            "targetAxis": "RIGHT_AXIS",
+            "type": "LINE",
+        },
+    ]
+
+    return series
+
+
 def graph_pig_data(spreadsheetId, test_name, action):
     """"""
     GRAPH_COL_INDEX = 1
     GRAPH_ROW_INDEX = 0
-    start_index, end_index = None, None
+    start_index, end_index = None,None
+    sheetId = -1
 
     data = read_sheet(spreadsheetId, test_name)
+
     if len(data) > 500:
         append_empty_row_sheet(spreadsheetId, 3000, test_name)
+
+    diff_col = [3]
 
     for index, row in enumerate(data):
         if "Threads" in row:
             start_index = index - 1
 
         if start_index:
-            if row == []:
+            if not row:
                 end_index = index
             elif index + 1 == len(data):
                 end_index = index + 1
@@ -60,6 +123,8 @@ def graph_pig_data(spreadsheetId, test_name, action):
                 "sheetId"
             ]
 
+            series = globals()[f'create_series_range_pig_{action}'](column_count, sheetId, start_index, end_index)
+
             requests = {
                 "addChart": {
                     "chart": {
@@ -67,13 +132,17 @@ def graph_pig_data(spreadsheetId, test_name, action):
                             "title": f"{test_name}",
                             "subtitle": f"{graph_data[0][0]}",
                             "basicChart": {
-                                "chartType": "COLUMN",
+                                "chartType": "COMBO",
                                 "legendPosition": "BOTTOM_LEGEND",
                                 "axis": [
                                     {"position": "BOTTOM_AXIS", "title": "Threads"},
                                     {
                                         "position": "LEFT_AXIS",
                                         "title": "Scheduler Efficiency",
+                                    },
+                                    {
+                                        "position": "RIGHT_AXIS",
+                                        "title": "%Diff",
                                     },
                                 ],
                                 "domains": [
@@ -83,8 +152,7 @@ def graph_pig_data(spreadsheetId, test_name, action):
                                                 "sources": [
                                                     {
                                                         "sheetId": sheetId,
-                                                        "startRowIndex": start_index
-                                                        + 1,
+                                                        "startRowIndex": start_index+1,
                                                         "endRowIndex": end_index,
                                                         "startColumnIndex": 0,
                                                         "endColumnIndex": 1,
@@ -94,9 +162,7 @@ def graph_pig_data(spreadsheetId, test_name, action):
                                         }
                                     }
                                 ],
-                                "series": create_series_range_pig(
-                                    column_count, sheetId, start_index, end_index
-                                ),
+                                "series": series,
                                 "headerCount": 1,
                             },
                         },
@@ -125,3 +191,7 @@ def graph_pig_data(spreadsheetId, test_name, action):
             start_index, end_index = None, None
 
             time.sleep(3)
+
+    if sheetId != -1:
+        for col in diff_col:
+            update_conditional_formatting(spreadsheetId, sheetId, col)

@@ -1,10 +1,7 @@
 import csv
-from quisby import custom_logger
 from itertools import groupby
 
 import requests
-
-from quisby.util import mk_int, process_instance
 
 
 def combine_uperf_data(results):
@@ -23,7 +20,7 @@ def combine_uperf_data(results):
     return group_data
 
 
-def create_summary_uperf_data(results,OS_RELEASE):
+def create_summary_uperf_data(results, OS_RELEASE):
     summary_results = []
     group_by_test_name = {}
 
@@ -65,7 +62,7 @@ def extract_uperf_data(path, system_name):
     """"""
     results = []
     data_position = {}
-    
+
     tests_supported = ["tcp_stream", "tcp_rr"]
 
     # Check if path is a URL
@@ -92,7 +89,7 @@ def extract_uperf_data(path, system_name):
 
     # Group data by test name and pkt size
     for test_name, items in groupby(
-        filtered_result, key=lambda x: x[1].split("-")[:2]
+            filtered_result, key=lambda x: x[1].split("-")[:2]
     ):
         data_dict = {}
 
@@ -119,7 +116,7 @@ def extract_uperf_data(path, system_name):
                 results.append(["".join(test_name)])
                 results.append(["Instance Count", key])
                 for instance_count, items in groupby(
-                    test_results, key=lambda x: x[0].split("-")[0]
+                        test_results, key=lambda x: x[0].split("-")[0]
                 ):
                     items = list(items)
 

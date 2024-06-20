@@ -1,7 +1,7 @@
 import csv
 import glob
-import re
 import os.path
+import re
 
 from quisby.pricing.cloud_pricing import get_cloud_pricing, get_cloud_cpu_count
 from quisby.util import read_config

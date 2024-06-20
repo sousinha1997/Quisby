@@ -1,6 +1,6 @@
-from quisby import custom_logger
 from itertools import groupby
 
+from quisby import custom_logger
 from quisby.sheet.sheet_util import (
     append_to_sheet,
     read_sheet,
@@ -8,7 +8,6 @@ from quisby.sheet.sheet_util import (
     create_sheet, clear_sheet_data, clear_sheet_charts,
 )
 from quisby.util import combine_two_array_alternating
-from quisby.benchmarks.pig.graph import graph_pig_data
 
 
 def compare_pig_results(spreadsheets, spreadsheetId, test_name):
@@ -45,4 +44,3 @@ def compare_pig_results(spreadsheets, spreadsheetId, test_name):
         custom_logger.debug(str(exc))
         custom_logger.error("Failed to append data to sheet")
         return spreadsheetId
-

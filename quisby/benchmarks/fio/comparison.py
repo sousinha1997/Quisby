@@ -1,6 +1,7 @@
-from quisby import custom_logger
 from itertools import groupby
 
+from quisby import custom_logger
+from quisby.benchmarks.fio.graph import graph_fio_run_data
 from quisby.sheet.sheet_util import (
     append_to_sheet,
     read_sheet,
@@ -8,7 +9,6 @@ from quisby.sheet.sheet_util import (
     create_sheet, clear_sheet_charts, clear_sheet_data
 )
 from quisby.util import combine_two_array_alternating
-from quisby.benchmarks.fio.graph import graph_fio_run_data
 
 
 def compare_fio_run_results(spreadsheets, spreadsheetId, test_name):
@@ -18,7 +18,7 @@ def compare_fio_run_results(spreadsheets, spreadsheetId, test_name):
 
     for spreadsheet in spreadsheets:
         values.append(read_sheet(spreadsheet, range=test_name))
-        spreadsheet_name.append(get_sheet(spreadsheet,test_name)["properties"]["title"])
+        spreadsheet_name.append(get_sheet(spreadsheet, test_name)["properties"]["title"])
 
     for index, value in enumerate(values):
         values[index] = (list(g) for k, g in groupby(value, key=lambda x: x != []) if k)
@@ -40,12 +40,8 @@ def compare_fio_run_results(spreadsheets, spreadsheetId, test_name):
         clear_sheet_data(spreadsheetId, test_name)
         custom_logger.info("Appending new " + test_name + " data to sheet...")
         append_to_sheet(spreadsheetId, results, test_name)
-        graph_fio_run_data(spreadsheetId, test_name,"compare")
+        graph_fio_run_data(spreadsheetId, test_name, "compare")
     except Exception as exc:
         custom_logger.debug(str(exc))
         custom_logger.error("Failed to append data to sheet")
         return spreadsheetId
-
-
-
-

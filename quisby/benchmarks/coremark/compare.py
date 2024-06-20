@@ -52,7 +52,7 @@ def compare_coremark_results(spreadsheets, spreadsheetId, test_name, table_name=
         clear_sheet_data(spreadsheetId, test_name)
         custom_logger.info("Appending new " + test_name + " data to sheet...")
         append_to_sheet(spreadsheetId, results, test_name)
-        graph_coremark_data(spreadsheetId, test_name,"compare")
+        graph_coremark_data(spreadsheetId, test_name, "compare")
     except Exception as exc:
         custom_logger.debug(str(exc))
         custom_logger.error("Failed to append data to sheet")
@@ -63,10 +63,10 @@ def compare_coremark_results(spreadsheets, spreadsheetId, test_name, table_name=
 
 if __name__ == "__main__":
     spreadsheets = [
-        "1MsO506DIQOt_fcDqwJr3mFOqi_77fQxnWvj6k4qFpZk",
-        "1Z9YUCM22mD2mJ_NeudaMJmdeQhUHsshmGb-3XQRVd5Y",
+        "",
+        "",
     ]
     test_name = "coremark"
 
-    compare_coremark_results(spreadsheets,"1x-XjP0S74D-dbsBMmHufLHhjsiK994h29QcOUxNwdcE", test_name,
+    compare_coremark_results(spreadsheets, "", test_name,
                             table_name=["System Name"])

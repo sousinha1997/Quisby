@@ -1,13 +1,12 @@
 import csv
-from quisby import custom_logger
 from itertools import groupby
 
+from quisby import custom_logger
 from quisby.pricing.cloud_pricing import get_cloud_pricing
 from quisby.util import mk_int, process_instance, read_config
 
 
 def specjbb_sort_data_by_system_family(results):
-
     sorted_result = []
 
     results.sort(key=lambda x: str(process_instance(
@@ -38,7 +37,7 @@ def calc_peak_throughput_peak_efficiency(data):
     return peak_throughput, cost_per_hour, peak_efficiency
 
 
-def create_summary_specjbb_data(specjbb_data,OS_RELEASE):
+def create_summary_specjbb_data(specjbb_data, OS_RELEASE):
     """"""
     results = []
 
@@ -71,7 +70,7 @@ def create_summary_specjbb_data(specjbb_data,OS_RELEASE):
     return results
 
 
-def extract_specjbb_data(path, system_name,OS_RELEASE):
+def extract_specjbb_data(path, system_name, OS_RELEASE):
     """"""
     results = [[""], [system_name]]
 
@@ -92,5 +91,5 @@ def extract_specjbb_data(path, system_name,OS_RELEASE):
             pass
         else:
             results.append([data_dict["Warehouses"], data_dict["Bops"]])
-   
+
     return results

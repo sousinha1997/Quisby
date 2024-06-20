@@ -1,15 +1,14 @@
-from quisby import custom_logger
 from itertools import groupby
 
+from quisby import custom_logger
+from quisby.benchmarks.passmark.graph import graph_passmark_data
 from quisby.sheet.sheet_util import (
-    create_spreadsheet,
     append_to_sheet,
     read_sheet,
     get_sheet,
     create_sheet, clear_sheet_data, clear_sheet_charts,
 )
-from quisby.util import combine_two_array_alternating, merge_lists_alternately
-from quisby.benchmarks.passmark.graph import graph_passmark_data
+from quisby.util import merge_lists_alternately
 
 
 def compare_passmark_results(spreadsheets, spreadsheetId, test_name, table_name=["SYSTEM_NAME"]):
@@ -53,7 +52,7 @@ def compare_passmark_results(spreadsheets, spreadsheetId, test_name, table_name=
         clear_sheet_data(spreadsheetId, test_name)
         custom_logger.info("Appending new " + test_name + " data to sheet...")
         append_to_sheet(spreadsheetId, results, test_name)
-        graph_passmark_data(spreadsheetId, test_name,"compare")
+        graph_passmark_data(spreadsheetId, test_name, "compare")
     except Exception as exc:
         custom_logger.debug(str(exc))
         custom_logger.error("Failed to append data to sheet")
@@ -62,10 +61,10 @@ def compare_passmark_results(spreadsheets, spreadsheetId, test_name, table_name=
 
 if __name__ == "__main__":
     spreadsheets = [
-        "1MsO506DIQOt_fcDqwJr3mFOqi_77fQxnWvj6k4qFpZk",
-        "1Z9YUCM22mD2mJ_NeudaMJmdeQhUHsshmGb-3XQRVd5Y",
+        "",
+        "",
     ]
     test_name = "passmark"
 
-    compare_passmark_results(spreadsheets, "1x-XjP0S74D-dbsBMmHufLHhjsiK994h29QcOUxNwdcE", test_name,
+    compare_passmark_results(spreadsheets, "", test_name,
                              table_name=["SYSTEM_NAME"])

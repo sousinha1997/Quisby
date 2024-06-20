@@ -1,4 +1,4 @@
-
+from quisby.formatting.add_formatting import update_conditional_formatting
 from quisby.sheet.sheet_util import read_sheet,clear_sheet_charts,get_sheet,append_empty_row_sheet
 from quisby.sheet.sheetapi import sheet
 import time
@@ -8,7 +8,6 @@ def create_series_range_list_coremark_process(column_count, sheetId, start_index
     series = []
 
     for index in range(column_count):
-
         series.append(
             {
                 "series": {
@@ -93,17 +92,20 @@ def graph_coremark_data(spreadsheetId, range, action):
     GRAPH_ROW_INDEX = 1
     start_index = 0
     end_index = 0
-
+    diff_col = [3]
     data = read_sheet(spreadsheetId, range)
+
     if len(data) > 500:
-        append_empty_row_sheet(spreadsheetId, 3000, "coremark")
+        append_empty_row_sheet(spreadsheetId, 3000, range)
+
     header_row = []
+    sheetId = -1
     for index, row in enumerate(data):
         if "System name" in row:
             start_index = index
             header_row.extend(row)
         if start_index:
-            if row == []:
+            if not row:
                 end_index = index - 1
             if index + 1 == len(data):
                 end_index = index + 1
@@ -116,7 +118,7 @@ def graph_coremark_data(spreadsheetId, range, action):
             sheetId = get_sheet(spreadsheetId, range)["sheets"][0]["properties"][
                 "sheetId"
             ]
-
+            series = globals()[f'create_series_range_list_coremark_{action}'](column_count, sheetId, start_index, end_index)
             requests = {
                 "addChart": {
                     "chart": {
@@ -128,12 +130,11 @@ def graph_coremark_data(spreadsheetId, range, action):
                                 "axis": [
                                     {
                                         "position": "LEFT_AXIS",
-                                        "title": "Test passes and %Diff"
+                                        "title": "Test passes"
                                     },
-
                                     {
                                         "position": "BOTTOM_AXIS",
-                                        "title": "",
+                                        "title": "Machine types",
                                     },
                                     {
                                         "position": "RIGHT_AXIS",
@@ -157,9 +158,7 @@ def graph_coremark_data(spreadsheetId, range, action):
                                         }
                                     }
                                 ],
-                                "series": globals()[f'create_series_range_list_coremark_{action}'](column_count,
-                                                                                                   sheetId, start_index,
-                                                                                                   end_index),
+                                "series": series,
                                 "headerCount": 1,
                             },
                         },
@@ -190,3 +189,10 @@ def graph_coremark_data(spreadsheetId, range, action):
             start_index, end_index = 0, 0
 
             time.sleep(3)
+
+    if sheetId != -1:
+        for col in diff_col:
+            update_conditional_formatting(spreadsheetId, sheetId, col)
+
+
+
