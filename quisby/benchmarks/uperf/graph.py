@@ -42,10 +42,8 @@ def series_range_uperf_process(column_count, sheetId, start_index, end_index):
 def series_range_uperf_compare(column_count, sheetId, start_index, end_index):
     series = []
 
-    for index in range(column_count):
-
-        series.append(
-            {
+    for index in range(1,column_count,3):
+        series.append({
                 "series": {
                     "sourceRange": {
                         "sources": [
@@ -53,15 +51,50 @@ def series_range_uperf_compare(column_count, sheetId, start_index, end_index):
                                 "sheetId": sheetId,
                                 "startRowIndex": start_index + 1,
                                 "endRowIndex": end_index,
-                                "startColumnIndex": index + 1,
-                                "endColumnIndex": index + 2,
+                                "startColumnIndex": index,
+                                "endColumnIndex": index + 1,
                             }
                         ]
                     }
                 },
+                "targetAxis": "LEFT_AXIS",
+                "type": "COLUMN",
+            })
+        series.append({
+            "series": {
+                "sourceRange": {
+                    "sources": [
+                        {
+                            "sheetId": sheetId,
+                            "startRowIndex": start_index + 1,
+                            "endRowIndex": end_index,
+                            "startColumnIndex": index + 1,
+                            "endColumnIndex": index + 2,
+                        }
+                    ]
+                }
+            },
+            "targetAxis":"LEFT_AXIS",
+            "type": "COLUMN",
+        })
+        series.append({
+                "series": {
+                    "sourceRange": {
+                        "sources": [
+                            {
+                                "sheetId": sheetId,
+                                "startRowIndex": start_index + 1,
+                                "endRowIndex": end_index,
+                                "startColumnIndex": index + 2,
+                                "endColumnIndex": index + 3,
+                            }
+                        ]
+                    }
+                },
+                "targetAxis": "RIGHT_AXIS",
                 "type": "LINE",
-            }
-        )
+            })
+
 
     return series
 
