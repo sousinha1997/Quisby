@@ -138,7 +138,7 @@ def validate_config_values(config):
     if cloud_type != "locahost":
         custom_logger.warning(
             "Check if format of regions are correctly mentioned.\nExample:\naws : us-east-1\nazure : us-east\ngcp : "
-            "us-east-1")
+            "us-east1")
 
     # Warn if users is empty
     if config.has_option('access', 'users'):
