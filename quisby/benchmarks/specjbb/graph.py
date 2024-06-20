@@ -1,21 +1,18 @@
-from quisby import custom_logger
 import time
-from itertools import groupby
 
-from quisby.sheet.sheetapi import sheet
+from quisby import custom_logger
+from quisby.formatting.add_formatting import update_conditional_formatting
 from quisby.sheet.sheet_util import (
-    clear_sheet_charts,
-    append_to_sheet,
     read_sheet,
-    get_sheet,append_empty_row_sheet
+    get_sheet, append_empty_row_sheet
 )
+from quisby.sheet.sheetapi import sheet
 
 
 def create_series_range_list_specjbb_process(column_count, sheetId, start_index, end_index):
     series = []
 
     for index in range(column_count):
-
         series.append(
             {
                 "series": {
@@ -100,6 +97,8 @@ def graph_specjbb_data(spreadsheetId, range, action):
     GRAPH_ROW_INDEX = 0
     start_index = 0
     end_index = 0
+    sheetId = -1
+    diff_col = [3]
 
     data = read_sheet(spreadsheetId, range)
     if len(data) > 500:
@@ -197,3 +196,6 @@ def graph_specjbb_data(spreadsheetId, range, action):
             custom_logger.debug(str(exc))
             custom_logger.error("Unable to graph specjbb data")
 
+    if sheetId != -1:
+        for col in diff_col:
+            update_conditional_formatting(spreadsheetId, sheetId, col)
