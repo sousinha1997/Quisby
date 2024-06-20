@@ -1,13 +1,13 @@
 import time
-from quisby import custom_logger
 
-from quisby.sheet.sheetapi import sheet
+from quisby import custom_logger
+from quisby.formatting.add_formatting import update_conditional_formatting
 from quisby.sheet.sheet_util import (
     read_sheet,
-    clear_sheet_charts,
     get_sheet,
     append_empty_row_sheet,
 )
+from quisby.sheet.sheetapi import sheet
 
 
 def create_series_range_fio_process(column_count, sheetId, start_index, end_index, graph):
@@ -30,7 +30,7 @@ def create_series_range_fio_process(column_count, sheetId, start_index, end_inde
                         ]
                     }
                 },
-                "type": "COLUMN",
+                "type": graph,
             }
         )
 
@@ -73,23 +73,23 @@ def create_series_range_fio_compare(column_count, sheetId, start_index, end_inde
             "targetAxis": "LEFT_AXIS",
             "type": "COLUMN",
         },
-        {
-            "series": {
-                "sourceRange": {
-                    "sources": [
-                        {
-                            "sheetId": sheetId,
-                            "startRowIndex": start_index + 1,
-                            "endRowIndex": end_index,
-                            "startColumnIndex": 3,
-                            "endColumnIndex": 4,
-                        }
-                    ]
-                }
-            },
-            "targetAxis": "RIGHT_AXIS",
-            "type": graph,
-        },
+        # {
+        #     "series": {
+        #         "sourceRange": {
+        #             "sources": [
+        #                 {
+        #                     "sheetId": sheetId,
+        #                     "startRowIndex": start_index + 1,
+        #                     "endRowIndex": end_index,
+        #                     "startColumnIndex": 3,
+        #                     "endColumnIndex": 4,
+        #                 }
+        #             ]
+        #         }
+        #     },
+        #     "targetAxis": "RIGHT_AXIS",
+        #     "type": graph,
+        # },
     ]
     return series
 
@@ -103,10 +103,14 @@ def graph_fio_run_data(spreadsheetId, test_name, action):
         "lat": "secs",
     }
     left_axis = ""
+    diff_col = [3]
+    sheetId = -1
 
     data = read_sheet(spreadsheetId, test_name)
+
     if len(data) > 500:
         append_empty_row_sheet(spreadsheetId, 3000, test_name)
+
     for index, row in enumerate(data):
         if "iteration_name" in row:
             start_index = index - 1
@@ -125,7 +129,7 @@ def graph_fio_run_data(spreadsheetId, test_name, action):
                 end_index = index
 
         if end_index:
-            if(end_index - start_index == 3):
+            if end_index - start_index == 3:
                 graph = "COLUMN"
             else:
                 graph = "LINE"
@@ -135,6 +139,7 @@ def graph_fio_run_data(spreadsheetId, test_name, action):
             try:
                 graph_data = data[start_index:end_index]
                 column_count = len(graph_data[2])
+
             except IndexError:
                 custom_logger.error(
                     f"{test_name}: Data inconsistency at {start_index}-{end_index}. Skipping to next data")
@@ -143,6 +148,8 @@ def graph_fio_run_data(spreadsheetId, test_name, action):
             sheetId = get_sheet(spreadsheetId, test_name)["sheets"][0]["properties"][
                 "sheetId"
             ]
+
+            series = globals()[f'create_series_range_fio_{action}'](column_count, sheetId, start_index, end_index + 1, graph)
 
             requests = {
                 "addChart": {
@@ -184,9 +191,7 @@ def graph_fio_run_data(spreadsheetId, test_name, action):
                                         }
                                     }
                                 ],
-                                "series": globals()[f'create_series_range_fio_{action}'](
-                                    column_count, sheetId, start_index, end_index + 1,graph
-                                ),
+                                "series": series,
                                 "headerCount": 1,
                             },
                         },
@@ -216,3 +221,6 @@ def graph_fio_run_data(spreadsheetId, test_name, action):
             custom_logger.info("Sleep for 1sec to workaround Gsheet API")
 
             time.sleep(3)
+
+    for col in diff_col:
+        update_conditional_formatting(spreadsheetId, sheetId, col)

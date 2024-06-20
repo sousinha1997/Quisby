@@ -97,6 +97,7 @@ def graph_coremark_data(spreadsheetId, range, action):
 
     if len(data) > 500:
         append_empty_row_sheet(spreadsheetId, 3000, range)
+
     header_row = []
     sheetId = -1
     for index, row in enumerate(data):
@@ -104,7 +105,7 @@ def graph_coremark_data(spreadsheetId, range, action):
             start_index = index
             header_row.extend(row)
         if start_index:
-            if row == []:
+            if not row:
                 end_index = index - 1
             if index + 1 == len(data):
                 end_index = index + 1

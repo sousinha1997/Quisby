@@ -1,6 +1,6 @@
-from quisby import custom_logger
 from itertools import groupby
 
+from quisby import custom_logger
 from quisby.util import mk_int, process_instance
 
 
@@ -15,22 +15,24 @@ def fio_run_sort_data(results):
         process_instance(x[0][0], "family", "version", "feature"))))
 
     for _, items in groupby(
-        results, key=lambda x: (process_instance(
-            x[0][0], "family", "version", "feature"), x[0][1], x[0][2])
+            results, key=lambda x: (process_instance(
+                x[0][0], "family", "version", "feature"), x[0][1], x[0][2])
     ):
         sorted_result += sorted(
             list(items), key=lambda x: mk_int(process_instance(x[0][0], "size"))
         )
     return sorted_result
 
+
 def key_func(sublist):
     parts = sublist[0].split('_')
     d_num = int(parts[0])
     j_num = int(parts[1].split("-")[1])
     iod_num = int(parts[2].split("-")[1])
-    return (d_num, j_num, iod_num, float(sublist[1]))
+    return d_num, j_num, iod_num, float(sublist[1])
 
-def create_summary_fio_run_data(results,OS_RELEASE):
+
+def create_summary_fio_run_data(results, OS_RELEASE):
     """ Create summary of the extracted raw data
         Parameters
         ----------
@@ -42,7 +44,7 @@ def create_summary_fio_run_data(results,OS_RELEASE):
         results = fio_run_sort_data(results)
     except Exception as exc:
         custom_logger.error(str(exc))
-    for header, items in groupby(results, key=lambda x: [x[0][0],x[0][1],x[0][2]]):
+    for header, items in groupby(results, key=lambda x: [x[0][0], x[0][1], x[0][2]]):
         try:
             items = list(items)
             summary_results.append([""])
