@@ -1,16 +1,15 @@
 from quisby import custom_logger
-import re
 
 from quisby.pricing.cloud_pricing import get_cloud_cpu_count
 from quisby.util import read_config
 
 
-def extract_pig_data(path, system_name,OS_RELEASE):
+def extract_pig_data(path, system_name, OS_RELEASE):
     results = []
     result_data = []
     cpu_count = 0
-    region = read_config("cloud","region")
-    cloud_type = read_config("cloud","cloud_type")
+    region = read_config("cloud", "region")
+    cloud_type = read_config("cloud", "cloud_type")
     # path = path + f"/iteration_1.{system_name}"
     try:
         with open(path) as file:
@@ -23,23 +22,13 @@ def extract_pig_data(path, system_name,OS_RELEASE):
         custom_logger.error(str(exc))
         return None
 
-    
     cpu_count = get_cloud_cpu_count(
         system_name, region, cloud_type.lower()
     )
-        # for line in file:
-        #     if "PID" in line:
-        #         cpu_data, thread_data = re.findall(r"(\w+\:\s\w+)", line)[1:3]
-        #         efficiency = float(cpu_data.split()[1]) / float(thread_data.split()[1])
-        #         result_data.append([thread_data.split()[1], efficiency])
-        #     if not cpu_count:
-        #         match = re.findall(r"(\w+\s\w+\s)(\d+)(\scpus)", line)
-        #         if match:
-        #             cpu_count = match[0][1]
 
     results.append([""])
     results.append([system_name, f"CpuCount: {cpu_count}"])
-    results.append(["Threads", "rhel-"+f"{OS_RELEASE}"])
+    results.append(["Threads", "rhel-" + f"{OS_RELEASE}"])
     results += result_data
 
     return results
