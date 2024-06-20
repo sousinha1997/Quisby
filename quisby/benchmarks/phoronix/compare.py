@@ -30,13 +30,12 @@ def compare_phoronix_results(spreadsheets, spreadsheetId, test_name, table_name=
         for ele in list_2:
             # Check max throughput
             if value[0][0] in table_name and ele[0][0] in table_name:
-                if value[1][0].split(".")[0] == ele[1][0].split(".")[0]:
-                    results.append([""])
-                    for item1 in value:
-                        for item2 in ele:
-                            if item1[0] == item2[0]:
-                                results = merge_lists_alternately(results, item1, item2)
-                    break
+                results.append([""])
+                for item1 in value:
+                    for item2 in ele:
+                        if item1[0] == item2[0]:
+                            results = merge_lists_alternately(results, item1, item2)
+                break
 
             elif value[1][0] == ele[1][0]:
                 if value[0][0] == ele[0][0]:
@@ -53,7 +52,7 @@ def compare_phoronix_results(spreadsheets, spreadsheetId, test_name, table_name=
         clear_sheet_data(spreadsheetId, test_name)
         custom_logger.info("Appending new " + test_name + " data to sheet...")
         append_to_sheet(spreadsheetId, results, test_name)
-        graph_phoronix_data(spreadsheetId, test_name)
+        graph_phoronix_data(spreadsheetId, test_name,"compare")
     except Exception as exc:
         custom_logger.debug(str(exc))
         custom_logger.error("Failed to append data to sheet")
