@@ -70,7 +70,7 @@ def get_gcp_prices(instance_name, region):
     prefix = ""
     gcp_price_list = google_ext_prices["gcp_price_list"]
     family, model, cpu = instance_name.split("-")
-    if family.upperf() in ("N2", "N2D", "T2D", "T2A", "C2", "C2D", "M1", "M2", "N1", "E2"):
+    if family.upper() in ("N2", "N2D", "T2D", "T2A", "C2", "C2D", "M1", "M2", "N1", "E2"):
         prefix = "CP-COMPUTEENGINE-" + family.upper() + "-PREDEFINED-VM-CORE".strip()
     else:
         custom_logger.error("This machine price is not available")

@@ -160,7 +160,7 @@ def register_details_json(spreadsheet_name, spreadsheet_id):
 
 
 # TODO: simplify functions once data location is exact
-def data_handler():
+def data_handler(proc_list):
     """"""
     global test_name
     global source
@@ -204,16 +204,22 @@ def data_handler():
     with open(results_path) as file:
         custom_logger.info("Reading data files path provided in file : " + results_path)
         test_result_path = file.readlines()
+        flag = False
         for data in test_result_path:
             if "test " in data:
+                flag = False
                 if results:
                     spreadsheetid = process_results(results, test_name, cloud_type, os_type, os_release,
                                                     spreadsheet_name, spreadsheetid)
                 results = []
                 test_name = data.replace("test ", "").strip()
-                custom_logger.info("********************** Extracting and preprocessing " + str(test_name) + " data "
-                                                                                                "**********************")
                 source = "results"
+                if test_name in proc_list:
+                    flag = True
+                    custom_logger.info(
+                        "********************** Extracting and preprocessing " + str(test_name) + " data "
+                                                                                                  "**********************")
+
             elif "new_series" in data:
                 continue
             else:
@@ -227,31 +233,31 @@ def data_handler():
                         path, system_name = data.split(",")
                     path = test_path + "/" + path.strip()
                     custom_logger.debug(path)
-                    if test_name == "streams":
+                    if test_name == "streams" and flag == True:
                         ret_val = extract_streams_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "uperf":
+                    elif test_name == "uperf" and flag == True:
                         ret_val = extract_uperf_data(path, system_name)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "linpack":
+                    elif test_name == "linpack" and flag == True:
                         ret_val = extract_linpack_data(path, system_name)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "specjbb":
+                    elif test_name == "specjbb" and flag == True:
                         ret_value = extract_specjbb_data(path, system_name, os_release)
                         if ret_value is not None:
                             results.append(ret_value)
-                    elif test_name == "pig":
+                    elif test_name == "pig" and flag == True:
                         ret_val = extract_pig_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
-                    elif check_test_is_hammerdb(test_name):
+                    elif check_test_is_hammerdb(test_name) and flag == True:
                         ret_val = extract_hammerdb_data(path, system_name, test_name, os_release)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "fio_run":
+                    elif test_name == "fio_run" and flag == True:
                         ret_val = None
                         if source == "results":
                             ret_val = extract_fio_run_data(path, system_name, os_release)
@@ -260,53 +266,58 @@ def data_handler():
                         if ret_val:
                             results += ret_val
                         pass
-                    elif test_name == "boot":
+                    elif test_name == "boot" and flag == True:
                         ret_val = extract_boot_data(path, system_name)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "aim":
+                    elif test_name == "aim" and flag == True:
                         ret_val = extract_aim_data(path, system_name)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "auto_hpl":
+                    elif test_name == "auto_hpl" and flag == True:
                         ret_val = extract_auto_hpl_data(path, system_name)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "speccpu":
+                    elif test_name == "speccpu" and flag == True:
                         ret_val = extract_speccpu_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "etcd":
+                    elif test_name == "etcd" and flag == True:
                         ret_val = extract_etcd_data(path, system_name)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "coremark":
+                    elif test_name == "coremark" and flag == True:
                         ret_val = extract_coremark_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "coremark_pro":
+                    elif test_name == "coremark_pro" and flag == True:
                         ret_val = extract_coremark_pro_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "passmark":
+                    elif test_name == "passmark" and flag == True:
                         ret_val = extract_passmark_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "pyperf":
+                    elif test_name == "pyperf" and flag == True:
                         ret_val = extract_pyperf_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
-                    elif test_name == "phoronix":
+                    elif test_name == "phoronix" and flag == True:
                         ret_val = extract_phoronix_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
                     else:
-                        custom_logger.info("Mentioned benchmark not yet supported ! ")
+                        if flag == False:
+                            pass
+                        else:
+                            custom_logger.info("Mentioned benchmark not yet supported ! ")
 
                 except Exception as exc:
                     custom_logger.error(str(exc))
-
-        if results is not []:
+        if results == []:
+            custom_logger.info(f"https://docs.google.com/spreadsheets/d/{spreadsheetid}")
+            register_details_json(spreadsheet_name, spreadsheetid)
+        else:
             try:
                 spreadsheetid = process_results(results, test_name, cloud_type, os_type, os_release, spreadsheet_name,
                                                 spreadsheetid)
@@ -395,8 +406,8 @@ def compare_results(spreadsheets, comp_list):
     register_details_json(spreadsheet_name, spreadsheetid)
 
 
-def reduce_data():
-    data_handler()
+def reduce_data(proc_list):
+    data_handler(proc_list)
 
 
 def compare_data(s_list,comp_list):
@@ -410,6 +421,7 @@ if __name__ == "__main__":
     parser.add_argument("--compare", type=str, required=False, help="To compare and plot two datasets")
     parser.add_argument("--list-benchmarks",action='store_true', help="To list supported benchmarks")
     parser.add_argument("--compare-list", type=str, required=False, help="Give specific benchmark to compare")
+    parser.add_argument("--process-list", type=str, required=False, help="Give specific benchmark to process")
     parser.add_argument("--no-check", action='store_true',help="No health check")
     args = parser.parse_args()
 
@@ -444,7 +456,10 @@ if __name__ == "__main__":
     print("**********************************************************************************************")
 
     if args.process:
-        reduce_data()
+        proc_list = []
+        if args.process_list:
+            proc_list = args.process_list.split(",")
+        reduce_data(proc_list)
         exit(0)
     elif args.compare:
         comp_list = []
