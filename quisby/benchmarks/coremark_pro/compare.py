@@ -53,7 +53,7 @@ def compare_coremark_pro_results(spreadsheets, spreadsheetId, test_name, table_n
         clear_sheet_data(spreadsheetId, test_name)
         custom_logger.info("Appending new " + test_name + " data to sheet...")
         append_to_sheet(spreadsheetId, results, test_name)
-        graph_coremark_pro_data(spreadsheetId, test_name)
+        # graph_coremark_pro_data(spreadsheetId, test_name)
     except Exception as exc:
         custom_logger.debug(str(exc))
         custom_logger.error("Failed to append data to sheet")
