@@ -214,7 +214,7 @@ def data_handler(proc_list):
                 results = []
                 test_name = data.replace("test ", "").strip()
                 source = "results"
-                if test_name in proc_list:
+                if test_name in proc_list or proc_list == []:
                     flag = True
                     custom_logger.info(
                         "********************** Extracting and preprocessing " + str(test_name) + " data "
