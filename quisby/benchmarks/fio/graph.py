@@ -222,5 +222,6 @@ def graph_fio_run_data(spreadsheetId, test_name, action):
 
             time.sleep(3)
 
-    for col in diff_col:
-        update_conditional_formatting(spreadsheetId, sheetId, col)
+    if sheetId != -1:
+        for col in diff_col:
+            update_conditional_formatting(spreadsheetId, sheetId, col)

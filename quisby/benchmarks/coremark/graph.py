@@ -190,8 +190,9 @@ def graph_coremark_data(spreadsheetId, range, action):
 
             time.sleep(3)
 
-    for col in diff_col:
-        update_conditional_formatting(spreadsheetId, sheetId, col)
+    if sheetId != -1:
+        for col in diff_col:
+            update_conditional_formatting(spreadsheetId, sheetId, col)
 
 
 
