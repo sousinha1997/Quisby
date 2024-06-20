@@ -3,8 +3,7 @@ from itertools import groupby
 from quisby.util import mk_int, process_instance
 
 
-def create_summary_linpack_data(results,OS_RELEASE):
-
+def create_summary_linpack_data(results, OS_RELEASE):
     sorted_results = []
 
     results = list(filter(None, results))
@@ -26,7 +25,7 @@ def create_summary_linpack_data(results,OS_RELEASE):
                     cpu_scaling = int(row[1]) - cpu_scale
                 except ZeroDivisionError:
                     cpu_scaling = 0
-                gflops_scaling = float(row[2]) / (int(row[1]) - cpu_scale) / base_gflops if cpu_scaling !=0 else 1
+                gflops_scaling = float(row[2]) / (int(row[1]) - cpu_scale) / base_gflops if cpu_scaling != 0 else 1
                 sorted_data[index][3] = format(gflops_scaling, ".4f")
         sorted_results += header_row + sorted_data
 

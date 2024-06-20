@@ -1,14 +1,11 @@
 import time
-from itertools import groupby
 
-from quisby.sheet.sheetapi import sheet
+from quisby.formatting.add_formatting import update_conditional_formatting
 from quisby.sheet.sheet_util import (
-    clear_sheet_charts,
-    clear_sheet_data,
-    append_to_sheet,
     read_sheet,
-    get_sheet,append_empty_row_sheet
+    get_sheet, append_empty_row_sheet, append_empty_col_sheet
 )
+from quisby.sheet.sheetapi import sheet
 
 
 def create_series_range_linpack(column_count, sheetId, start_index, end_index):
@@ -16,7 +13,6 @@ def create_series_range_linpack(column_count, sheetId, start_index, end_index):
     series = []
 
     for index in range(column_count):
-
         series.append(
             {
                 "series": {
@@ -37,6 +33,7 @@ def create_series_range_linpack(column_count, sheetId, start_index, end_index):
         )
 
     return series
+
 
 def graph_linpack_compare(spreadsheetId, test_name, action):
     """
@@ -63,6 +60,8 @@ def graph_linpack_compare(spreadsheetId, test_name, action):
         append_empty_row_sheet(spreadsheetId, 3000, test_name)
     header_row = data[0]
     last_row = len(data)
+    diff_col = [4, 7, 11]
+    sheetId = -1
     GRAPH_ROW_INDEX = last_row + 1
 
     for index, row in enumerate(data):
@@ -79,7 +78,8 @@ def graph_linpack_compare(spreadsheetId, test_name, action):
         if end_index:
             graph_data = data[start_index:end_index]
             column_count = len(graph_data[0])
-
+            if column_count > 10:
+                append_empty_col_sheet(spreadsheetId, 20, test_name)
 
             sheetId = get_sheet(spreadsheetId, test_name)["sheets"][0]["properties"][
                 "sheetId"
@@ -102,10 +102,10 @@ def graph_linpack_compare(spreadsheetId, test_name, action):
                                     {
                                         "position": "LEFT_AXIS",
                                         "title": "%s and %s"
-                                        % (
-                                            header_row[2],
-                                            header_row[3],
-                                        ),
+                                                 % (
+                                                     header_row[2],
+                                                     header_row[3],
+                                                 ),
                                     },
                                     {
                                         "position": "RIGHT_AXIS",
@@ -197,7 +197,6 @@ def graph_linpack_compare(spreadsheetId, test_name, action):
                     }
                 }
             }
-
 
             body = {"requests": requests}
 
@@ -316,7 +315,6 @@ def graph_linpack_compare(spreadsheetId, test_name, action):
                 }
             }
 
-
             body = {"requests": requests}
 
             sheet.batchUpdate(spreadsheetId=spreadsheetId, body=body).execute()
@@ -413,8 +411,8 @@ def graph_linpack_compare(spreadsheetId, test_name, action):
                             "overlayPosition": {
                                 "anchorCell": {
                                     "sheetId": sheetId,
-                                    "rowIndex": GRAPH_ROW_INDEX ,
-                                    "columnIndex": 12 ,
+                                    "rowIndex": GRAPH_ROW_INDEX,
+                                    "columnIndex": 12,
                                 }
                             }
                         },
@@ -428,6 +426,14 @@ def graph_linpack_compare(spreadsheetId, test_name, action):
 
             GRAPH_ROW_INDEX += 20
             start_index, end_index = None, None
+
+    if sheetId != -1:
+        for col in set(diff_col):
+            try:
+                update_conditional_formatting(spreadsheetId, sheetId, col)
+            except Exception as exc:
+                print(str(exc))
+                pass
 
 
 def graph_linpack_data(spreadsheetId, test_name, action):
@@ -482,7 +488,7 @@ def graph_linpack_data(spreadsheetId, test_name, action):
                     "chart": {
                         "spec": {
                             "title": "%s and %s"
-                            % (header_row[2], header_row[3]),
+                                     % (header_row[2], header_row[3]),
                             "basicChart": {
                                 "chartType": "COMBO",
                                 "legendPosition": "BOTTOM_LEGEND",
@@ -494,7 +500,7 @@ def graph_linpack_data(spreadsheetId, test_name, action):
                                     {
                                         "position": "LEFT_AXIS",
                                         "title": "%s and %s"
-                                        % (header_row[2], header_row[3]),
+                                                 % (header_row[2], header_row[3]),
                                     },
                                 ],
                                 "domains": [
@@ -649,3 +655,5 @@ def graph_linpack_data(spreadsheetId, test_name, action):
             start_index, end_index = None, None
 
             time.sleep(3)
+
+

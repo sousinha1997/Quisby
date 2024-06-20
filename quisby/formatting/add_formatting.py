@@ -38,4 +38,4 @@ def update_conditional_formatting(spreadsheet_id, sheet_id, column_index):
         body=batch_update_body
     ).execute()
 
-    custom_logger.info("Added conditional formatting.")
+

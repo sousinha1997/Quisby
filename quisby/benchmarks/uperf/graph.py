@@ -109,7 +109,7 @@ def graph_uperf_data(spreadsheetId, range, action):
     uperf_results = read_sheet(spreadsheetId, range)
     if len(uperf_results) > 500:
         append_empty_row_sheet(spreadsheetId, 3000, range)
-    append_empty_col_sheet(spreadsheetId, 20, range)
+
 
     for index, row in enumerate(uperf_results):
         if row:
@@ -117,7 +117,7 @@ def graph_uperf_data(spreadsheetId, range, action):
                 start_index = index
 
         if start_index:
-            if row == []:
+            if not row:
                 end_index = index
             if index + 1 == len(uperf_results):
                 end_index = index + 1
@@ -126,6 +126,8 @@ def graph_uperf_data(spreadsheetId, range, action):
             graph_data = uperf_results[start_index:end_index]
             # TODO: fix column count
             column_count = len(graph_data[2])
+            if column_count > 10:
+                append_empty_col_sheet(spreadsheetId, 20, range)
 
             sheetId = get_sheet(spreadsheetId, range)["sheets"][0]["properties"][
                 "sheetId"
