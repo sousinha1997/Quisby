@@ -317,7 +317,7 @@ def data_handler():
             register_details_json(spreadsheet_name, spreadsheetid)
 
 
-def compare_results(spreadsheets):
+def compare_results(spreadsheets, comp_list):
     sheet_list = []
     spreadsheet_name = []
     comparison_list = []
@@ -335,8 +335,8 @@ def compare_results(spreadsheets):
             sheet_names.append(sheet["properties"]["title"].strip())
         sheet_list.append(sheet_names)
 
-    if test_name:
-        comparison_list = [test_name]
+    if comp_list:
+        comparison_list = comp_list
     else:
         # Find sheets that are present in all spreadsheets i.e intersection
         custom_logger.info("Extracting common benchmarks for comparison...")
@@ -399,8 +399,8 @@ def reduce_data():
     data_handler()
 
 
-def compare_data(s_list):
-    compare_results(s_list)
+def compare_data(s_list,comp_list):
+    compare_results(s_list, comp_list)
 
 
 if __name__ == "__main__":
@@ -409,6 +409,8 @@ if __name__ == "__main__":
     parser.add_argument("--process",action='store_true',help="To preprocess and visualise a single dataset")
     parser.add_argument("--compare", type=str, required=False, help="To compare and plot two datasets")
     parser.add_argument("--list-benchmarks",action='store_true', help="To list supported benchmarks")
+    parser.add_argument("--compare-list", type=str, required=False, help="Give specific benchmark to compare")
+    parser.add_argument("--no-check", action='store_true',help="No health check")
     args = parser.parse_args()
 
     supported_benchmarks = ['aim', 'auto_hpl','boot', 'coremark', 'coremark_pro', 'etcd', 'fio_run', 'hammerdb_maria', 'hammerdb_mssql', 'hammerdb_pg', 'linpack', 'passmark', 'phoronix', 'pig', 'pyperf', 'specjbb', 'speccpu', 'streams', 'uperf']
@@ -424,7 +426,8 @@ if __name__ == "__main__":
         parser.print_help()
         exit(0)
 
-    health_check()
+    if not args.no_check:
+        health_check()
 
     if not args.config:
         custom_logger.warning("No configuration path mentioned. Using default. ")
@@ -444,10 +447,13 @@ if __name__ == "__main__":
         reduce_data()
         exit(0)
     elif args.compare:
+        comp_list = []
+        if args.compare_list:
+            comp_list = args.compare_list.split(",")
         try:
             s_list = args.compare.split(",")
             if len(s_list) > 1:
-                compare_data(s_list)
+                compare_data(s_list,comp_list)
                 exit(0)
             else:
                 custom_logger.error("Provide two or more sheets to compare.")

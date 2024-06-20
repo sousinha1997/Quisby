@@ -55,7 +55,7 @@ def compare_streams_results(
         clear_sheet_data(spreadsheetId, test_name)
         custom_logger.info("Appending new " + test_name + " data to sheet...")
         append_to_sheet(spreadsheetId, results, test_name)
-        graph_streams_data(spreadsheetId, test_name)
+        graph_streams_data(spreadsheetId, test_name,"compare")
     except Exception as exc:
         custom_logger.debug(str(exc))
         custom_logger.error("Failed to append data to sheet")
