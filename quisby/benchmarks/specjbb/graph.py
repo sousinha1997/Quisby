@@ -110,7 +110,7 @@ def graph_specjbb_data(spreadsheetId, range, action):
                 start_index = index
 
             if start_index:
-                if row == []:
+                if not row:
                     end_index = index
                 if index + 1 == len(data):
                     end_index = index + 1
@@ -122,6 +122,8 @@ def graph_specjbb_data(spreadsheetId, range, action):
                 sheetId = get_sheet(spreadsheetId, range)["sheets"][0]["properties"][
                     "sheetId"
                 ]
+
+                series = globals()[f'create_series_range_list_specjbb_{action}'](column_count, sheetId, start_index, end_index)
 
                 requests = {
                     "addChart": {
@@ -159,9 +161,7 @@ def graph_specjbb_data(spreadsheetId, range, action):
                                             }
                                         }
                                     ],
-                                    "series": globals()[f'create_series_range_list_specjbb_{action}'](
-                                        column_count, sheetId, start_index, end_index
-                                    ),
+                                    "series": series,
                                     "headerCount": 1,
                                 },
                             },

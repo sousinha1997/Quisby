@@ -1,6 +1,6 @@
-from quisby import custom_logger
 from itertools import groupby
 
+from quisby import custom_logger
 from quisby.sheet.sheet_util import (
     append_to_sheet,
     read_sheet,
@@ -8,7 +8,6 @@ from quisby.sheet.sheet_util import (
     create_sheet, clear_sheet_charts, clear_sheet_data,
 )
 from quisby.util import combine_two_array_alternating
-from quisby.benchmarks.uperf.graph import graph_uperf_data
 
 
 def compare_uperf_results(spreadsheets, spreadsheetId, test_name):
@@ -44,5 +43,3 @@ def compare_uperf_results(spreadsheets, spreadsheetId, test_name):
         custom_logger.debug(str(exc))
         custom_logger.error("Failed to append data to sheet")
         return spreadsheetId
-
-

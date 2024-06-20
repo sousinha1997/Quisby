@@ -1,23 +1,17 @@
-from quisby import custom_logger
 import time
-from itertools import groupby
 
-from quisby.sheet.sheetapi import sheet
-from quisby.benchmarks.uperf.uperf import combine_uperf_data
+from quisby.formatting.add_formatting import update_conditional_formatting
 from quisby.sheet.sheet_util import (
-    clear_sheet_charts,
-    clear_sheet_data,
-    append_to_sheet,
     read_sheet,
-    get_sheet,append_empty_row_sheet
+    get_sheet, append_empty_row_sheet, append_empty_col_sheet
 )
+from quisby.sheet.sheetapi import sheet
 
 
 def series_range_uperf_process(column_count, sheetId, start_index, end_index):
     series = []
 
     for index in range(column_count):
-
         series.append(
             {
                 "series": {
@@ -39,27 +33,29 @@ def series_range_uperf_process(column_count, sheetId, start_index, end_index):
 
     return series
 
+
 def series_range_uperf_compare(column_count, sheetId, start_index, end_index):
     series = []
-
-    for index in range(1,column_count,3):
+    diff_col = []
+    for index in range(1, column_count, 3):
+        diff_col.append(index+2)
         series.append({
-                "series": {
-                    "sourceRange": {
-                        "sources": [
-                            {
-                                "sheetId": sheetId,
-                                "startRowIndex": start_index + 1,
-                                "endRowIndex": end_index,
-                                "startColumnIndex": index,
-                                "endColumnIndex": index + 1,
-                            }
-                        ]
-                    }
-                },
-                "targetAxis": "LEFT_AXIS",
-                "type": "COLUMN",
-            })
+            "series": {
+                "sourceRange": {
+                    "sources": [
+                        {
+                            "sheetId": sheetId,
+                            "startRowIndex": start_index + 1,
+                            "endRowIndex": end_index,
+                            "startColumnIndex": index,
+                            "endColumnIndex": index + 1,
+                        }
+                    ]
+                }
+            },
+            "targetAxis": "LEFT_AXIS",
+            "type": "COLUMN",
+        })
         series.append({
             "series": {
                 "sourceRange": {
@@ -74,7 +70,7 @@ def series_range_uperf_compare(column_count, sheetId, start_index, end_index):
                     ]
                 }
             },
-            "targetAxis":"LEFT_AXIS",
+            "targetAxis": "LEFT_AXIS",
             "type": "COLUMN",
         })
         # series.append({
@@ -95,14 +91,15 @@ def series_range_uperf_compare(column_count, sheetId, start_index, end_index):
         #         "type": "COLUMN",
         #     })
 
+    return series, diff_col
 
-    return series
 
-
-def graph_uperf_data(spreadsheetId, range,action):
+def graph_uperf_data(spreadsheetId, range, action):
     """"""
     GRAPH_COL_INDEX, GRAPH_ROW_INDEX = 2, 0
     start_index, end_index = 0, 0
+    diff_col = []
+    sheetId = -1
     measurement = {
         "Gb_sec": "Bandwidth",
         "trans_sec": "Transactions/second",
@@ -112,6 +109,7 @@ def graph_uperf_data(spreadsheetId, range,action):
     uperf_results = read_sheet(spreadsheetId, range)
     if len(uperf_results) > 500:
         append_empty_row_sheet(spreadsheetId, 3000, range)
+    append_empty_col_sheet(spreadsheetId, 20, range)
 
     for index, row in enumerate(uperf_results):
         if row:
@@ -127,12 +125,13 @@ def graph_uperf_data(spreadsheetId, range,action):
         if end_index:
             graph_data = uperf_results[start_index:end_index]
             # TODO: fix column count
-            column_count = len(uperf_results[2])
+            column_count = len(graph_data[2])
 
             sheetId = get_sheet(spreadsheetId, range)["sheets"][0]["properties"][
                 "sheetId"
             ]
-
+            series, col = globals()[f'series_range_uperf_{action}'](column_count, sheetId, start_index, end_index)
+            diff_col.extend(col)
             requests = {
                 "addChart": {
                     "chart": {
@@ -164,7 +163,7 @@ def graph_uperf_data(spreadsheetId, range,action):
                                                     {
                                                         "sheetId": sheetId,
                                                         "startRowIndex": start_index
-                                                        + 1,
+                                                                         + 1,
                                                         "endRowIndex": end_index,
                                                         "startColumnIndex": 0,
                                                         "endColumnIndex": 1,
@@ -174,9 +173,7 @@ def graph_uperf_data(spreadsheetId, range,action):
                                         }
                                     }
                                 ],
-                                "series": globals()[f'series_range_uperf_{action}'](column_count,
-                                                                                         sheetId, start_index,
-                                                                                         end_index),
+                                "series": series,
                                 "headerCount": 1,
                             },
                         },
@@ -207,3 +204,11 @@ def graph_uperf_data(spreadsheetId, range,action):
             start_index, end_index = 0, 0
 
             time.sleep(3)
+
+    if sheetId != -1:
+        for col in set(diff_col):
+            try:
+                update_conditional_formatting(spreadsheetId, sheetId, col)
+            except Exception as exc:
+                print(str(exc))
+                pass
