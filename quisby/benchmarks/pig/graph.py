@@ -3,6 +3,7 @@ import time
 from quisby.formatting.add_formatting import update_conditional_formatting
 from quisby.sheet.sheet_util import read_sheet, get_sheet, append_empty_row_sheet
 from quisby.sheet.sheetapi import sheet
+from quisby.util import read_value
 
 
 def create_series_range_pig_process(column_count, sheetId, start_index, end_index):
@@ -193,5 +194,8 @@ def graph_pig_data(spreadsheetId, test_name, action):
             time.sleep(3)
 
     if sheetId != -1:
+        threshold = read_value("percent_threshold", test_name)
+        if not threshold:
+            threshold = "5"
         for col in diff_col:
-            update_conditional_formatting(spreadsheetId, sheetId, col)
+            update_conditional_formatting(spreadsheetId, sheetId, col, threshold)

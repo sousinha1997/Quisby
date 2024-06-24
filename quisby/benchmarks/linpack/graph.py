@@ -6,6 +6,7 @@ from quisby.sheet.sheet_util import (
     get_sheet, append_empty_row_sheet, append_empty_col_sheet
 )
 from quisby.sheet.sheetapi import sheet
+from quisby.util import read_value
 
 
 def create_series_range_linpack(column_count, sheetId, start_index, end_index):
@@ -428,11 +429,13 @@ def graph_linpack_compare(spreadsheetId, test_name, action):
             start_index, end_index = None, None
 
     if sheetId != -1:
-        for col in set(diff_col):
+        threshold = read_value("percent_threshold", test_name)
+        if not threshold:
+            threshold = "5"
+        for col in diff_col:
             try:
-                update_conditional_formatting(spreadsheetId, sheetId, col)
+                update_conditional_formatting(spreadsheetId, sheetId, col, threshold)
             except Exception as exc:
-                print(str(exc))
                 pass
 
 

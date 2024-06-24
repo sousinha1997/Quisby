@@ -7,6 +7,7 @@ from quisby.sheet.sheet_util import (
     get_sheet, append_empty_row_sheet
 )
 from quisby.sheet.sheetapi import sheet
+from quisby.util import read_value
 
 
 def create_series_range_list_stream_compare(column_index, len_of_func, sheetId, start_index, end_index):
@@ -81,7 +82,7 @@ def create_series_range_list_stream_process(column_index, len_of_func, sheetId, 
         )
         column_index += 1
 
-    return series, column_index
+    return series, column_index, []
 
 
 def graph_streams_data(spreadsheetId, test_name, action):
@@ -204,9 +205,12 @@ def graph_streams_data(spreadsheetId, test_name, action):
             start_index, end_index = 0, 0
 
     if sheetId != -1:
+        threshold = read_value("percent_threshold", range)
+        if not threshold:
+            threshold = "5"
         for col in set(diff_col):
             try:
-                update_conditional_formatting(spreadsheetId, sheetId, col)
+                update_conditional_formatting(spreadsheetId, sheetId, col,threshold)
             except Exception as exc:
                 print(str(exc))
                 pass

@@ -1,9 +1,37 @@
 import csv
+import re
 from itertools import groupby
 
 from quisby import custom_logger
 from quisby.pricing.cloud_pricing import get_cloud_pricing
 from quisby.util import mk_int, process_instance, read_config
+
+
+def extract_prefix_and_number(input_string):
+    match = re.search(r'^(.*?)(\d+)(.*?)$', input_string)
+    if match:
+        prefix = match.group(1)
+        number = int(match.group(2))
+        suffix = match.group(3)
+        return prefix, number, suffix
+    return None, None, None
+
+
+def custom_key(item):
+    cloud_type = read_config("cloud", "cloud_type")
+    if item[1][0] == "localhost":
+        return item[1][0]
+    elif cloud_type == "aws":
+        instance_type =item[1][0].split(".")[0]
+        instance_number = item[1][0].split(".")[1]
+        return instance_type, instance_number
+    elif cloud_type == "gcp":
+         instance_type = item[1][0].split("-")[0]
+         instance_number = int(item[1][0].split('-')[-1])
+         return instance_type, instance_number
+    elif cloud_type == "azure":
+        instance_type, instance_number, version= extract_prefix_and_number(item[1][0])
+        return instance_type, instance_number
 
 
 def specjbb_sort_data_by_system_family(results):
@@ -45,8 +73,8 @@ def create_summary_specjbb_data(specjbb_data, OS_RELEASE):
 
     for items in specjbb_data:
         peak_throughput, cost_per_hour, peak_efficiency = [], [], []
-
-        for item in items:
+        sorted_data = sorted(items, key=custom_key)
+        for item in sorted_data:
             results += item
             try:
                 pt, cph, pe = calc_peak_throughput_peak_efficiency(item)

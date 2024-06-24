@@ -7,6 +7,7 @@ from quisby.sheet.sheet_util import (
     get_sheet, append_empty_row_sheet
 )
 from quisby.sheet.sheetapi import sheet
+from quisby.util import read_value
 
 
 def create_series_range_list_specjbb_process(column_count, sheetId, start_index, end_index):
@@ -197,5 +198,8 @@ def graph_specjbb_data(spreadsheetId, range, action):
             custom_logger.error("Unable to graph specjbb data")
 
     if sheetId != -1:
+        threshold = read_value("percent_threshold", range)
+        if not threshold:
+            threshold = "5"
         for col in diff_col:
-            update_conditional_formatting(spreadsheetId, sheetId, col)
+            update_conditional_formatting(spreadsheetId, sheetId, col, threshold)

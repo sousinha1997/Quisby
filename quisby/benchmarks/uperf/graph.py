@@ -6,6 +6,7 @@ from quisby.sheet.sheet_util import (
     get_sheet, append_empty_row_sheet, append_empty_col_sheet
 )
 from quisby.sheet.sheetapi import sheet
+from quisby.util import read_value
 
 
 def series_range_uperf_process(column_count, sheetId, start_index, end_index):
@@ -31,7 +32,7 @@ def series_range_uperf_process(column_count, sheetId, start_index, end_index):
             }
         )
 
-    return series
+    return series,[]
 
 
 def series_range_uperf_compare(column_count, sheetId, start_index, end_index):
@@ -208,9 +209,12 @@ def graph_uperf_data(spreadsheetId, range, action):
             time.sleep(3)
 
     if sheetId != -1:
+        threshold = read_value("percent_threshold", range)
+        if not threshold:
+            threshold = "5"
         for col in set(diff_col):
             try:
-                update_conditional_formatting(spreadsheetId, sheetId, col)
+                update_conditional_formatting(spreadsheetId, sheetId, col, threshold)
             except Exception as exc:
                 print(str(exc))
                 pass

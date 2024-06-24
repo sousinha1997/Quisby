@@ -2,7 +2,7 @@ from quisby.sheet.sheetapi import sheet
 from quisby import custom_logger
 
 
-def update_conditional_formatting(spreadsheet_id, sheet_id, column_index):
+def update_conditional_formatting(spreadsheet_id, sheet_id, column_index, threshold):
     requests = [
         {
             "addConditionalFormatRule": {
@@ -19,7 +19,7 @@ def update_conditional_formatting(spreadsheet_id, sheet_id, column_index):
                     "booleanRule": {
                         "condition": {
                             "type": "NUMBER_LESS_THAN_EQ",
-                            "values": [{"userEnteredValue": "0"}]
+                            "values": [{"userEnteredValue": "-{}".format(threshold)}]
                         },
                         "format": {
                             "backgroundColor": {"red": 34}

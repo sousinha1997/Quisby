@@ -15,7 +15,7 @@ def create_parser():
 
 def read_config(section, key):
     global config_location
-    configur=create_parser()
+    configur = create_parser()
     with open(config_location) as configfile:
         configur.read(config_location)
         if configur.get(section,key) is not None:
@@ -23,8 +23,20 @@ def read_config(section, key):
         else:
             return None
 
+
+def read_value(section, key):
+    global config_location
+    configur = create_parser()
+    with open("threshold.ini") as configfile:
+        configur.read("threshold.ini")
+        if configur.get(section, key) is not None:
+            return configur.get(section, key)
+        else:
+            return None
+
+
 def write_config(section,key,value):
-    configur=create_parser()
+    configur = create_parser()
     global config_location
     configur.read(config_location)
     configur.set(section, key, value)

@@ -8,6 +8,7 @@ from quisby.sheet.sheet_util import (
     append_empty_row_sheet,
 )
 from quisby.sheet.sheetapi import sheet
+from quisby.util import read_value
 
 
 def create_series_range_fio_process(column_count, sheetId, start_index, end_index, graph):
@@ -30,7 +31,7 @@ def create_series_range_fio_process(column_count, sheetId, start_index, end_inde
                         ]
                     }
                 },
-                "type": graph,
+                "type": "COLUMN",
             }
         )
 
@@ -223,5 +224,8 @@ def graph_fio_run_data(spreadsheetId, test_name, action):
             time.sleep(3)
 
     if sheetId != -1:
+        threshold = read_value("percent_threshold", test_name)
+        if not threshold:
+            threshold = "5"
         for col in diff_col:
-            update_conditional_formatting(spreadsheetId, sheetId, col)
+            update_conditional_formatting(spreadsheetId, sheetId, col, threshold)
