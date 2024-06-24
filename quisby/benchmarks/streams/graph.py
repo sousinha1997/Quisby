@@ -205,12 +205,12 @@ def graph_streams_data(spreadsheetId, test_name, action):
             start_index, end_index = 0, 0
 
     if sheetId != -1:
-        threshold = read_value("percent_threshold", range)
+        threshold = read_value("percent_threshold", test_name)
         if not threshold:
             threshold = "5"
         for col in set(diff_col):
             try:
-                update_conditional_formatting(spreadsheetId, sheetId, col,threshold)
+                update_conditional_formatting(spreadsheetId, sheetId, col, threshold)
             except Exception as exc:
                 print(str(exc))
                 pass
