@@ -107,7 +107,7 @@ def graph_coremark_data(spreadsheetId, range, action):
             header_row.extend(row)
         if start_index:
             if not row:
-                end_index = index - 1
+                end_index = index
             if index + 1 == len(data):
                 end_index = index + 1
 
@@ -124,18 +124,14 @@ def graph_coremark_data(spreadsheetId, range, action):
                 "addChart": {
                     "chart": {
                         "spec": {
-                            "title": "%s : %s" % (range, "Test passes"),
+                            "title": "%s : %s" % (range, graph_data[0][1]),
                             "basicChart": {
                                 "chartType": "COMBO",
                                 "legendPosition": "BOTTOM_LEGEND",
                                 "axis": [
                                     {
                                         "position": "LEFT_AXIS",
-                                        "title": "Test passes"
-                                    },
-                                    {
-                                        "position": "BOTTOM_AXIS",
-                                        "title": "Machine types",
+                                        "title": graph_data[0][1],
                                     },
                                     {
                                         "position": "RIGHT_AXIS",
@@ -168,7 +164,7 @@ def graph_coremark_data(spreadsheetId, range, action):
                                 "anchorCell": {
                                     "sheetId": sheetId,
                                     "rowIndex": GRAPH_ROW_INDEX,
-                                    "columnIndex": column_count + 1,
+                                    "columnIndex": column_count + GRAPH_COL_INDEX,
                                 }
                             }
                         },

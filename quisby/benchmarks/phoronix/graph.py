@@ -103,11 +103,11 @@ def graph_phoronix_data(spreadsheetId, range, action):
 
     for index, row in enumerate(data):
         for col in row:
-            if "GEOMEAN" in col:
+            if "SYSTEM_NAME" in col:
                 start_index = index
         if start_index:
             if not row:
-                end_index = index - 1
+                end_index = index
             if index + 1 == len(data):
                 end_index = index + 1
 
@@ -126,16 +126,12 @@ def graph_phoronix_data(spreadsheetId, range, action):
                 "addChart": {
                     "chart": {
                         "spec": {
-                            "title": "%s : %s" % (range, "GEOMEAN"),
+                            "title": "%s : %s" % (range, graph_data[0][1]),
                             "basicChart": {
                                 "chartType": "COMBO",
                                 "legendPosition": "BOTTOM_LEGEND",
                                 "axis": [
                                     {"position": "BOTTOM_AXIS", "title": ""},
-                                    {
-                                        "position": "LEFT_AXIS",
-                                        "title": "Geomean",
-                                    },
                                     {
                                         "position": "RIGHT_AXIS",
                                         "title": "%Diff",

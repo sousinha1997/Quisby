@@ -90,12 +90,13 @@ def create_series_range_list_passmark_compare(column_count, sheetId, start_index
 
 
 def graph_passmark_data(spreadsheetId, range, action):
-    GRAPH_COL_INDEX = 3
-    GRAPH_ROW_INDEX = 10
+    GRAPH_COL_INDEX = 1
+    GRAPH_ROW_INDEX = 1
     start_index = 0
     end_index = 0
     sheetId = -1
     diff_col = [3]
+    row_val = 1
 
     data = read_sheet(spreadsheetId, range)
 
@@ -104,11 +105,13 @@ def graph_passmark_data(spreadsheetId, range, action):
 
     for index, row in enumerate(data):
         for col in row:
-            if "GEOMEAN" in col:
+            if "SYSTEM_NAME" in col:
                 start_index = index
+                if row_val == 1:
+                    row_val = start_index
         if start_index:
             if not row:
-                end_index = index - 1
+                end_index = index
             if index + 1 == len(data):
                 end_index = index + 1
 
@@ -127,7 +130,7 @@ def graph_passmark_data(spreadsheetId, range, action):
                 "addChart": {
                     "chart": {
                         "spec": {
-                            "title": "%s : %s" % (range, "GEOMEAN"),
+                            "title": "%s : %s" % (range, graph_data[0][1]),
                             "basicChart": {
                                 "chartType": "COMBO",
                                 "legendPosition": "BOTTOM_LEGEND",
@@ -135,7 +138,7 @@ def graph_passmark_data(spreadsheetId, range, action):
                                     {"position": "BOTTOM_AXIS", "title": ""},
                                     {
                                         "position": "LEFT_AXIS",
-                                        "title": "Geomean",
+                                        "title": graph_data[0][1],
                                     },
                                     {
                                         "position": "RIGHT_AXIS",
@@ -167,7 +170,7 @@ def graph_passmark_data(spreadsheetId, range, action):
                             "overlayPosition": {
                                 "anchorCell": {
                                     "sheetId": sheetId,
-                                    "rowIndex": GRAPH_ROW_INDEX,
+                                    "rowIndex": row_val ,
                                     "columnIndex": column_count + GRAPH_COL_INDEX,
                                 }
                             }
