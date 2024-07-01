@@ -27,7 +27,7 @@ def calc_price_performance(inst, avg):
     try:
         cost_per_hour = get_cloud_pricing(
             inst, region, cloud_type.lower(), os_type)
-        price_perf = float(avg / pow(10,3))/float(cost_per_hour)
+        price_perf = float(avg)/float(cost_per_hour)
     except Exception as exc:
         custom_logger.debug(str(exc))
         custom_logger.error("Error calculating value !")
@@ -57,10 +57,7 @@ def create_summary_pyperf_data(data, OS_RELEASE):
                     except Exception as exc:
                         custom_logger.error(str(exc))
                         continue
-                    if not pp:
-                        price_per_perf.append([inst, 0.0])
-                    else:
-                        price_per_perf.append([inst, 1.0 / pp])
+                    price_per_perf.append([inst, pp])
                     cost_per_hour.append([inst, cph])
 
                 processed_data = []
@@ -92,10 +89,7 @@ def create_summary_pyperf_data(data, OS_RELEASE):
             cph, pp = calc_price_performance(inst, gdata)
         except Exception as exc:
             custom_logger.error(str(exc))
-        if not pp:
-            price_per_perf.append([inst, 0.0])
-        else:
-            price_per_perf.append([inst, 1.0 / pp])
+        price_per_perf.append([inst, pp])
         cost_per_hour.append([inst, cph])
 
     # results.append(processed_data)

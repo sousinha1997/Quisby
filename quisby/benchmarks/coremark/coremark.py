@@ -17,22 +17,21 @@ def extract_prefix_and_number(input_string):
     return None, None, None
 
 
-
 def custom_key(item):
     cloud_type = read_config("cloud","cloud_type")
     if item[1][0] == "localhost":
-        return (item[1][0])
+        return item[1][0]
     elif cloud_type == "aws":
         instance_type =item[1][0].split(".")[0]
         instance_number = item[1][0].split(".")[1]
-        return (instance_type, instance_number)
+        return instance_type, instance_number
     elif cloud_type == "gcp":
          instance_type = item[1][0].split("-")[0]
          instance_number = int(item[1][0].split('-')[-1])
-         return (instance_type, instance_number)
+         return instance_type, instance_number
     elif cloud_type == "azure":
         instance_type, instance_number, version=extract_prefix_and_number(item[1][0])
-        return (instance_type, instance_number)
+        return instance_type, instance_number
 
 
 def calc_price_performance(inst, avg):
@@ -43,14 +42,14 @@ def calc_price_performance(inst, avg):
     try:
         cost_per_hour = get_cloud_pricing(
             inst, region, cloud_type.lower(), os_type)
-        price_perf = float(avg / pow(10, 3))/float(cost_per_hour)
+        price_perf = float(avg)/float(cost_per_hour)
     except Exception as exc:
         custom_logger.debug(str(exc))
         custom_logger.error("Error calculating value !")
     return cost_per_hour, price_perf
 
 
-def create_summary_coremark_data(results,OS_RELEASE):
+def create_summary_coremark_data(results, OS_RELEASE):
     final_results = []
     cal_data = [["System name", "test passes_"+OS_RELEASE]]
 
@@ -63,7 +62,7 @@ def create_summary_coremark_data(results,OS_RELEASE):
         sum = 0
         avg = 0
         iterations = 0
-        for index in range(3,len(item)):
+        for index in range(3, len(item)):
             sum = sum + float(item[index][1])
             iterations = iterations + 1
         avg = float(sum/iterations)
@@ -73,10 +72,7 @@ def create_summary_coremark_data(results,OS_RELEASE):
             custom_logger.error(str(exc))
             break
         cal_data.append([item[1][0], avg])
-        if not pp:
-            price_per_perf.append([item[1][0], 0.0])
-        else:
-            price_per_perf.append([item[1][0], 1.0 / pp])
+        price_per_perf.append([item[1][0], pp])
         cost_per_hour.append([item[1][0], cph])
 
     final_results += [[""]]

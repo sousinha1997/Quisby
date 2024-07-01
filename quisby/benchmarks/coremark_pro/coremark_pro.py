@@ -2,6 +2,7 @@ import re
 
 from quisby import custom_logger
 from quisby.util import read_config
+from quisby.pricing.cloud_pricing import get_cloud_pricing
 
 
 def extract_prefix_and_number(input_string):
@@ -35,6 +36,21 @@ def custom_key(item):
         return "", ""
 
 
+def calc_price_performance(inst, avg):
+    region = read_config("cloud", "region")
+    cloud_type = read_config("cloud", "cloud_type")
+    os_type = read_config("test", "os_type")
+    cost_per_hour = None
+    try:
+        cost_per_hour = get_cloud_pricing(
+            inst, region, cloud_type.lower(), os_type)
+        price_perf = float(avg)/float(cost_per_hour)
+    except Exception as exc:
+        custom_logger.debug(str(exc))
+        custom_logger.error("Error calculating value !")
+    return cost_per_hour, price_perf
+
+
 def create_summary_coremark_pro_data(results, OS_RELEASE):
     final_results = []
     multi_iter = [["Multi Iterations"], ["System name", "Score_" + OS_RELEASE]]
@@ -42,15 +58,34 @@ def create_summary_coremark_pro_data(results, OS_RELEASE):
     # Sort data based on instance name
     sorted_data = sorted(results, key=custom_key)
     # Add summary data
+    cost_per_hour, price_perf_single, price_perf_multi = [], [],[]
     for item in sorted_data:
         for index in range(3, len(item)):
             multi_iter.append([item[1][0], item[index][1]])
             single_iter.append([item[1][0], item[index][2]])
+            try:
+                cph, ppm = calc_price_performance(item[1][0], item[index][1])
+                cph, pps = calc_price_performance(item[1][0], item[index][2])
+            except Exception as exc:
+                custom_logger.error(str(exc))
+                break
+            price_perf_multi.append([item[1][0], ppm])
+            price_perf_single.append([item[1][0], pps])
+            cost_per_hour.append([item[1][0], cph])
             # final_results += item
     final_results += [[""]]
-    final_results += multi_iter
-    final_results += [[""]]
     final_results += single_iter
+    final_results.append([""])
+    final_results.append(["Cost/Hr"])
+    final_results += cost_per_hour
+    final_results.append([""])
+    final_results.append(["Price/perf", f"single-iter-{OS_RELEASE}"])
+    final_results += price_perf_single
+    final_results += [[""]]
+    final_results += multi_iter
+    final_results.append([""])
+    final_results.append(["Price/perf", f"multi-iter-{OS_RELEASE}"])
+    final_results += price_perf_multi
     return final_results
 
 

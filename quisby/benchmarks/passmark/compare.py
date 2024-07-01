@@ -8,7 +8,28 @@ from quisby.sheet.sheet_util import (
     get_sheet,
     create_sheet, clear_sheet_data, clear_sheet_charts,
 )
-from quisby.util import merge_lists_alternately
+from quisby.util import merge_lists_alternately,read_config
+import re
+
+
+def extract_prefix_and_number(input_string):
+    match = re.search(r'^(.*?)(\d+)(.*?)$', input_string)
+    if match:
+        prefix = match.group(1)
+        return prefix
+    return None
+
+
+def compare_inst(item1, item2):
+    cloud_type = read_config("cloud", "cloud_type")
+    if cloud_type == "localhost":
+        return True
+    elif cloud_type == "aws":
+        return item1.split(".")[0] == item2.split(".")[0]
+    elif cloud_type == "gcp":
+        return item1.split("-")[0], item2.split("-")[0]
+    elif cloud_type == "azure":
+        return extract_prefix_and_number(item1) == extract_prefix_and_number(item2)
 
 
 def compare_passmark_results(spreadsheets, spreadsheetId, test_name, table_name=["SYSTEM_NAME","Price/perf"]):
@@ -28,7 +49,7 @@ def compare_passmark_results(spreadsheets, spreadsheetId, test_name, table_name=
     for value in list_1:
         for ele in list_2:
             # Check max throughput
-            if value[0][0] in table_name and ele[0][0] in table_name:
+            if value[0][0] in table_name and ele[0][0] in table_name and value[0][0] == ele[0][0]:
                 results.append([""])
                 results.append(value[0])
                 for item1 in value[1:]:
@@ -36,6 +57,14 @@ def compare_passmark_results(spreadsheets, spreadsheetId, test_name, table_name=
                         if item1[0] == item2[0]:
                             results = merge_lists_alternately(results, item1, item2)
                 break
+            elif value[0][0] == "Cost/Hr" and ele[0][0] == "Cost/Hr":
+                if compare_inst(value[1][0], ele[1][0]):
+                    results.append([""])
+                    for item1 in value:
+                        for item2 in ele:
+                            if item1[0] == item2[0]:
+                                results.append(item1)
+                    break
 
             elif value[1][0] == ele[1][0]:
                 if value[0][0] == ele[0][0]:

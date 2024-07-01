@@ -105,6 +105,13 @@ def graph_phoronix_data(spreadsheetId, range, action):
         for col in row:
             if "SYSTEM_NAME" in col:
                 start_index = index
+                title = "%s : %s" % (range, "Geomean")
+                subtitle = ""
+            elif "Price/perf" in row:
+                start_index = index
+                title = "%s : %s" % (range, "Price-Performance")
+                subtitle = "Geomean/$"
+
         if start_index:
             if not row:
                 end_index = index
@@ -126,7 +133,8 @@ def graph_phoronix_data(spreadsheetId, range, action):
                 "addChart": {
                     "chart": {
                         "spec": {
-                            "title": "%s : %s" % (range, graph_data[0][1]),
+                            "title": title,
+                            "subtitle": subtitle,
                             "basicChart": {
                                 "chartType": "COMBO",
                                 "legendPosition": "BOTTOM_LEGEND",

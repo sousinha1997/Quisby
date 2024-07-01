@@ -101,10 +101,18 @@ def graph_coremark_data(spreadsheetId, range, action):
 
     header_row = []
     sheetId = -1
+
     for index, row in enumerate(data):
         if "System name" in row:
             start_index = index
             header_row.extend(row)
+            title = "%s : %s" % (range, "Test Passes")
+            subtitle = ""
+        elif "Price/perf" in row:
+            start_index = index
+            header_row.extend(row)
+            title = "%s : %s" % (range, "Price-Performance")
+            subtitle = "Passes/$"
         if start_index:
             if not row:
                 end_index = index
@@ -124,7 +132,8 @@ def graph_coremark_data(spreadsheetId, range, action):
                 "addChart": {
                     "chart": {
                         "spec": {
-                            "title": "%s : %s" % (range, graph_data[0][1]),
+                            "title": title,
+                            "subtitle": subtitle,
                             "basicChart": {
                                 "chartType": "COMBO",
                                 "legendPosition": "BOTTOM_LEGEND",
