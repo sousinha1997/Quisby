@@ -85,7 +85,7 @@ def create_summary_coremark_data(results,OS_RELEASE):
     final_results.append(["Cost/Hr"])
     final_results += cost_per_hour
     final_results.append([""])
-    final_results.append(["System name", f"Price/perf-{OS_RELEASE}"])
+    final_results.append(["Price/perf", f"system-{OS_RELEASE}"])
     final_results += price_per_perf
     return final_results
 

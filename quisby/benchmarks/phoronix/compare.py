@@ -11,7 +11,7 @@ from quisby.sheet.sheet_util import (
 from quisby.util import merge_lists_alternately
 
 
-def compare_phoronix_results(spreadsheets, spreadsheetId, test_name, table_name=["SYSTEM_NAME"]):
+def compare_phoronix_results(spreadsheets, spreadsheetId, test_name, table_name=["SYSTEM_NAME","Price/perf"]):
     values = []
     results = []
     spreadsheet_name = []

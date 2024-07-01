@@ -111,7 +111,7 @@ def create_summary_passmark_data(data, OS_RELEASE):
     for item in sorted_data:
         results.append(item)
     results.append([""])
-    results.append(["SYSTEM_NAME", f"Price/perf-{OS_RELEASE}"])
+    results.append(["Price/perf", f"system-{OS_RELEASE}"])
     sorted_data = sorted(price_per_perf, key=custom_key)
     for item in sorted_data:
         results.append(item)

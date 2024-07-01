@@ -12,7 +12,7 @@ from quisby.util import combine_two_array_alternating, merge_lists_alternately
 from quisby.benchmarks.coremark.graph import graph_coremark_data
 
 
-def compare_coremark_results(spreadsheets, spreadsheetId, test_name, table_name=["System name"]):
+def compare_coremark_results(spreadsheets, spreadsheetId, test_name, table_name=["System name","Price/perf"]):
     values = []
     results = []
     spreadsheet_name = []
