@@ -78,12 +78,12 @@ def create_summary_coremark_pro_data(results, OS_RELEASE):
     final_results.append([""])
     final_results.append(["Cost/Hr"])
     final_results += cost_per_hour
-    final_results.append([""])
+    final_results.extend([[""], ["Single Iterations"]])
     final_results.append(["Price/perf", f"single-iter-{OS_RELEASE}"])
     final_results += price_perf_single
     final_results += [[""]]
     final_results += multi_iter
-    final_results.append([""])
+    final_results.extend([[""], ["Multi Iterations"]])
     final_results.append(["Price/perf", f"multi-iter-{OS_RELEASE}"])
     final_results += price_perf_multi
     return final_results

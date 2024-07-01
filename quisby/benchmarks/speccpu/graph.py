@@ -97,7 +97,6 @@ def graph_speccpu_data(spreadsheetId, test_name, action):
     start_index, end_index = None, None
     sheetId = -1
     diff_col = [3]
-    test = ""
 
     data = read_sheet(spreadsheetId, test_name)
     if len(data) > 500:
@@ -106,12 +105,12 @@ def graph_speccpu_data(spreadsheetId, test_name, action):
     for index, row in enumerate(data):
         if "Benchmark" in row:
             start_index = index - 1
-            test = data[start_index][1]
             # "subtitle": f"{graph_data[0][0]}, {graph_data[0][1]}",
             title = "%s : %s" % (test_name, "BaseRate")
             subtitle = f"{data[start_index][0]}, {data[start_index][1]}"
         elif "Price/perf" in row:
             start_index = index - 1
+            test = data[start_index][0]
             title = "%s : %s" % (test_name, "Price-Performance")
             subtitle = "%s : %s" % ("Geomean/$", test)
 

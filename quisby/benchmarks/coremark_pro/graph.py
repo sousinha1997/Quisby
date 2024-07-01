@@ -103,7 +103,6 @@ def graph_coremark_pro_data(spreadsheetId, range, action):
 
     header = []
     sheetId = -1
-    iteration = ""
     for index, row in enumerate(data):
         if "System name" in row:
             start_index = index
@@ -114,6 +113,7 @@ def graph_coremark_pro_data(spreadsheetId, range, action):
         elif "Price/perf" in row:
             start_index = index
             header.extend(row)
+            iteration = data[index - 1][0]
             title = "%s : %s" % (range, "Price-Performance")
             subtitle = "%s : %s" % ("Score/$", iteration)
         if start_index:

@@ -102,10 +102,10 @@ def create_summary_speccpu_data(results, OS_RELEASE):
     results.append([""])
     results.append(["Cost/Hr"])
     results += cost_per_hour
-    results.append([""])
+    results.extend([[""], ["intrate"]])
     results.append(["Price/perf", f"int-{OS_RELEASE}"])
     results += price_perf_int
-    results.append([""])
+    results.extend([[""], ["fprate"]])
     results.append(["Price/perf", f"float-{OS_RELEASE}"])
     results += price_perf_float
     return results
