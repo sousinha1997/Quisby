@@ -2,6 +2,17 @@ from scipy.stats import gmean
 
 from quisby import custom_logger
 from quisby.util import read_config
+import re
+
+
+def extract_prefix_and_number(input_string):
+    match = re.search(r'^(.*?)(\d+)(.*?)$', input_string)
+    if match:
+        prefix = match.group(1)
+        number = int(match.group(2))
+        suffix = match.group(3)
+        return prefix, number, suffix
+    return None, None, None
 
 
 def custom_key(item):
@@ -16,6 +27,9 @@ def custom_key(item):
         instance_type = item[0].split("-")[0]
         instance_number = int(item[0].split('-')[-1])
         return instance_type, instance_number
+    elif cloud_type == "azure":
+        instance_type, instance_number, version=extract_prefix_and_number(item[0])
+        return (instance_type, instance_number)
 
 
 def create_summary_pyperf_data(data, OS_RELEASE):
