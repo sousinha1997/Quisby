@@ -204,7 +204,7 @@ def get_cloud_pricing(instance_name, region, cloud_type,os_type):
     elif cloud_type == "gcp":
         return get_gcp_prices(instance_name, region)
 
-    elif cloud_type == "local":
+    elif cloud_type == "localhost":
         return 1
 
 
@@ -218,7 +218,7 @@ def get_cloud_cpu_count(instance_name, region, cloud_type):
     elif cloud_type == "gcp":
         return int(process_instance(instance_name, "size"))
 
-    elif cloud_type == "local":
+    elif cloud_type == "localhost":
         return 1
 
 
