@@ -160,7 +160,7 @@ def register_details_json(spreadsheet_name, spreadsheet_id):
 
 
 # TODO: simplify functions once data location is exact
-def data_handler(proc_list):
+def data_handler(proc_list, noti_flag):
     """"""
     global test_name
     global source
@@ -180,7 +180,7 @@ def data_handler(proc_list):
         custom_logger.info("Creating a new spreadsheet... ")
         if not spreadsheet_name:
             spreadsheet_name = f"{cloud_type}-{os_type}-{os_release}-regression-test"
-        spreadsheetid = create_spreadsheet(spreadsheet_name, "summary")
+        spreadsheetid = create_spreadsheet(spreadsheet_name, "summary", noti_flag)
         write_config("spreadsheet", "spreadsheet_id", spreadsheetid)
         write_config("spreadsheet", "spreadsheet_name", spreadsheet_name)
         custom_logger.info("Spreadsheet name : " + spreadsheet_name)
@@ -189,7 +189,7 @@ def data_handler(proc_list):
         custom_logger.warning("Collecting spreadsheet information from config...")
         custom_logger.info("Spreadsheet name : " + spreadsheet_name)
         custom_logger.info("Spreadsheet ID : " + spreadsheetid)
-        permit_users(spreadsheetid)
+        permit_users(spreadsheetid, noti_flag)
         custom_logger.info("Spreadsheet : " + f"https://docs.google.com/spreadsheets/d/{spreadsheetid}")
         custom_logger.warning("!!! Quit Application to prevent overwriting of existing data !!!")
         time.sleep(10)
@@ -328,7 +328,7 @@ def data_handler(proc_list):
             register_details_json(spreadsheet_name, spreadsheetid)
 
 
-def compare_results(spreadsheets, comp_list):
+def compare_results(spreadsheets, comp_list, noti_flag):
     sheet_list = []
     spreadsheet_name = []
     comparison_list = []
@@ -361,7 +361,7 @@ def compare_results(spreadsheets, comp_list):
 
     if not spreadsheetid:
         custom_logger.info("Creating a new spreadsheet... ")
-        spreadsheetid = create_spreadsheet(spreadsheet_name, comparison_list[0])
+        spreadsheetid = create_spreadsheet(spreadsheet_name, comparison_list[0], noti_flag)
         write_config("spreadsheet", "comp_id", spreadsheetid)
         write_config("spreadsheet", "comp_name", spreadsheet_name)
         custom_logger.info("Spreadsheet name : " + spreadsheet_name)
@@ -406,26 +406,28 @@ def compare_results(spreadsheets, comp_list):
     register_details_json(spreadsheet_name, spreadsheetid)
 
 
-def reduce_data(proc_list):
-    data_handler(proc_list)
+def reduce_data(proc_list, noti_flag):
+    data_handler(proc_list, noti_flag)
 
 
-def compare_data(s_list,comp_list):
-    compare_results(s_list, comp_list)
+def compare_data(s_list, comp_list, noti_flag):
+    compare_results(s_list, comp_list, noti_flag)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Tool to preprocess and visualise datasets")
     parser.add_argument("--config", type=str, required=False, help="Location to configuration file")
-    parser.add_argument("--process",action='store_true',help="To preprocess and visualise a single dataset")
+    parser.add_argument("--process", action='store_true', help="To preprocess and visualise a single dataset")
     parser.add_argument("--compare", type=str, required=False, help="To compare and plot two datasets")
-    parser.add_argument("--list-benchmarks",action='store_true', help="To list supported benchmarks")
+    parser.add_argument("--list-benchmarks", action='store_true', help="To list supported benchmarks")
     parser.add_argument("--compare-list", type=str, required=False, help="Give specific benchmark to compare")
     parser.add_argument("--process-list", type=str, required=False, help="Give specific benchmark to process")
-    parser.add_argument("--no-check", action='store_true',help="No health check")
+    parser.add_argument("--no-check", action='store_true', help="No health check")
+    parser.add_argument("--no-notify", action='store_true', help="No notification")
     args = parser.parse_args()
-
-    supported_benchmarks = ['aim', 'auto_hpl','boot', 'coremark', 'coremark_pro', 'etcd', 'fio_run', 'hammerdb_maria', 'hammerdb_mssql', 'hammerdb_pg', 'linpack', 'passmark', 'phoronix', 'pig', 'pyperf', 'specjbb', 'speccpu', 'streams', 'uperf']
+    supported_benchmarks = ['aim', 'auto_hpl', 'boot', 'coremark', 'coremark_pro', 'etcd', 'fio_run', 'hammerdb_maria',
+                            'hammerdb_mssql', 'hammerdb_pg', 'linpack', 'passmark', 'phoronix', 'pig', 'pyperf',
+                            'specjbb', 'speccpu', 'streams', 'uperf']
 
     if args.list_benchmarks:
         custom_logger.info("Supported benchmarks :")
@@ -433,13 +435,16 @@ if __name__ == "__main__":
             print(i)
         exit(0)
 
-
     if not (args.process or args.compare):
         parser.print_help()
         exit(0)
 
     if not args.no_check:
         health_check()
+
+    noti_flag = True
+    if args.no_notify:
+        noti_flag = False
 
     if not args.config:
         custom_logger.warning("No configuration path mentioned. Using default. ")
@@ -459,7 +464,7 @@ if __name__ == "__main__":
         proc_list = []
         if args.process_list:
             proc_list = args.process_list.split(",")
-        reduce_data(proc_list)
+        reduce_data(proc_list, noti_flag)
         exit(0)
     elif args.compare:
         comp_list = []
@@ -468,7 +473,7 @@ if __name__ == "__main__":
         try:
             s_list = args.compare.split(",")
             if len(s_list) > 1:
-                compare_data(s_list,comp_list)
+                compare_data(s_list, comp_list, noti_flag)
                 exit(0)
             else:
                 custom_logger.error("Provide two or more sheets to compare.")

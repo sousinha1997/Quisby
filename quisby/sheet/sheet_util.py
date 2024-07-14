@@ -1,7 +1,8 @@
 from quisby import custom_logger
 from googleapiclient.discovery import build
 from quisby.sheet.sheetapi import sheet, creds
-from quisby.util import read_config, write_config
+from quisby.util import read_config
+
 
 def check_sheet_exists(sheet_info, test_name):
     """"""
@@ -12,7 +13,7 @@ def check_sheet_exists(sheet_info, test_name):
     return False
 
 
-def permit_users(spreadsheetid):
+def permit_users(spreadsheetId, notification):
     custom_logger.info("Providing write access to specified users")
     users = read_config("access", "users").split(",")
     if users == ['']:
@@ -23,10 +24,11 @@ def permit_users(spreadsheetid):
             domain_permission = {
                 'type': 'user',
                 'role': 'writer',
-                'emailAddress': user
+                'emailAddress': user,
+                'sendNotificationEmails': notification
             }
             req = drive_api.permissions().create(
-                fileId=spreadsheetid,
+                fileId=spreadsheetId,
                 body=domain_permission,
                 fields="id"
             )
@@ -37,7 +39,7 @@ def permit_users(spreadsheetid):
             custom_logger.error("Unable to provide access to this user : "+user)
 
 
-def create_spreadsheet(spreadsheet_name, test_name):
+def create_spreadsheet(spreadsheet_name, test_name, notification):
     """
     A new sheet is created if spreadsheetId is None
 
@@ -59,7 +61,7 @@ def create_spreadsheet(spreadsheet_name, test_name):
 
     spreadsheet = sheet.create(body=spreadsheet).execute()
     spreadsheetid = spreadsheet["spreadsheetId"]
-    permit_users(spreadsheetid)
+    permit_users(spreadsheetid, notification)
     return spreadsheetid
 
 
@@ -187,6 +189,7 @@ def get_named_range(spreadsheetId, range="A:F"):
     spreadsheet = get_sheet(spreadsheetId, range)
 
     return spreadsheet['namedRanges']
+
 
 def append_empty_row_sheet(spreadsheetId, rows,range):
     
