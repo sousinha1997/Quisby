@@ -27,7 +27,7 @@ def compare_inst(item1, item2):
     elif cloud_type == "aws":
         return item1.split(".")[0] == item2.split(".")[0]
     elif cloud_type == "gcp":
-        return item1.split("-")[0], item2.split("-")[0]
+        return item1.split("-")[0] == item2.split("-")[0]
     elif cloud_type == "azure":
         return extract_prefix_and_number(item1) == extract_prefix_and_number(item2)
 
@@ -67,13 +67,6 @@ def compare_specjbb_results(spreadsheets, spreadsheetId, test_name, table_name=[
                             if item1[0] == item2[0]:
                                 results.append(item1)
                     break
-
-            elif value[0][0] == ele[0][0]:
-                results.append([""])
-                results.append(value[0])
-                results = combine_two_array_alternating(results, value[1:], ele[1:])
-                break
-
     try:
         create_sheet(spreadsheetId, test_name)
         custom_logger.info("Deleting existing charts and data from the sheet...")
