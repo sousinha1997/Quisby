@@ -1,5 +1,6 @@
 import re
 from itertools import groupby
+from scipy.stats import gmean
 
 from quisby.util import mk_int, process_instance, read_config
 
@@ -46,11 +47,27 @@ def create_summary_speccpu_data(results, OS_RELEASE):
         )
 
     results = []
-
+    gmean_data_intrate = []
+    gmean_data_fprate = []
+    SYSTEM_GEOMEAN_INTRATE = [[""],["SYSTEM_NAME","GEOMEAN-INTRATE-"+OS_RELEASE]]
+    SYSTEM_GEOMEAN_FPRATE = [[""],["SYSTEM_NAME","GEOMEAN-FPRATE-"+OS_RELEASE]]
     for items in sorted_result:
         items = sorted(items, key=custom_key)
         for item in items:
+            geomean = 0.0
+            for val in range(2,len(item)):
+                if item[0][1] == "intrate":
+                    gmean_data_intrate.append(float(item[val][1]))
+                else:
+                    gmean_data_fprate.append(float(item[val][1]))
+            if item[0][1] == "intrate":
+                geomean = gmean(gmean_data_intrate)
+                SYSTEM_GEOMEAN_INTRATE.append([item[0][0], geomean])
+            else:
+                geomean = gmean(gmean_data_fprate)
+                SYSTEM_GEOMEAN_FPRATE.append([item[0][0], geomean])
             results.append([""])
             results += item
-
+    results +=SYSTEM_GEOMEAN_INTRATE
+    results +=SYSTEM_GEOMEAN_FPRATE
     return results
