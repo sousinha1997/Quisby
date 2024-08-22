@@ -38,9 +38,9 @@ def create_summary_linpack_data(results, OS_RELEASE):
     header_row = [results[0]]
     results = [row for row in results if row[0] != "System"]
 
-    results.sort(key=lambda x: str(process_instance(x[0], "family", "version", "feature")))
+    results.sort(key=lambda x: str((x[0], "family", "version","sub_family", "feature")))
 
-    for _, items in groupby(results, key=lambda x: process_instance(x[0], "family", "version", "feature")):
+    for _, items in groupby(results, key=lambda x: process_instance(x[0], "family", "version","sub_family", "feature")):
         items = list(items)
         sorted_data = sorted(items, key=lambda x: mk_int(process_instance(x[0], "size")))
         cpu_scale, base_gflops = None, None

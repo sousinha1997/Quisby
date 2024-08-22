@@ -103,12 +103,19 @@ def graph_coremark_pro_data(spreadsheetId, range, action):
 
     header = []
     sheetId = -1
-
     for index, row in enumerate(data):
         if "System name" in row:
             start_index = index
-            iteration = data[index - 1][0]
             header.extend(row)
+            iteration = data[index - 1][0]
+            title = "%s : %s" % (range, "Score")
+            subtitle = iteration
+        elif "Price/perf" in row:
+            start_index = index
+            header.extend(row)
+            iteration = data[index - 1][0]
+            title = "%s : %s" % (range, "Price-Performance")
+            subtitle = "%s : %s" % ("Score/$", iteration)
         if start_index:
             if not row:
                 end_index = index
@@ -130,17 +137,35 @@ def graph_coremark_pro_data(spreadsheetId, range, action):
                 "addChart": {
                     "chart": {
                         "spec": {
-                            "title": "%s : %s : %s" % (range, "score", iteration),
+                            "title": title,
+                            "subtitle": subtitle,
                             "basicChart": {
                                 "chartType": "COMBO",
-                                "legendPosition": "BOTTOM_LEGEND",
+                                "legendPosition": "RIGHT_LEGEND",
                                 "axis": [
-                                    {"position": "BOTTOM_AXIS", "title": ""},
                                     {
+                                        "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
+                                        "position": "BOTTOM_AXIS",
+                                        "title": "System"},
+                                    {
+                                        "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
                                         "position": "LEFT_AXIS",
-                                        "title": "Score",
+                                        "title": graph_data[0][1].split("-")[0],
                                     },
                                     {
+                                        "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
                                         "position": "RIGHT_AXIS",
                                         "title": "%Diff",
                                     },
@@ -172,7 +197,10 @@ def graph_coremark_pro_data(spreadsheetId, range, action):
                                     "sheetId": sheetId,
                                     "rowIndex": GRAPH_ROW_INDEX,
                                     "columnIndex": column_count + GRAPH_COL_INDEX,
-                                }
+                                },
+                                "offsetXPixels": 100,
+                                "widthPixels": 600,
+                                "heightPixels": 400
                             }
                         },
                     }
@@ -183,7 +211,7 @@ def graph_coremark_pro_data(spreadsheetId, range, action):
                 GRAPH_ROW_INDEX += 20
                 GRAPH_COL_INDEX = 1
             else:
-                GRAPH_ROW_INDEX = end_index
+                GRAPH_COL_INDEX += 6
 
             body = {"requests": requests}
 
