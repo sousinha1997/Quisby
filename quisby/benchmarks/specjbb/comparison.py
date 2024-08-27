@@ -16,8 +16,9 @@ def extract_prefix_and_number(input_string):
     match = re.search(r'^(.*?)(\d+)(.*?)$', input_string)
     if match:
         prefix = match.group(1)
-        return prefix
-    return None
+        suffix = match.group(3)  # Extracts the suffix after the number
+        return prefix, suffix
+    return None, None
 
 
 def compare_inst(item1, item2):

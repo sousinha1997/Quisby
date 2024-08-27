@@ -96,6 +96,7 @@ def graph_pyperf_data(spreadsheetId, range, action):
     end_index = 0
     sheetId = -1
     diff_col = [3]
+    row_val = 1
 
     data = read_sheet(spreadsheetId, range)
     if len(data) > 500:
@@ -103,11 +104,21 @@ def graph_pyperf_data(spreadsheetId, range, action):
 
     for index, row in enumerate(data):
         for col in row:
-            if "GEOMEAN" in col:
+            if "System name" in col:
                 start_index = index
+                if row_val == 1:
+                    row_val = start_index
+                title = "%s : %s" % (range, "Geomean")
+                subtitle = ""
+            elif "Price-perf" in row:
+                start_index = index
+                if row_val == 1:
+                    row_val = start_index
+                title = "%s : %s" % (range, "Price-Performance")
+                subtitle = "Geomean/$"
         if start_index:
             if not row:
-                end_index = index - 1
+                end_index = index
             if index + 1 == len(data):
                 end_index = index + 1
 
@@ -126,17 +137,35 @@ def graph_pyperf_data(spreadsheetId, range, action):
                 "addChart": {
                     "chart": {
                         "spec": {
-                            "title": "%s : %s" % (range, "GEOMEAN"),
+                            "title": title,
+                            "subtitle": graph_data[1][0],
                             "basicChart": {
                                 "chartType": "COMBO",
-                                "legendPosition": "BOTTOM_LEGEND",
+                                "legendPosition": "RIGHT_LEGEND",
                                 "axis": [
-                                    {"position": "BOTTOM_AXIS", "title": ""},
                                     {
+                                    "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
+                                     "position": "BOTTOM_AXIS",
+                                     "title": "System"},
+                                    {
+                                        "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
                                         "position": "LEFT_AXIS",
-                                        "title": "geomean",
+                                        "title":  graph_data[0][1].lower(),
                                     },
                                     {
+                                        "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
                                         "position": "RIGHT_AXIS",
                                         "title": "%Diff",
                                     },
@@ -166,9 +195,12 @@ def graph_pyperf_data(spreadsheetId, range, action):
                             "overlayPosition": {
                                 "anchorCell": {
                                     "sheetId": sheetId,
-                                    "rowIndex": GRAPH_ROW_INDEX,
+                                    "rowIndex": GRAPH_ROW_INDEX ,
                                     "columnIndex": column_count + GRAPH_COL_INDEX,
-                                }
+                                },
+                                "offsetXPixels": 100,
+                                "widthPixels": 600,
+                                "heightPixels": 400
                             }
                         },
                     }

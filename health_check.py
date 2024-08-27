@@ -205,3 +205,6 @@ def health_check():
     check_virtual_environment()
     check_python_version()
     check_and_install_requirements()
+
+if __name__ == "__main__":
+    health_check()

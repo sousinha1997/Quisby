@@ -31,14 +31,25 @@ def custom_key(item):
          return instance_type, instance_number
     elif cloud_type == "azure":
         instance_type, instance_number, version= extract_prefix_and_number(item[1][0])
-        return instance_type, instance_number
+        return instance_type,version, instance_number
 
+
+def group_data(results):
+    cloud_type = read_config("cloud", "cloud_type")
+    if cloud_type == "aws":
+        return groupby(results, key=lambda x: process_instance(x[1][0], "family", "version", "feature", "machine_type"))
+    elif cloud_type == "azure":
+        results = sorted(results, key=lambda x: process_instance(x[1][0], "family", "feature"))
+        return groupby(results, key=lambda x: process_instance(x[1][0], "family", "version", "feature"))
+    elif cloud_type == "gcp":
+        return groupby(results, key=lambda x: process_instance(x[1][0], "family", "version","sub_family","feature"))
 
 def specjbb_sort_data_by_system_family(results):
     sorted_result = []
 
     results.sort(key=lambda x: str(process_instance(
         x[1][0], "family", "version", "feature")))
+
 
     for _, items in groupby(results, key=lambda x: process_instance(x[1][0], "family", "version", "feature")):
         sorted_result.append(
@@ -61,21 +72,35 @@ def calc_peak_throughput_peak_efficiency(data):
         peak_efficiency = float(peak_throughput) / float(cost_per_hour)
     except Exception as exc:
         custom_logger.debug(str(exc))
-        custom_logger.error("Error calculating value !")
+        custom_logger.error("Error calculating value for :" + data[1][0])
     return peak_throughput, cost_per_hour, peak_efficiency
 
 
+
+def sort_data(results):
+    cloud_type = read_config("cloud", "cloud_type")
+    if cloud_type == "aws":
+        results.sort(key=lambda x: str(process_instance(x[1][0], "family")))
+    elif cloud_type == "azure":
+        results.sort(key=lambda x: str(process_instance(x[1][0], "family", "version", "feature")))
+    elif cloud_type == "gcp":
+        results.sort(key=lambda x: str(process_instance(x[1][0], "family", "version", "sub_family")))
+
 def create_summary_specjbb_data(specjbb_data, OS_RELEASE):
     """"""
+
     results = []
+    #specjbb_data = specjbb_sort_data_by_system_family(specjbb_data)
+    specjbb_data = list(filter(None, specjbb_data))
+    sort_data(specjbb_data)
+    specjbb_data = group_data(specjbb_data)
 
-    specjbb_data = specjbb_sort_data_by_system_family(specjbb_data)
-
-    for items in specjbb_data:
+    for _,items in specjbb_data:
+        items = list(items)
         peak_throughput, cost_per_hour, peak_efficiency = [], [], []
-        sorted_data = sorted(items, key=custom_key)
+        sorted_data = sorted(items, key=lambda x: mk_int(process_instance(x[1][0], "size")))
         for item in sorted_data:
-            results += item
+            results.extend(item)
             try:
                 pt, cph, pe = calc_peak_throughput_peak_efficiency(item)
             except Exception as exc:
@@ -92,7 +117,7 @@ def create_summary_specjbb_data(specjbb_data, OS_RELEASE):
         results.append(["Cost/Hr"])
         results += cost_per_hour
         results.append([""])
-        results.append(["Peak/$eff", f"Price/perf-{OS_RELEASE}"])
+        results.append(["Peak/$eff", f"Price-perf-{OS_RELEASE}"])
         results += peak_efficiency
 
     return results
@@ -101,17 +126,22 @@ def create_summary_specjbb_data(specjbb_data, OS_RELEASE):
 def extract_specjbb_data(path, system_name, OS_RELEASE):
     """"""
     results = [[""], [system_name]]
+    summary_data = []
+    server = read_config("server", "name")
+    result_dir = read_config("server", "result_dir")
 
     # File read
     try:
         if path.endswith(".csv"):
             with open(path) as csv_file:
                 specjbb_results = list(csv.DictReader(csv_file, delimiter=":"))
+            sum_path = path.split("/./")[1]
+            summary_data.append([system_name, "http://" + server + "/results/" + result_dir + "/" + sum_path])
         else:
             return None
     except Exception as exc:
         custom_logger.error(str(exc))
-        return None
+        return None, None
 
     results.append(["Warehouses", f"Thrput-{OS_RELEASE}"])
     for data_dict in specjbb_results[1:]:
@@ -120,4 +150,4 @@ def extract_specjbb_data(path, system_name, OS_RELEASE):
         else:
             results.append([data_dict["Warehouses"], data_dict["Bops"]])
 
-    return results
+    return results, summary_data

@@ -101,13 +101,21 @@ def graph_coremark_data(spreadsheetId, range, action):
 
     header_row = []
     sheetId = -1
+
     for index, row in enumerate(data):
         if "System name" in row:
             start_index = index
             header_row.extend(row)
+            title = "%s : %s" % (range, "Test Passes")
+            subtitle = "Average Test Passes"
+        elif "Price-perf" in row:
+            start_index = index
+            header_row.extend(row)
+            title = "%s : %s" % (range, "Price-Performance")
+            subtitle = "Passes/$"
         if start_index:
             if not row:
-                end_index = index - 1
+                end_index = index
             if index + 1 == len(data):
                 end_index = index + 1
 
@@ -124,20 +132,35 @@ def graph_coremark_data(spreadsheetId, range, action):
                 "addChart": {
                     "chart": {
                         "spec": {
-                            "title": "%s : %s" % (range, "Test passes"),
+                            "title": title,
+                            "subtitle": subtitle + " : "+graph_data[1][0],
                             "basicChart": {
                                 "chartType": "COMBO",
-                                "legendPosition": "BOTTOM_LEGEND",
+                                "legendPosition": "RIGHT_LEGEND",
                                 "axis": [
                                     {
-                                        "position": "LEFT_AXIS",
-                                        "title": "Test passes"
-                                    },
-                                    {
+                                        "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
                                         "position": "BOTTOM_AXIS",
-                                        "title": "Machine types",
+                                        "title": "System"},
+                                    {
+                                        "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
+                                        "position": "LEFT_AXIS",
+                                        "title": graph_data[0][1].split("-")[0],
                                     },
                                     {
+                                        "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
                                         "position": "RIGHT_AXIS",
                                         "title": "%Diff",
                                     },
@@ -168,8 +191,11 @@ def graph_coremark_data(spreadsheetId, range, action):
                                 "anchorCell": {
                                     "sheetId": sheetId,
                                     "rowIndex": GRAPH_ROW_INDEX,
-                                    "columnIndex": column_count + 1,
-                                }
+                                    "columnIndex": column_count + GRAPH_COL_INDEX,
+                                },
+                                "offsetXPixels": 100,
+                                "widthPixels": 600,
+                                "heightPixels": 400
                             }
                         },
                     }
@@ -197,6 +223,5 @@ def graph_coremark_data(spreadsheetId, range, action):
             threshold = "5"
         for col in diff_col:
             update_conditional_formatting(spreadsheetId, sheetId, col, threshold)
-
 
 
