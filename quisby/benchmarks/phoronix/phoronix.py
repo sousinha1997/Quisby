@@ -1,8 +1,23 @@
+from itertools import groupby
+
 from scipy.stats import gmean
 
 from quisby import custom_logger
 from quisby.util import read_config
 from quisby.pricing.cloud_pricing import get_cloud_pricing
+import re
+
+from quisby.util import process_instance, mk_int
+
+
+def extract_prefix_and_number(input_string):
+    match = re.search(r'^(.*?)(\d+)(.*?)$', input_string)
+    if match:
+        prefix = match.group(1)
+        number = int(match.group(2))
+        suffix = match.group(3)
+        return prefix, number, suffix
+    return None, None, None
 
 
 def custom_key(item):
@@ -17,6 +32,9 @@ def custom_key(item):
         instance_type = item[0].split("-")[0]
         instance_number = int(item[0].split('-')[-1])
         return instance_type, instance_number
+    elif cloud_type == "azure":
+        instance_type, instance_number, version= extract_prefix_and_number(item[0])
+        return instance_type, version, instance_number
 
 
 def calc_price_performance(inst, avg):
@@ -34,81 +52,80 @@ def calc_price_performance(inst, avg):
     return cost_per_hour, price_perf
 
 
+def group_data(results):
+    cloud_type = read_config("cloud", "cloud_type")
+    if cloud_type == "aws":
+        return groupby(results, key=lambda x: process_instance(x[1][0], "family", "version", "feature", "machine_type"))
+    elif cloud_type == "azure":
+        results = sorted(results, key=lambda x: process_instance(x[1][0], "family", "feature"))
+        return groupby(results, key=lambda x: process_instance(x[1][0], "family", "version", "feature"))
+    elif cloud_type == "gcp":
+        return groupby(results, key=lambda x: process_instance(x[1][0], "family", "version","sub_family","feature"))
+
+
+def sort_data(results):
+    cloud_type = read_config("cloud", "cloud_type")
+    if cloud_type == "aws":
+        results.sort(key=lambda x: str(process_instance(x[1][0], "family")))
+    elif cloud_type == "azure":
+        results.sort(key=lambda x: str(process_instance(x[1][0], "family", "version", "feature")))
+    elif cloud_type == "gcp":
+        results.sort(key=lambda x: str(process_instance(x[1][0], "family", "version", "sub_family")))
+
 def create_summary_phoronix_data(data, OS_RELEASE):
-    results = []
-    processed_data = None
-    gmean_data = []
-    SYSTEM_GEOMEAN = []
-    end_index = 0
-    start_index = 0
-    system = ""
-    cost_per_hour, price_per_perf = [], []
-    # Add summary data
-    for index, row in enumerate(data):
-        if row == [""]:
-            if processed_data:
-                inst = processed_data[0]
-                gdata = gmean(gmean_data)
-                SYSTEM_GEOMEAN.append([system, gdata])
+    ret_results = []
+
+    results = list(filter(None, data))
+    sort_data(results)
+    results = group_data(results)
+    for _, items in results:
+        mac_data = [["System name", "Geomean-" + OS_RELEASE]]
+        cost_data = [["Cost/Hr"]]
+        price_perf_data = [["Price-perf",f"Geomean/$-{OS_RELEASE}"]]
+        items = list(items)
+        sorted_data = sorted(items, key=lambda x: mk_int(process_instance(x[1][0], "size")))
+        cost_per_hour, price_per_perf = [], []
+        # Add summary data
+        for index, row in enumerate(sorted_data):
+            inst = row[1][0]
+            gmean_data=[]
+            for i in range(2,len(row)):
                 try:
-                    cph, pp = calc_price_performance(inst, gdata)
+                    gmean_data.append(float(row[i][1].strip()))
                 except Exception as exc:
-                    custom_logger.error(str(exc))
-                    continue
-                price_per_perf.append([inst, pp])
-                cost_per_hour.append([inst, cph])
-            processed_data = []
-            gmean_data = []
-            system = ""
-            start_index = end_index + 1
-            end_index = 0
-        elif start_index:
-            system = row[0]
-            processed_data.append(system)
-            end_index = start_index + 1
-            start_index = 0
-        elif end_index:
-            gmean_data.append(float(row[1]))
-    if processed_data:
-        cph = 0
-        pp = 0
-        inst = processed_data[0]
-        gdata = gmean(gmean_data)
-        SYSTEM_GEOMEAN.append([system, gdata])
-        try:
-            cph, pp = calc_price_performance(inst, gdata)
-        except Exception as exc:
-            custom_logger.error(str(exc))
-        price_per_perf.append([inst, pp])
+                    gmean_data.append(0.0)
+            gdata = gmean(gmean_data)
+            try:
+                cph, pp = calc_price_performance(inst, gdata)
+            except Exception as exc:
+                custom_logger.error(str(exc))
+                continue
 
-        cost_per_hour.append([inst, cph])
-
-    results.append([""])
-    results.append(["System name", "Geomean-" + str(OS_RELEASE)])
-    sorted_data = sorted(SYSTEM_GEOMEAN, key=custom_key)
-    for item in sorted_data:
-        results.append(item)
-    results.append([""])
-    results.append(["Cost/Hr"])
-    sorted_data = sorted(cost_per_hour, key=custom_key)
-    for item in sorted_data:
-        results.append(item)
-    results.append([""])
-    results.append(["Price/perf", f"Geomean/$-{OS_RELEASE}"])
-    sorted_data = sorted(price_per_perf, key=custom_key)
-    for item in sorted_data:
-        results.append(item)
-    return results
+            mac_data.append([inst, gdata])
+            cost_data.append([inst, cph])
+            price_perf_data.append([inst, pp])
+        ret_results.append([""])
+        ret_results.extend(mac_data)
+        ret_results.append([""])
+        ret_results.extend(cost_data)
+        ret_results.append([""])
+        ret_results.extend(price_perf_data)
+    return ret_results
 
 
 def extract_phoronix_data(path, system_name, OS_RELEASE):
     """"""
     results = []
+    summary_data = []
+    server = read_config("server", "name")
+    result_dir = read_config("server", "result_dir")
     # Extract data from file
     try:
         if path.endswith("results.csv"):
             with open(path) as file:
                 phoronix_results = file.readlines()
+            sum_path = path.split("/./")[1]
+            summary_data.append([system_name, "http://" + server + "/results/" + result_dir + "/" + sum_path])
         else:
             return None
     except Exception as exc:
@@ -120,4 +137,4 @@ def extract_phoronix_data(path, system_name, OS_RELEASE):
     results.append([""])
     results.append([system_name])
     results.extend(phoronix_results[1:])
-    return results
+    return [results], summary_data

@@ -107,8 +107,17 @@ def graph_specjbb_data(spreadsheetId, range, action):
 
     for index, row in enumerate(data):
         try:
-            if "Peak" in row or "Peak/$eff" in row:
+            if "Peak" in row:
                 start_index = index
+                title = "%s : %s" %(range,row[0])
+                subtitle = "Throughput"
+                left_title = row[1].lower()
+
+            if "Peak/$eff" in row:
+                start_index = index
+                title = "%s : %s" % (range, "Price-Performance")
+                subtitle = "%s" %(row[0])
+                left_title = row[1].lower()
 
             if start_index:
                 if not row:
@@ -130,17 +139,36 @@ def graph_specjbb_data(spreadsheetId, range, action):
                     "addChart": {
                         "chart": {
                             "spec": {
-                                "title": "%s : %s" % (range, graph_data[0][0]),
+                                "title": title,
+                                "subtitle": subtitle+" : "+graph_data[1][0],
                                 "basicChart": {
                                     "chartType": "COMBO",
-                                    "legendPosition": "BOTTOM_LEGEND",
+                                    "legendPosition": "RIGHT_LEGEND",
                                     "axis": [
-                                        {"position": "BOTTOM_AXIS", "title": ""},
                                         {
+                                            "format": {
+                                                "bold": True,
+                                                "italic": True,
+                                                "fontSize": 14
+                                            },
+
+                                        "position": "BOTTOM_AXIS",
+                                        "title": "System"},
+                                        {
+                                            "format": {
+                                                "bold": True,
+                                                "italic": True,
+                                                "fontSize": 14
+                                            },
                                             "position": "LEFT_AXIS",
-                                            "title": "Throughput(bops)",
+                                            "title": left_title,
                                         },
                                         {
+                                            "format": {
+                                                "bold": True,
+                                                "italic": True,
+                                                "fontSize": 14
+                                            },
                                             "position": "RIGHT_AXIS",
                                             "title": "%Diff",
                                         },
@@ -172,8 +200,12 @@ def graph_specjbb_data(spreadsheetId, range, action):
                                         "sheetId": sheetId,
                                         "rowIndex": GRAPH_ROW_INDEX,
                                         "columnIndex": column_count + GRAPH_COL_INDEX,
-                                    }
-                                }
+                                    },
+                                    "offsetXPixels": 100,
+                                    "widthPixels": 600,
+                                    "heightPixels": 400
+                                },
+
                             },
                         }
                     }

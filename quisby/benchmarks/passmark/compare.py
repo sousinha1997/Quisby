@@ -16,8 +16,9 @@ def extract_prefix_and_number(input_string):
     match = re.search(r'^(.*?)(\d+)(.*?)$', input_string)
     if match:
         prefix = match.group(1)
-        return prefix
-    return None
+        suffix = match.group(3)  # Extracts the suffix after the number
+        return prefix, suffix
+    return None, None
 
 
 def compare_inst(item1, item2):
@@ -32,7 +33,7 @@ def compare_inst(item1, item2):
         return extract_prefix_and_number(item1) == extract_prefix_and_number(item2)
 
 
-def compare_passmark_results(spreadsheets, spreadsheetId, test_name, table_name=["System name","Price/perf"]):
+def compare_passmark_results(spreadsheets, spreadsheetId, test_name, table_name=["System name","Price-perf"]):
     values = []
     results = []
     spreadsheet_name = []

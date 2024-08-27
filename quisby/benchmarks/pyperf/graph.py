@@ -110,7 +110,7 @@ def graph_pyperf_data(spreadsheetId, range, action):
                     row_val = start_index
                 title = "%s : %s" % (range, "Geomean")
                 subtitle = ""
-            elif "Price/perf" in row:
+            elif "Price-perf" in row:
                 start_index = index
                 if row_val == 1:
                     row_val = start_index
@@ -138,7 +138,7 @@ def graph_pyperf_data(spreadsheetId, range, action):
                     "chart": {
                         "spec": {
                             "title": title,
-                            "subtitle": subtitle,
+                            "subtitle": graph_data[1][0],
                             "basicChart": {
                                 "chartType": "COMBO",
                                 "legendPosition": "RIGHT_LEGEND",

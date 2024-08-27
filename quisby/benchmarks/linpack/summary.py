@@ -28,19 +28,50 @@ def custom_key(item):
          return instance_type, instance_number
     elif cloud_type == "azure":
         instance_type, instance_number, version=extract_prefix_and_number(item[0])
-        return instance_type, instance_number
+        return instance_type, version, instance_number
+
+
+def group_data(results):
+    cloud_type = read_config("cloud", "cloud_type")
+    if cloud_type == "aws":
+        return groupby(results, key=lambda x: process_instance(x[0], "family", "version", "feature", "machine_type"))
+    elif cloud_type == "azure":
+        results = sorted(results, key=lambda x: process_instance(x[0], "family", "feature"))
+        return groupby(results, key=lambda x: process_instance(x[0], "family", "version", "feature"))
+    elif cloud_type == "gcp":
+        return groupby(results, key=lambda x: process_instance(x[0], "family", "version","sub_family","feature"))
+
+
+
+def sort_data(results):
+    cloud_type = read_config("cloud", "cloud_type")
+    if cloud_type == "aws":
+        results.sort(key=lambda x: str(process_instance(x[0], "family")))
+    elif cloud_type == "azure":
+        results.sort(key=lambda x: str(process_instance(x[0], "family", "version", "feature")))
+    elif cloud_type == "gcp":
+        results.sort(key=lambda x: str(process_instance(x[0], "family", "version", "sub_family")))
 
 
 def create_summary_linpack_data(results, OS_RELEASE):
     sorted_results = []
+    header = []
+    header.append(
+        [
+            "System",
+            "Cores",
+            f"GFLOPS-{OS_RELEASE}",
+            f"GFLOP Scaling-{OS_RELEASE}",
+            "Cost/hr",
+            f"Price-perf-{OS_RELEASE}",
+        ]
+    )
 
     results = list(filter(None, results))
-    header_row = [results[0]]
-    results = [row for row in results if row[0] != "System"]
+    sort_data(results)
+    #results.sort(key=lambda x: str((x[0], "family", "version","sub_family", "feature")))
 
-    results.sort(key=lambda x: str((x[0], "family", "version","sub_family", "feature")))
-
-    for _, items in groupby(results, key=lambda x: process_instance(x[0], "family", "version","sub_family", "feature")):
+    for _, items in  group_data(results):
         items = list(items)
         sorted_data = sorted(items, key=lambda x: mk_int(process_instance(x[0], "size")))
         cpu_scale, base_gflops = None, None
@@ -55,11 +86,10 @@ def create_summary_linpack_data(results, OS_RELEASE):
                     cpu_scaling = 0
                 gflops_scaling = float(row[2]) / (int(row[1]) - cpu_scale) / base_gflops if cpu_scaling != 0 else 1
                 sorted_data[index][3] = format(gflops_scaling, ".4f")
-        sorted_data = sorted(sorted_data, key=custom_key)
         res = []
         for item in sorted_data:
             res.append(item)
-        sorted_results += header_row + res
+        sorted_results += header + res
         # sorted_results += header_row + sorted_data
 
     return sorted_results

@@ -33,16 +33,6 @@ def linpack_format_data(**kwargs):
 
     results.append(
         [
-            "System",
-            "Cores",
-            f"GFLOPS-{os_release}",
-            f"GFLOP Scaling-{os_release}",
-            "Cost/hr",
-            f"Price/Perf-{os_release}",
-        ]
-    )
-    results.append(
-        [
             system_name,
             no_of_cores,
             gflops,
@@ -64,6 +54,9 @@ def extract_linpack_data(path, system_name):
     results = []
     no_of_cores = None
     gflops = None
+    summary_data = []
+    server = read_config("server", "name")
+    result_dir = read_config("server", "result_dir")
 
     summary_file = path
 
@@ -77,8 +70,10 @@ def extract_linpack_data(path, system_name):
             last_row = list_data[-1]
             gflops = last_row["MB/sec"]
             threads = last_row["threads"]
+        sum_path = summary_file.split("/./")[1]
+        summary_data.append([system_name, "http://" + server + "/results/" + result_dir + "/" + sum_path])
     else:
-        return results
+        return results, summary_data
 
     for file_path in glob.glob(path + f"/linpack*_threads_{threads}_*"):
         with open(file_path) as txt_file:
@@ -96,4 +91,4 @@ def extract_linpack_data(path, system_name):
             gflops=gflops,
         )
 
-        return results
+        return results, summary_data

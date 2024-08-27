@@ -45,7 +45,7 @@ def graph_linpack_compare(spreadsheetId, test_name, action):
 
     Graphs:
     - GFLOP and GFLOPS scaling
-    - Price/perf
+    - Price-perf
 
     :sheet: sheet API function
     :spreadsheetId
@@ -203,7 +203,7 @@ def graph_linpack_compare(spreadsheetId, test_name, action):
 
             sheet.batchUpdate(spreadsheetId=spreadsheetId, body=body).execute()
 
-            # PRICE/PERF graph
+            # Price-perf graph
             requests = {
                 "addChart": {
                     "chart": {
@@ -462,7 +462,7 @@ def graph_linpack_data(spreadsheetId, test_name, action):
 
     Graphs:
     - GFLOP and GFLOPS scaling
-    - Price/perf
+    - Price-perf
 
     :sheet: sheet API function
     :spreadsheetId
@@ -602,7 +602,7 @@ def graph_linpack_data(spreadsheetId, test_name, action):
                 }
             }
 
-            # PRICE/PERF graph
+            # Price-perf graph
             body = {"requests": requests}
 
             sheet.batchUpdate(spreadsheetId=spreadsheetId, body=body).execute()

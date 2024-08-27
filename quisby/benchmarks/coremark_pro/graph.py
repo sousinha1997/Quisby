@@ -110,7 +110,7 @@ def graph_coremark_pro_data(spreadsheetId, range, action):
             iteration = data[index - 1][0]
             title = "%s : %s" % (range, "Score")
             subtitle = iteration
-        elif "Price/perf" in row:
+        elif "Price-perf" in row:
             start_index = index
             header.extend(row)
             iteration = data[index - 1][0]
@@ -138,7 +138,7 @@ def graph_coremark_pro_data(spreadsheetId, range, action):
                     "chart": {
                         "spec": {
                             "title": title,
-                            "subtitle": subtitle,
+                            "subtitle": subtitle+" : "+graph_data[1][0],
                             "basicChart": {
                                 "chartType": "COMBO",
                                 "legendPosition": "RIGHT_LEGEND",
