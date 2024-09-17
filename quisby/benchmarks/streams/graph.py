@@ -94,13 +94,14 @@ def graph_streams_data(spreadsheetId, test_name, action):
     :test_name: test_name to graph up the data, it will be mostly sheet name
     """
 
-    GRAPH_COL_INDEX = 1
-    GRAPH_ROW_INDEX = 0
     start_index = 0
     end_index = 0
     sheetId = -1
     diff_col = []
     data = read_sheet(spreadsheetId, "streams")
+    last_row = len(data)
+    GRAPH_COL_INDEX, GRAPH_ROW_INDEX = 0, last_row + 1
+
     if len(data) > 500:
         append_empty_row_sheet(spreadsheetId, 3000, test_name)
     if len(data) > 1000:
@@ -108,6 +109,13 @@ def graph_streams_data(spreadsheetId, test_name, action):
     for index, row in enumerate(data):
         if "Max Throughput" in row:
             start_index = index
+            title = "%s: %s" % (test_name, "Max Throughput")
+            left_axis = "Throughput( MB/s )"
+
+        if "Price-Perf" in row:
+            start_index = index
+            title = "%s: %s" % (test_name, "Price-Performance")
+            left_axis = "Throughput/$"
 
         if start_index:
             if row == []:
@@ -140,17 +148,32 @@ def graph_streams_data(spreadsheetId, test_name, action):
                     "addChart": {
                         "chart": {
                             "spec": {
-                                "title": "%s: %s" % (test_name, graph_data[0][0]),
+                                "title": title,
                                 "basicChart": {
                                     "chartType": "COMBO",
-                                    "legendPosition": "BOTTOM_LEGEND",
+                                    "legendPosition": "RIGHT_LEGEND",
                                     "axis": [
-                                        {"position": "BOTTOM_AXIS", "title": ""},
+                                        {"format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
+                                            "position": "BOTTOM_AXIS", "title": "System"},
                                         {
+                                            "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
                                             "position": "LEFT_AXIS",
-                                            "title": "Throughput (MB/s)",
+                                            "title": left_axis,
                                         },
                                         {
+                                            "format": {
+                                                "bold": True,
+                                                "italic": True,
+                                                "fontSize": 14
+                                            },
                                             "position": "RIGHT_AXIS",
                                             "title": "%Diff",
                                         },
@@ -181,17 +204,20 @@ def graph_streams_data(spreadsheetId, test_name, action):
                                     "anchorCell": {
                                         "sheetId": sheetId,
                                         "rowIndex": GRAPH_ROW_INDEX,
-                                        "columnIndex": column_count + GRAPH_COL_INDEX,
-                                    }
+                                        "columnIndex": GRAPH_COL_INDEX,
+                                    },
+                                "offsetXPixels": 100,
+                                "widthPixels": 600,
+                                "heightPixels": 400
                                 }
                             },
                         }
                     }
                 }
 
-                if GRAPH_COL_INDEX >= 5:
+                if GRAPH_COL_INDEX >= 6:
                     GRAPH_ROW_INDEX += 20
-                    GRAPH_COL_INDEX = 1
+                    GRAPH_COL_INDEX = 0
                 else:
                     GRAPH_COL_INDEX += 6
 

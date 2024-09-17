@@ -30,6 +30,26 @@ def are_in_same_group(str1, str2):
 
     return False
 
+def extract_prefix_and_number(input_string):
+    match = re.search(r'^(.*?)(\d+)(.*?)$', input_string)
+    if match:
+        prefix = match.group(1)
+        suffix = match.group(3)  # Extracts the suffix after the number
+        return prefix, suffix
+    return None, None
+
+
+def compare_inst(item1, item2):
+    cloud_type = read_config("cloud", "cloud_type")
+    if cloud_type == "local":
+        return True
+    elif cloud_type == "aws":
+        return item1.split(".")[0] == item2.split(".")[0]
+    elif cloud_type == "gcp":
+        return item1.split("-")[0] == item2.split("-")[0]
+    elif cloud_type == "azure":
+        return extract_prefix_and_number(item1) == extract_prefix_and_number(item2)
+
 
 def comparegroup(instances):
     cloud = read_config("cloud", "cloud_type")
@@ -65,10 +85,30 @@ def compare_hammerdb_results(spreadsheets, spreadsheetId, test_name):
     list_2 = sorted(list(values[1]))
 
     for value in list_1:
-        results.append([""])
+
         for ele in list_2:
-            if comparegroup([value[0][1], ele[0][1]]):
-                results = combine_two_array_alternating(results, value, ele)
+            try:
+                if value[0][0] == "Cost/Hr" and ele[0][0] == "Cost/Hr":
+                    if compare_inst(value[1][0], ele[1][0]):
+                        results.append([""])
+                        for item1 in value:
+                            for item2 in ele:
+                                if item1[0] == item2[0]:
+                                    results.append(item1)
+                        break
+                elif value[0][0] == "Price-Perf" and ele[0][0] == "Price-Perf":
+                    if comparegroup([value[0][1], ele[0][1]]):
+                        results.append([""])
+                        results = combine_two_array_alternating(results, value, ele)
+                        break
+                elif "hammerdb" in value[0][0]  and "hammerdb" in ele[0][0]:
+                    if comparegroup([value[0][1], ele[0][1]]):
+                        results.append([""])
+                        results = combine_two_array_alternating(results, value, ele)
+                        break
+
+            except Exception as exc:
+                print(str(exc))
 
     try:
         create_sheet(spreadsheetId, test_name)

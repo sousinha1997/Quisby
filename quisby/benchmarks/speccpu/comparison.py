@@ -32,7 +32,7 @@ def compare_speccpu_results(spreadsheets, spreadsheetId, test_name):
         for ele in list_2:
             if value[0][0] == ele[0][0] and value[0][1] == ele[0][1]:
                 results.append(value[0])
-                results = combine_two_array_alternating(results, value[1:], ele[1:])
+                results = combine_two_array_alternating(results, value, ele)
     try:
         create_sheet(spreadsheetId, test_name)
         custom_logger.info("Deleting existing charts and data from the sheet...")

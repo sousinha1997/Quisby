@@ -68,12 +68,24 @@ def graph_boot_data(spreadsheetId, test_name, action):
                             "subtitle": f"{subtitle}",
                             "basicChart": {
                                 "chartType": "COLUMN",
-                                "legendPosition": "BOTTOM_LEGEND",
+                                "legendPosition": "RIGHT_LEGEND",
                                 "axis": [
-                                    {"position": "BOTTOM_AXIS", "title": ""},
                                     {
+                                        "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
+                                        "position": "BOTTOM_AXIS",
+                                        "title": "System"},
+                                    {
+                                        "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
                                         "position": "LEFT_AXIS",
-                                        "title": "Time",
+                                        "title": "Time(secs)",
                                     },
                                 ],
                                 "domains": [
@@ -105,7 +117,10 @@ def graph_boot_data(spreadsheetId, test_name, action):
                                     "sheetId": sheetId,
                                     "rowIndex": GRAPH_ROW_INDEX,
                                     "columnIndex": column_count + GRAPH_COL_INDEX,
-                                }
+                                },
+                                "offsetXPixels": 100,
+                                "widthPixels": 600,
+                                "heightPixels": 400
                             }
                         },
                     }

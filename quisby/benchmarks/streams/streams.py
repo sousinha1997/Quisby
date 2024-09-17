@@ -2,6 +2,10 @@ from itertools import groupby
 
 from quisby.util import mk_int, process_instance
 
+from quisby import custom_logger
+from quisby.pricing.cloud_pricing import get_cloud_pricing
+from quisby.util import read_config
+
 
 def stream_sort_data_by_system_family(results):
     """"""
@@ -30,18 +34,43 @@ def calc_max_throughput(data):
     """"""
     num_of_socket = data[1][0].split(" ")[0]
     system_name = data[2][0]
-    max_copy = max(data[3][1:])
-    max_scale = max(data[4][1:])
-    max_add = max(data[5][1:])
-    max_triad = max(data[6][1:])
+    cph = []
+    region = read_config("cloud", "region")
+    cloud_type = read_config("cloud", "cloud_type")
+    os_type = read_config("test", "os_type")
+    system_price = 1
+    try:
+        system_price = get_cloud_pricing(
+            system_name, region, cloud_type.lower(), os_type)
+    except Exception as exc:
+        custom_logger.debug(str(exc))
+        custom_logger.error("Error calculating value !")
+        system_price = 0.0
 
-    return [
+    max_copy = max(data[3][1:])
+    max_price_copy = float(max_copy)/ system_price
+    max_scale = max(data[4][1:])
+    max_price_scale = float(max_scale) / system_price
+    max_add = max(data[5][1:])
+    max_price_add = float(max_add) / system_price
+    max_triad = max(data[6][1:])
+    max_price_triad = float(max_triad) / system_price
+    cph.append([system_name, system_price])
+
+    return ([
         system_name + " Sockets:" + num_of_socket,
         max_copy,
         max_scale,
         max_add,
         max_triad,
-    ]
+    ], [
+        system_name + " Sockets:" + num_of_socket,
+        max_price_copy,
+        max_price_scale,
+        max_price_add,
+        max_price_triad,
+    ], cph)
+
 
 
 def create_summary_streams_data(stream_data, OS_RELEASE):
@@ -49,14 +78,22 @@ def create_summary_streams_data(stream_data, OS_RELEASE):
     Create summary data for Max throughput and Scaling
     """
     results = []
+
     stream_data = stream_sort_data_by_system_family(stream_data)
 
     # Group by system family
     for items in stream_data:
         max_calc_result = []
+        price_result = []
+        cost_list = [["Cost/Hr"]]
         for item in items:
+            cost_per_hr = []
             results += item
-            max_calc_result.append(calc_max_throughput(item))
+            res_calc = calc_max_throughput(item)
+            max_calc, price, cost_per_hr = res_calc[0], res_calc[1], res_calc[2]
+            max_calc_result.append(max_calc)
+            price_result.append(price)
+            cost_list +=cost_per_hr
         results.append([""])
         results.append(
             [
@@ -69,7 +106,20 @@ def create_summary_streams_data(stream_data, OS_RELEASE):
         )
 
         results += max_calc_result
+        results.append([""])
+        results += cost_list
+        results.append([""])
+        results.append(
+            [
+                "Price-Perf",
+                f"Thrpt-copy/$-{OS_RELEASE}",
+                f"Thrpt-scale/$-{OS_RELEASE}",
+                f"Thrpt-add/$-{OS_RELEASE}",
+                f"Thrpt-triad/$-{OS_RELEASE}",
+            ]
+        )
 
+        results += price_result
     return results
 
 
