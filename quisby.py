@@ -160,7 +160,7 @@ def register_details_json(spreadsheet_name, spreadsheet_id):
 
 
 # TODO: simplify functions once data location is exact
-def data_handler(proc_list, noti_flag):
+def data_handler(proc_list, noti_flag, exclude_list):
     """"""
     global test_name
     global source
@@ -189,10 +189,12 @@ def data_handler(proc_list, noti_flag):
         custom_logger.warning("Collecting spreadsheet information from config...")
         custom_logger.info("Spreadsheet name : " + spreadsheet_name)
         custom_logger.info("Spreadsheet ID : " + spreadsheetid)
+        clear_sheet_charts(spreadsheetid, "summary")
+        clear_sheet_data(spreadsheetid, "summary")
         permit_users(spreadsheetid, noti_flag)
         custom_logger.info("Spreadsheet : " + f"https://docs.google.com/spreadsheets/d/{spreadsheetid}")
         custom_logger.warning("!!! Quit Application to prevent overwriting of existing data !!!")
-        time.sleep(10)
+        time.sleep(1)
         custom_logger.info("No action provided. Overwriting the existing sheet.")
 
     # Strip empty lines from location file
@@ -200,21 +202,25 @@ def data_handler(proc_list, noti_flag):
         if line.rstrip():
             print(line, end="")
 
-
     with open(results_path) as file:
+        summary_result = []
         custom_logger.info("Reading data files path provided in file : " + results_path)
         test_result_path = file.readlines()
         flag = False
+        test_name = ""
         for data in test_result_path:
             if "test " in data:
                 flag = False
                 if results:
+                    summary_result = [[""],[test_name]]+summary_result
+                    append_to_sheet(spreadsheetid, summary_result, "summary")
                     spreadsheetid = process_results(results, test_name, cloud_type, os_type, os_release,
                                                     spreadsheet_name, spreadsheetid)
                 results = []
                 test_name = data.replace("test ", "").strip()
+                summary_result = []
                 source = "results"
-                if test_name in proc_list or proc_list == []:
+                if test_name in proc_list or proc_list == [] and test_name not in exclude_list:
                     flag = True
                     custom_logger.info(
                         "********************** Extracting and preprocessing " + str(test_name) + " data "
@@ -242,13 +248,17 @@ def data_handler(proc_list, noti_flag):
                         if ret_val:
                             results += ret_val
                     elif test_name == "linpack" and flag == True:
-                        ret_val = extract_linpack_data(path, system_name)
+                        ret_val,summary_data = extract_linpack_data(path, system_name)
                         if ret_val:
                             results += ret_val
+                        if summary_data:
+                            summary_result +=summary_data
                     elif test_name == "specjbb" and flag == True:
-                        ret_value = extract_specjbb_data(path, system_name, os_release)
+                        ret_value,summary_data = extract_specjbb_data(path, system_name, os_release)
                         if ret_value is not None:
                             results.append(ret_value)
+                        if summary_data:
+                            summary_result +=summary_data
                     elif test_name == "pig" and flag == True:
                         ret_val = extract_pig_data(path, system_name, os_release)
                         if ret_val:
@@ -275,37 +285,51 @@ def data_handler(proc_list, noti_flag):
                         if ret_val:
                             results += ret_val
                     elif test_name == "auto_hpl" and flag == True:
-                        ret_val = extract_auto_hpl_data(path, system_name)
+                        ret_val,summary_data = extract_auto_hpl_data(path, system_name)
                         if ret_val:
                             results += ret_val
+                        if summary_data:
+                            summary_result +=summary_data
                     elif test_name == "speccpu" and flag == True:
-                        ret_val = extract_speccpu_data(path, system_name, os_release)
+                        ret_val,summary_data = extract_speccpu_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
+                        if summary_data:
+                            summary_result +=summary_data
                     elif test_name == "etcd" and flag == True:
                         ret_val = extract_etcd_data(path, system_name)
                         if ret_val:
                             results += ret_val
                     elif test_name == "coremark" and flag == True:
-                        ret_val = extract_coremark_data(path, system_name, os_release)
+                        ret_val,summary_data = extract_coremark_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
+                        if summary_data:
+                            summary_result +=summary_data
                     elif test_name == "coremark_pro" and flag == True:
-                        ret_val = extract_coremark_pro_data(path, system_name, os_release)
+                        ret_val,summary_data = extract_coremark_pro_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
+                        if summary_data:
+                            summary_result +=summary_data
                     elif test_name == "passmark" and flag == True:
-                        ret_val = extract_passmark_data(path, system_name, os_release)
+                        ret_val,summary_data = extract_passmark_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
+                        if summary_data:
+                            summary_result += summary_data
                     elif test_name == "pyperf" and flag == True:
-                        ret_val = extract_pyperf_data(path, system_name, os_release)
+                        ret_val,summary_data = extract_pyperf_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
+                        if summary_data:
+                            summary_result +=summary_data
                     elif test_name == "phoronix" and flag == True:
-                        ret_val = extract_phoronix_data(path, system_name, os_release)
+                        ret_val,summary_data= extract_phoronix_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
+                        if summary_data:
+                            summary_result +=summary_data
                     else:
                         if flag == False:
                             pass
@@ -319,8 +343,10 @@ def data_handler(proc_list, noti_flag):
             register_details_json(spreadsheet_name, spreadsheetid)
         else:
             try:
+                append_to_sheet(spreadsheetid, summary_result, "summary")
                 spreadsheetid = process_results(results, test_name, cloud_type, os_type, os_release, spreadsheet_name,
                                                 spreadsheetid)
+
             except Exception as exc:
                 custom_logger.error(str(exc))
                 pass
@@ -328,7 +354,7 @@ def data_handler(proc_list, noti_flag):
             register_details_json(spreadsheet_name, spreadsheetid)
 
 
-def compare_results(spreadsheets, comp_list, noti_flag):
+def compare_results(spreadsheets, comp_list, noti_flag, exclude_list):
     sheet_list = []
     spreadsheet_name = []
     comparison_list = []
@@ -355,6 +381,9 @@ def compare_results(spreadsheets, comp_list, noti_flag):
         for sheets in sheet_list[1:]:
             comparison_list.intersection_update(sheets)
         comparison_list = list(comparison_list)
+        for benchmark in exclude_list:
+            if benchmark in comparison_list:
+                comparison_list.remove(benchmark)
     custom_logger.info("Comparison list : "+str(comparison_list))
     spreadsheet_name = " and ".join(spreadsheet_name)
     spreadsheetid = read_config('spreadsheet', 'comp_id')
@@ -386,7 +415,7 @@ def compare_results(spreadsheets, comp_list, noti_flag):
                 custom_logger.info(
                     "# Sleeping 10 sec to workaround the Google Sheet per minute API limit"
                 )
-                time.sleep(10)
+                time.sleep(1)
         except Exception as exc:
             custom_logger.error(str(exc))
             custom_logger.error("Benchmark " + test_name + " comparison failed")
@@ -406,42 +435,55 @@ def compare_results(spreadsheets, comp_list, noti_flag):
     register_details_json(spreadsheet_name, spreadsheetid)
 
 
-def reduce_data(proc_list, noti_flag):
-    data_handler(proc_list, noti_flag)
+def reduce_data(proc_list, noti_flag,exclude):
+    data_handler(proc_list, noti_flag,exclude)
 
 
-def compare_data(s_list, comp_list, noti_flag):
-    compare_results(s_list, comp_list, noti_flag)
+def compare_data(s_list, comp_list, noti_flag,exclude):
+    compare_results(s_list, comp_list, noti_flag,exclude)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Tool to preprocess and visualise datasets")
     parser.add_argument("--config", type=str, required=False, help="Location to configuration file")
-    parser.add_argument("--process", action='store_true', help="To preprocess and visualise a single dataset")
+    parser.add_argument("--process", action='store_true', help="To preprocess and visualise all benchmarks")
     parser.add_argument("--compare", type=str, required=False, help="To compare and plot two datasets")
     parser.add_argument("--list-benchmarks", action='store_true', help="To list supported benchmarks")
-    parser.add_argument("--compare-list", type=str, required=False, help="Give specific benchmark to compare")
-    parser.add_argument("--process-list", type=str, required=False, help="Give specific benchmark to process")
+    parser.add_argument("--compare-list", type=str, required=False, help="Give specific benchmark/benchmarks to compare")
+    parser.add_argument("--process-list", type=str, required=False, help="Give specific benchmark/benchmarks to process")
+    parser.add_argument("--exclude-list", type=str, required=False, help="Exclude the benchamrks")
     parser.add_argument("--no-check", action='store_true', help="No health check")
     parser.add_argument("--no-notify", action='store_true', help="No notification")
+    parser.add_argument("--health-check", action='store_true', help="No notification")
+
     args = parser.parse_args()
     supported_benchmarks = ['aim', 'auto_hpl', 'boot', 'coremark', 'coremark_pro', 'etcd', 'fio_run', 'hammerdb_maria',
                             'hammerdb_mssql', 'hammerdb_pg', 'linpack', 'passmark', 'phoronix', 'pig', 'pyperf',
                             'specjbb', 'speccpu', 'streams', 'uperf']
+
+    if args.process_list and args.exclude_list:
+        custom_logger.error("Invalid")
+        exit(0)
+
+    if args.compare_list and args.exclude_list:
+        custom_logger.error("Invalid")
+        exit(0)
+
+    if args.health_check:
+        health_check()
+        exit(0)
 
     if args.list_benchmarks:
         custom_logger.info("Supported benchmarks :")
         for i in supported_benchmarks:
             print(i)
         exit(0)
-
     if not (args.process or args.compare):
         parser.print_help()
         exit(0)
 
     if not args.no_check:
         health_check()
-
     noti_flag = True
     if args.no_notify:
         noti_flag = False
@@ -459,21 +501,28 @@ if __name__ == "__main__":
     custom_logger.info("Health check complete...")
     print("**********************************************************************************************")
     print("**********************************************************************************************")
-
     if args.process:
         proc_list = []
+        exclude_list = []
         if args.process_list:
             proc_list = args.process_list.split(",")
-        reduce_data(proc_list, noti_flag)
+
+        if args.exclude_list:
+            exclude_list = args.exclude_list.split(",")
+
+        reduce_data(proc_list, noti_flag,exclude_list)
         exit(0)
     elif args.compare:
         comp_list = []
+        exclude_list = []
         if args.compare_list:
             comp_list = args.compare_list.split(",")
+        if args.exclude_list:
+            exclude_list = args.exclude_list.split(",")
         try:
             s_list = args.compare.split(",")
             if len(s_list) > 1:
-                compare_data(s_list, comp_list, noti_flag)
+                compare_data(s_list, comp_list, noti_flag,exclude_list)
                 exit(0)
             else:
                 custom_logger.error("Provide two or more sheets to compare.")
