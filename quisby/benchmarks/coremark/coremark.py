@@ -1,4 +1,3 @@
-
 """ Custom key to sort the data base don instance name """
 from itertools import groupby
 
@@ -33,9 +32,9 @@ def custom_key(item):
         instance_number = instance_name.split(".")[1]
         return instance_type, instance_number
     elif cloud_type == "gcp":
-         instance_type = item[1][0].split("-")[0]
-         instance_number = int(item[1][0].split('-')[-1])
-         return instance_type, instance_number
+        instance_type = item[1][0].split("-")[0]
+        instance_number = int(item[1][0].split('-')[-1])
+        return instance_type, instance_number
     elif cloud_type == "azure":
         instance_type, instance_number, version = extract_prefix_and_number(item[1][0])
         return instance_type, version, instance_number
@@ -50,7 +49,7 @@ def calc_price_performance(inst, avg):
     try:
         cost_per_hour = get_cloud_pricing(
             inst, region, cloud_type.lower(), os_type)
-        price_perf = float(avg)/float(cost_per_hour)
+        price_perf = float(avg) / float(cost_per_hour)
     except Exception as exc:
         custom_logger.debug(str(exc))
         custom_logger.error("Error calculating value !")
@@ -65,7 +64,7 @@ def group_data(results):
         results = sorted(results, key=lambda x: process_instance(x[1][0], "family", "feature"))
         return groupby(results, key=lambda x: process_instance(x[1][0], "family", "feature"))
     elif cloud_type == "gcp":
-        return groupby(results, key=lambda x: process_instance(x[1][0], "family", "version","sub_family","feature"))
+        return groupby(results, key=lambda x: process_instance(x[1][0], "family", "version", "sub_family", "feature"))
     elif cloud_type == "local":
         return groupby(results, key=lambda x: process_instance(x[1][0], "family"))
 
@@ -102,7 +101,7 @@ def create_summary_coremark_data(results, OS_RELEASE, sorted_results=None):
             for index in range(3, len(item)):
                 sum = sum + float(item[index][1])
                 iterations = iterations + 1
-            avg = float(sum/iterations)
+            avg = float(sum / iterations)
             try:
                 cph, pp = calc_price_performance(item[1][0], avg)
             except Exception as exc:
@@ -111,7 +110,7 @@ def create_summary_coremark_data(results, OS_RELEASE, sorted_results=None):
             cal_data.append([item[1][0], avg])
             price_per_perf.append([item[1][0], pp])
             cost_per_hour.append([item[1][0], cph])
-        sorted_results=[[""]]
+        sorted_results = [[""]]
         sorted_results += cal_data
         sorted_results.append([""])
         sorted_results.append(["Cost/Hr"])
@@ -126,7 +125,7 @@ def create_summary_coremark_data(results, OS_RELEASE, sorted_results=None):
 def extract_coremark_data(path, system_name, OS_RELEASE):
     """"""
     results = []
-    processed_data =[]
+    processed_data = []
     summary_data = []
     server = read_config("server", "name")
     result_dir = read_config("server", "result_dir")
@@ -136,8 +135,7 @@ def extract_coremark_data(path, system_name, OS_RELEASE):
         if path.endswith(".csv"):
             with open(path) as file:
                 coremark_results = file.readlines()
-            sum_path = path.split("/./")[1]
-            summary_data.append([system_name, "http://" + server + "/results/" + result_dir + "/" + sum_path])
+            summary_data.append([system_name, server + "/results/" + result_dir + "/" + path])
         else:
             return None
     except Exception as exc:
@@ -149,8 +147,9 @@ def extract_coremark_data(path, system_name, OS_RELEASE):
     for index, data in enumerate(coremark_results):
         if "iteration" in data:
             data_index = index
-            header =  data.strip("\n").split(":")
-        coremark_results[index] = data.strip("\n").split(":")
+            header = data.strip("\n").split(":")
+        else:
+            coremark_results[index] = data.strip("\n").split(":")
     coremark_results = [header] + coremark_results[data_index + 1:]
 
     # for index, data in enumerate(coremark_results):
@@ -169,6 +168,3 @@ def extract_coremark_data(path, system_name, OS_RELEASE):
     results.append(processed_data)
 
     return results, summary_data
-
-
-

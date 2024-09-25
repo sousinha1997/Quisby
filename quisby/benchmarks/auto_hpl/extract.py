@@ -16,8 +16,7 @@ def extract_auto_hpl_data(path, system_name):
         with open(path) as file:
             results = []
             file_data = file.readlines()
-            sum_path = path.split("/./")[1]
-            summary_data.append([system_name, "http://" + server + "/results/" + result_dir + "/" + sum_path])
+            summary_data.append([system_name, server + "/results/" + result_dir + "/" + path])
 
             if len(file_data) > 1:
                 header_row = file_data[-2].strip().split(":")

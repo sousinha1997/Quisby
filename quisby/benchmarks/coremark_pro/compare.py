@@ -68,7 +68,6 @@ def compare_coremark_pro_results(spreadsheets, spreadsheetId, test_name, table_n
                                 results.append(item1)
                     break
 
-
             elif value[1][0] == ele[1][0]:
                 if value[0][0] == ele[0][0]:
                     results.append([""])

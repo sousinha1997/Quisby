@@ -127,16 +127,22 @@ def extract_phoronix_data(path, system_name, OS_RELEASE):
         if path.endswith("results.csv"):
             with open(path) as file:
                 phoronix_results = file.readlines()
-            sum_path = path.split("/./")[1]
-            summary_data.append([system_name, "http://" + server + "/results/" + result_dir + "/" + sum_path])
+            summary_data.append([system_name, server + "/results/" + result_dir + "/" + path])
         else:
             return None
     except Exception as exc:
         custom_logger.error(str(exc))
         return None
 
+    data_index = 0
+    header = []
     for index, data in enumerate(phoronix_results):
-        phoronix_results[index] = data.strip("\n").split(":")
+        if "Test:BOPs" in data:
+            data_index = index
+            header = data.strip("\n").split(":")
+        else:
+            phoronix_results[index] = data.strip("\n").split(":")
+    phoronix_results = [header] + phoronix_results[data_index + 1:]
     results.append([""])
     results.append([system_name])
     results.extend(phoronix_results[1:])

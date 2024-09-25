@@ -30,6 +30,7 @@ def are_in_same_group(str1, str2):
 
     return False
 
+
 def extract_prefix_and_number(input_string):
     match = re.search(r'^(.*?)(\d+)(.*?)$', input_string)
     if match:

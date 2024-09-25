@@ -35,7 +35,7 @@ def compare_inst(item1, item2):
         return extract_prefix_and_number(item1) == extract_prefix_and_number(item2)
 
 
-def compare_coremark_results(spreadsheets, spreadsheetId, test_name, table_name=["System name","Price-perf"]):
+def compare_coremark_results(spreadsheets, spreadsheetId, test_name, table_name=["System name", "Price-perf"]):
     values = []
     results = []
     spreadsheet_name = []

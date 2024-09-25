@@ -125,9 +125,8 @@ def extract_passmark_data(path, system_name, OS_RELEASE):
     try:
         if path.endswith("results.csv"):
             with open(path) as file:
-                coremark_results = file.readlines()
-            sum_path = path.split("/./")[1]
-            summary_data.append([system_name, "http://" + server + "/results/" + result_dir + "/" + sum_path])
+                passmark_results = file.readlines()
+            summary_data.append([system_name,  server + "/results/" + result_dir + "/" + path])
 
         else:
             return None
@@ -135,9 +134,17 @@ def extract_passmark_data(path, system_name, OS_RELEASE):
         custom_logger.error(str(exc))
         return None, None
 
-    for index, data in enumerate(coremark_results):
-        coremark_results[index] = data.strip("\n").split(":")
+    data_index = 0
+    header = []
+    for index, data in enumerate(passmark_results):
+        if "NumTestProcesses:" in data:
+            header = data.strip("\n").split(":")
+            data_index = index
+        else:
+            passmark_results[index] = data.strip("\n").split(":")
+    passmark_results = [header] + passmark_results[data_index +1 :]
+
     results.append([""])
     results.append([system_name])
-    results.extend(coremark_results)
+    results.extend(passmark_results)
     return [results], summary_data

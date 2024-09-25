@@ -70,8 +70,7 @@ def extract_linpack_data(path, system_name):
             last_row = list_data[-1]
             gflops = last_row["MB/sec"]
             threads = last_row["threads"]
-        sum_path = summary_file.split("/./")[1]
-        summary_data.append([system_name, "http://" + server + "/results/" + result_dir + "/" + sum_path])
+        summary_data.append([system_name, server + "/results/" + result_dir + "/" + path])
     else:
         return results, summary_data
 

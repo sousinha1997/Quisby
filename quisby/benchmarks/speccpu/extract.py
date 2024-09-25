@@ -13,8 +13,7 @@ def process_speccpu(path, system_name, suite, OS_RELEASE):
 
     with open(path) as csv_file:
         speccpu_results = list(csv.DictReader(csv_file, delimiter=":"))
-        sum_path = path.split("/./")[1]
-        summary_data.append([system_name, "http://" + server + "/results/" + result_dir + "/" + sum_path])
+        summary_data.append([system_name, server + "/results/" + result_dir + "/" + path])
 
     results.append([""])
     results.append([system_name, suite])

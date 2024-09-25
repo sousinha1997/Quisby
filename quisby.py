@@ -189,12 +189,12 @@ def data_handler(proc_list, noti_flag, exclude_list):
         custom_logger.warning("Collecting spreadsheet information from config...")
         custom_logger.info("Spreadsheet name : " + spreadsheet_name)
         custom_logger.info("Spreadsheet ID : " + spreadsheetid)
-        clear_sheet_charts(spreadsheetid, "summary")
-        clear_sheet_data(spreadsheetid, "summary")
+        # clear_sheet_charts(spreadsheetid, "summary")
+        # clear_sheet_data(spreadsheetid, "summary")
         permit_users(spreadsheetid, noti_flag)
         custom_logger.info("Spreadsheet : " + f"https://docs.google.com/spreadsheets/d/{spreadsheetid}")
         custom_logger.warning("!!! Quit Application to prevent overwriting of existing data !!!")
-        time.sleep(1)
+        time.sleep(5)
         custom_logger.info("No action provided. Overwriting the existing sheet.")
 
     # Strip empty lines from location file
@@ -213,6 +213,7 @@ def data_handler(proc_list, noti_flag, exclude_list):
                 flag = False
                 if results:
                     summary_result = [[""],[test_name]]+summary_result
+                    #TODO Check better way to add this information
                     append_to_sheet(spreadsheetid, summary_result, "summary")
                     spreadsheetid = process_results(results, test_name, cloud_type, os_type, os_release,
                                                     spreadsheet_name, spreadsheetid)
@@ -240,58 +241,69 @@ def data_handler(proc_list, noti_flag, exclude_list):
                     path = test_path + "/" + path.strip()
                     custom_logger.debug(path)
                     if test_name == "streams" and flag == True:
-                        ret_val = extract_streams_data(path, system_name, os_release)
+                        ret_val, summary_data = extract_streams_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
+                        if summary_data:
+                            summary_result +=summary_data
                     elif test_name == "uperf" and flag == True:
-                        ret_val = extract_uperf_data(path, system_name)
+                        ret_val, summary_data = extract_uperf_data(path, system_name)
                         if ret_val:
                             results += ret_val
+                        if summary_data:
+                            summary_result +=summary_data
                     elif test_name == "linpack" and flag == True:
-                        ret_val,summary_data = extract_linpack_data(path, system_name)
+                        ret_val, summary_data = extract_linpack_data(path, system_name)
                         if ret_val:
                             results += ret_val
                         if summary_data:
                             summary_result +=summary_data
                     elif test_name == "specjbb" and flag == True:
-                        ret_value,summary_data = extract_specjbb_data(path, system_name, os_release)
+                        ret_value, summary_data = extract_specjbb_data(path, system_name, os_release)
                         if ret_value is not None:
                             results.append(ret_value)
                         if summary_data:
                             summary_result +=summary_data
                     elif test_name == "pig" and flag == True:
-                        ret_val = extract_pig_data(path, system_name, os_release)
+                        ret_val, summary_data = extract_pig_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
+                        if summary_data:
+                            summary_result +=summary_data
                     elif check_test_is_hammerdb(test_name) and flag == True:
-                        ret_val = extract_hammerdb_data(path, system_name, test_name, os_release)
+                        ret_val, summary_data = extract_hammerdb_data(path, system_name, test_name, os_release)
                         if ret_val:
                             results += ret_val
+                        if summary_data:
+                            summary_result +=summary_data
                     elif test_name == "fio_run" and flag == True:
                         ret_val = None
                         if source == "results":
-                            ret_val = extract_fio_run_data(path, system_name, os_release)
+                            ret_val, summary_data = extract_fio_run_data(path, system_name, os_release)
                         elif source == "pbench":
-                            ret_val = process_fio_run_result(path, system_name)
+                            ret_val, summary_data = process_fio_run_result(path, system_name)
                         if ret_val:
                             results += ret_val
-                        pass
+                        if summary_data:
+                            summary_result +=summary_data
                     elif test_name == "boot" and flag == True:
-                        ret_val = extract_boot_data(path, system_name)
+                        ret_val, summary_data = extract_boot_data(path, system_name)
                         if ret_val:
                             results += ret_val
+                        if summary_data:
+                            summary_result +=summary_data
                     elif test_name == "aim" and flag == True:
                         ret_val = extract_aim_data(path, system_name)
                         if ret_val:
                             results += ret_val
                     elif test_name == "auto_hpl" and flag == True:
-                        ret_val,summary_data = extract_auto_hpl_data(path, system_name)
+                        ret_val, summary_data = extract_auto_hpl_data(path, system_name)
                         if ret_val:
                             results += ret_val
                         if summary_data:
                             summary_result +=summary_data
                     elif test_name == "speccpu" and flag == True:
-                        ret_val,summary_data = extract_speccpu_data(path, system_name, os_release)
+                        ret_val, summary_data = extract_speccpu_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
                         if summary_data:
@@ -301,31 +313,31 @@ def data_handler(proc_list, noti_flag, exclude_list):
                         if ret_val:
                             results += ret_val
                     elif test_name == "coremark" and flag == True:
-                        ret_val,summary_data = extract_coremark_data(path, system_name, os_release)
+                        ret_val, summary_data = extract_coremark_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
                         if summary_data:
                             summary_result +=summary_data
                     elif test_name == "coremark_pro" and flag == True:
-                        ret_val,summary_data = extract_coremark_pro_data(path, system_name, os_release)
+                        ret_val, summary_data = extract_coremark_pro_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
                         if summary_data:
                             summary_result +=summary_data
                     elif test_name == "passmark" and flag == True:
-                        ret_val,summary_data = extract_passmark_data(path, system_name, os_release)
+                        ret_val, summary_data = extract_passmark_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
                         if summary_data:
                             summary_result += summary_data
                     elif test_name == "pyperf" and flag == True:
-                        ret_val,summary_data = extract_pyperf_data(path, system_name, os_release)
+                        ret_val, summary_data = extract_pyperf_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
                         if summary_data:
                             summary_result +=summary_data
                     elif test_name == "phoronix" and flag == True:
-                        ret_val,summary_data= extract_phoronix_data(path, system_name, os_release)
+                        ret_val, summary_data= extract_phoronix_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
                         if summary_data:
@@ -415,7 +427,7 @@ def compare_results(spreadsheets, comp_list, noti_flag, exclude_list):
                 custom_logger.info(
                     "# Sleeping 10 sec to workaround the Google Sheet per minute API limit"
                 )
-                time.sleep(1)
+                time.sleep(5)
         except Exception as exc:
             custom_logger.error(str(exc))
             custom_logger.error("Benchmark " + test_name + " comparison failed")
@@ -430,17 +442,16 @@ def compare_results(spreadsheets, comp_list, noti_flag, exclude_list):
             custom_logger.error(str(exc))
             custom_logger.error("Failed to graph data")
 
-
     custom_logger.info(f"https://docs.google.com/spreadsheets/d/{spreadsheetid}")
     register_details_json(spreadsheet_name, spreadsheetid)
 
 
-def reduce_data(proc_list, noti_flag,exclude):
-    data_handler(proc_list, noti_flag,exclude)
+def reduce_data(proc_list, noti_flag, exclude):
+    data_handler(proc_list, noti_flag, exclude)
 
 
-def compare_data(s_list, comp_list, noti_flag,exclude):
-    compare_results(s_list, comp_list, noti_flag,exclude)
+def compare_data(s_list, comp_list, noti_flag, exclude):
+    compare_results(s_list, comp_list, noti_flag, exclude)
 
 
 if __name__ == "__main__":
@@ -462,11 +473,11 @@ if __name__ == "__main__":
                             'specjbb', 'speccpu', 'streams', 'uperf']
 
     if args.process_list and args.exclude_list:
-        custom_logger.error("Invalid")
+        custom_logger.error("Invalid options")
         exit(0)
 
     if args.compare_list and args.exclude_list:
-        custom_logger.error("Invalid")
+        custom_logger.error("Invalid options")
         exit(0)
 
     if args.health_check:
@@ -478,12 +489,14 @@ if __name__ == "__main__":
         for i in supported_benchmarks:
             print(i)
         exit(0)
+
     if not (args.process or args.compare):
         parser.print_help()
         exit(0)
 
     if not args.no_check:
         health_check()
+
     noti_flag = True
     if args.no_notify:
         noti_flag = False
@@ -510,7 +523,7 @@ if __name__ == "__main__":
         if args.exclude_list:
             exclude_list = args.exclude_list.split(",")
 
-        reduce_data(proc_list, noti_flag,exclude_list)
+        reduce_data(proc_list, noti_flag, exclude_list)
         exit(0)
     elif args.compare:
         comp_list = []
@@ -522,7 +535,7 @@ if __name__ == "__main__":
         try:
             s_list = args.compare.split(",")
             if len(s_list) > 1:
-                compare_data(s_list, comp_list, noti_flag,exclude_list)
+                compare_data(s_list, comp_list, noti_flag, exclude_list)
                 exit(0)
             else:
                 custom_logger.error("Provide two or more sheets to compare.")

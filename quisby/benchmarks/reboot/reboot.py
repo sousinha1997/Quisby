@@ -1,10 +1,14 @@
 import re
 import tarfile
+from quisby.util import read_config
 
 
 def extract_boot_data(path, system_name):
     results = []
-
+    summary_data = []
+    summary_file = path
+    server = read_config("server", "name")
+    result_dir = read_config("server", "result_dir")
     # system_name = path.split("_")[2]
     try:
         with open(path + "/cloud_timings") as file:
@@ -14,6 +18,8 @@ def extract_boot_data(path, system_name):
 
     except FileNotFoundError:
         return []
+
+    summary_data.append([system_name, server + "/results/" + result_dir + "/" + path])
 
     tar = tarfile.open(path + "/boot_info/initial_boot_info.tar")
     for member in tar.getmembers():
@@ -34,4 +40,4 @@ def extract_boot_data(path, system_name):
         results.append(["System name", "Start Time", "Terminate Time", "Reboot Time"])
         results.append([system_name, instance_start_time, terminate_time, reboot_time])
 
-    return results
+    return results, summary_data

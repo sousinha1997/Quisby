@@ -130,8 +130,7 @@ def extract_pyperf_data(path, system_name, OS_RELEASE):
         if path:
             with open(path) as file:
                 pyperf_results = file.readlines()
-                sum_path = path.split("/./")[1]
-                summary_data.append([system_name, "http://"+server+"/results/"+result_dir+"/"+sum_path])
+                summary_data.append([system_name, +server+"/results/"+result_dir+"/"+path])
         else:
             return None
     except Exception as exc:

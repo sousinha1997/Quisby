@@ -11,6 +11,11 @@ def extract_pig_data(path, system_name, OS_RELEASE):
     region = read_config("cloud", "region")
     cloud_type = read_config("cloud", "cloud_type")
     # path = path + f"/iteration_1.{system_name}"
+    summary_data = []
+    summary_file = path
+    server = read_config("server", "name")
+    result_dir = read_config("server", "result_dir")
+
     try:
         with open(path) as file:
             for line in file:
@@ -21,6 +26,7 @@ def extract_pig_data(path, system_name, OS_RELEASE):
     except Exception as exc:
         custom_logger.error(str(exc))
         return None
+    summary_data.append([system_name, server + "/results/" + result_dir + "/" + path])
 
     cpu_count = get_cloud_cpu_count(
         system_name, region, cloud_type.lower()
@@ -31,4 +37,4 @@ def extract_pig_data(path, system_name, OS_RELEASE):
     results.append(["Threads", "rhel-" + f"{OS_RELEASE}"])
     results += result_data
 
-    return results
+    return results, summary_data

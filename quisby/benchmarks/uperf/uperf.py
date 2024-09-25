@@ -37,7 +37,7 @@ def custom_key(item):
          return instance_type, instance_number
     elif cloud_type == "azure":
         instance_type, instance_number, version= extract_prefix_and_number(item[1][0])
-        return instance_type,version, instance_number
+        return instance_type, version, instance_number
 
 
 def combine_uperf_data(results):
@@ -137,6 +137,10 @@ def extract_uperf_data(path, system_name):
     """"""
     results = []
     data_position = {}
+    summary_data = []
+    summary_file = path
+    server = read_config("server", "name")
+    result_dir = read_config("server", "result_dir")
 
     tests_supported = ["tcp_stream", "tcp_rr"]
 
@@ -150,6 +154,8 @@ def extract_uperf_data(path, system_name):
                 csv_reader = list(csv.reader(csv_file))
         else:
             return None
+
+    summary_data.append([system_name, server + "/results/" + result_dir + "/" + path])
 
     # find all ports result index in csv row
     for index, row in enumerate(csv_reader[0]):
@@ -207,7 +213,7 @@ def extract_uperf_data(path, system_name):
                     else:
                         results.append(*items)
 
-    return results
+    return results, summary_data
 
 
 if __name__ == "__main__":

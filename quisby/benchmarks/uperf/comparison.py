@@ -11,6 +11,7 @@ from quisby.util import combine_two_array_alternating
 from quisby.util import read_config
 import re
 
+
 def extract_prefix_and_number(input_string):
     match = re.search(r'^(.*?)(\d+)(.*?)$', input_string)
     if match:
