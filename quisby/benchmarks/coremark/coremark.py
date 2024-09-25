@@ -144,9 +144,17 @@ def extract_coremark_data(path, system_name, OS_RELEASE):
         custom_logger.debug(str(exc))
         custom_logger.error("Unable to extract data from csv file for coremark")
         return None
-
+    data_index = 0
+    header = []
     for index, data in enumerate(coremark_results):
+        if "iteration" in data:
+            data_index = index
+            header =  data.strip("\n").split(":")
         coremark_results[index] = data.strip("\n").split(":")
+    coremark_results = [header] + coremark_results[data_index + 1:]
+
+    # for index, data in enumerate(coremark_results):
+    #     coremark_results[index] = data.strip("\n").split(":")
 
     # Format the data
     iteration = 1

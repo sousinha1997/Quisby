@@ -97,7 +97,7 @@ def series_range_uperf_compare(column_count, sheetId, start_index, end_index):
 
 def graph_uperf_data(spreadsheetId, range, action):
     """"""
-    GRAPH_COL_INDEX, GRAPH_ROW_INDEX = 2, 0
+    GRAPH_COL_INDEX, GRAPH_ROW_INDEX = 8, 0
     start_index, end_index = 0, 0
     diff_col = []
     sheetId = -1
@@ -114,8 +114,19 @@ def graph_uperf_data(spreadsheetId, range, action):
 
     for index, row in enumerate(uperf_results):
         if row:
-            if "tcp_stream16" in row[1] or "tcp_rr64" in row[1] or "tcp_stream64" in row[1] or "tcp_rr16" in row[1]:
+            if "Cost/Hr" in row:
+                pass
+            elif "Price-Perf" in row[0]:
                 start_index = index
+                title = f"Uperf : Price-Performance | {row[3]}"
+                subtitle = f"{row[1]} : {row[2]}"
+                left_axis = row[3]
+            elif "tcp_stream16" in row[1] or "tcp_rr64" in row[1] or "tcp_stream64" in row[1] or "tcp_rr16" in row[1]:
+                start_index = index
+                title= f"Uperf : {measurement[row[2]]} | {row[1]}"
+                subtitle = f"{row[0]}"
+                left_axis = row[2]
+
 
         if start_index:
             if not row:
@@ -139,21 +150,36 @@ def graph_uperf_data(spreadsheetId, range, action):
                 "addChart": {
                     "chart": {
                         "spec": {
-                            "title": f"Uperf : {measurement[graph_data[0][2]]} | {graph_data[0][1]}",
-                            "subtitle": f"{graph_data[0][0]}",
+                            "title": title,
+                            "subtitle": subtitle,
                             "basicChart": {
                                 "chartType": "COMBO",
-                                "legendPosition": "BOTTOM_LEGEND",
+                                "legendPosition": "RIGHT_LEGEND",
                                 "axis": [
                                     {
+                                        "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
                                         "position": "BOTTOM_AXIS",
                                         "title": "Instance count",
                                     },
                                     {
+                                        "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
                                         "position": "LEFT_AXIS",
-                                        "title": f"{graph_data[0][2]}",
+                                        "title": left_axis,
                                     },
                                     {
+                                        "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
                                         "position": "RIGHT_AXIS",
                                         "title": "%Diff",
                                     },
@@ -185,17 +211,20 @@ def graph_uperf_data(spreadsheetId, range, action):
                                 "anchorCell": {
                                     "sheetId": sheetId,
                                     "rowIndex": GRAPH_ROW_INDEX,
-                                    "columnIndex": column_count + GRAPH_COL_INDEX,
-                                }
+                                    "columnIndex": GRAPH_COL_INDEX,
+                                },
+                                "offsetXPixels": 100,
+                                "widthPixels": 600,
+                                "heightPixels": 400
                             }
                         },
                     }
                 }
             }
 
-            if GRAPH_COL_INDEX >= 5:
+            if GRAPH_COL_INDEX >= 12:
                 GRAPH_ROW_INDEX += 20
-                GRAPH_COL_INDEX = 2
+                GRAPH_COL_INDEX = 8
             else:
                 GRAPH_COL_INDEX += 6
 

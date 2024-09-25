@@ -72,7 +72,6 @@ def calc_max_throughput(data):
     ], cph)
 
 
-
 def create_summary_streams_data(stream_data, OS_RELEASE):
     """
     Create summary data for Max throughput and Scaling
