@@ -8,11 +8,34 @@ from quisby.sheet.sheet_util import (
     get_sheet,
     create_sheet, clear_sheet_data, clear_sheet_charts,
 )
-from quisby.util import merge_lists_alternately
+from quisby.util import merge_lists_alternately, read_config
+import re
+
+
+
+def extract_prefix_and_number(input_string):
+    match = re.search(r'^(.*?)(\d+)(.*?)$', input_string)
+    if match:
+        prefix = match.group(1)
+        suffix = match.group(3)  # Extracts the suffix after the number
+        return prefix, suffix
+    return None, None
+
+
+def compare_inst(item1, item2):
+    cloud_type = read_config("cloud", "cloud_type")
+    if cloud_type == "local":
+        return True
+    elif cloud_type == "aws":
+        return item1.split(".")[0] == item2.split(".")[0]
+    elif cloud_type == "gcp":
+        return item1.split("-")[0] == item2.split("-")[0]
+    elif cloud_type == "azure":
+        return extract_prefix_and_number(item1) == extract_prefix_and_number(item2)
 
 
 def compare_streams_results(
-        spreadsheets, spreadsheetId, test_name, table_name=["Max Throughput"]
+        spreadsheets, spreadsheetId, test_name, table_name=["Max Throughput","Price-Perf"]
 ):
     values = []
     results = []
@@ -30,8 +53,16 @@ def compare_streams_results(
     for value in list_1:
         for ele in list_2:
             # Check max throughput
-            if value[0][0] == ele[0][0] == table_name[0]:
-                if value[1][0].split(".")[0] == ele[1][0].split(".")[0]:
+            if value[0][0] == ele[0][0] =="Max Throughput":
+                if compare_inst(value[1][0], ele[1][0]):
+                    results.append([""])
+                    for item1 in value:
+                        for item2 in ele:
+                            if item1[0] == item2[0]:
+                                results = merge_lists_alternately(results, item1, item2)
+                    break
+            elif value[0][0] == ele[0][0] =="Price-Perf":
+                if compare_inst(value[1][0], ele[1][0]):
                     results.append([""])
                     for item1 in value:
                         for item2 in ele:

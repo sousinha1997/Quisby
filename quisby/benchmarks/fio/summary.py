@@ -16,7 +16,7 @@ def extract_prefix_and_number(input_string):
 
 def custom_key(item):
     cloud_type = read_config("cloud","cloud_type")
-    if item[0][0] == "localhost":
+    if item[0][0] == "local":
         return item[0][0]
     elif cloud_type == "aws":
         instance_type =item[0][0].split(".")[0]
@@ -28,7 +28,7 @@ def custom_key(item):
          return instance_type, instance_number
     elif cloud_type == "azure":
         instance_type, instance_number, version=extract_prefix_and_number(item[0][0])
-        return instance_type, instance_number
+        return instance_type, version, instance_number
 
 
 def fio_run_sort_data(results):
@@ -46,7 +46,7 @@ def fio_run_sort_data(results):
                 x[0][0], "family", "version", "feature"), x[0][1], x[0][2])
     ):
         sorted_result += sorted(
-            list(items), key=lambda x: mk_int(process_instance(x[0][0], "size"))
+            list(items), key=lambda x: mk_int(process_instance(x[0][1], "size"))
         )
     return sorted_result
 

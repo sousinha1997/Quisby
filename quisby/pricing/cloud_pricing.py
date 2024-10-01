@@ -38,10 +38,10 @@ def get_azure_pricing(instance_name, region):
         custom_logger.info("Version not present")
     vm = "linux-" + series + version + "-" + tier
 
-    if os.path.exists(homedir + json_path):
+    if os.path.exists(json_path):
         # fetch price information from json
         try:
-            with open(homedir + json_path) as f:
+            with open(json_path) as f:
                 data = json.load(f)
         except Exception as exc:
             custom_logger.error("Error extracting data from file. File corrupted. Redirecting to url fetching.")
@@ -49,11 +49,12 @@ def get_azure_pricing(instance_name, region):
     else:
         # fetch price information from url
         data = fetch_from_url()
+        with open(json_path, 'w') as file:
+            # Step 3: Dump the JSON data into the file
+            json.dump(data, file, indent=4)
     if data is None:
         return data
     price = data["offers"][vm]['prices']['perhour'][region]["value"]
-    custom_logger.info("VM SKU: {}".format(instance_name))
-    custom_logger.info("Hourly price: {} USD".format(price))
     return price
 
 
@@ -204,7 +205,7 @@ def get_cloud_pricing(instance_name, region, cloud_type,os_type):
     elif cloud_type == "gcp":
         return get_gcp_prices(instance_name, region)
 
-    elif cloud_type == "localhost":
+    elif cloud_type == "local":
         return 1
 
 
@@ -218,7 +219,7 @@ def get_cloud_cpu_count(instance_name, region, cloud_type):
     elif cloud_type == "gcp":
         return int(process_instance(instance_name, "size"))
 
-    elif cloud_type == "localhost":
+    elif cloud_type == "local":
         return 1
 
 

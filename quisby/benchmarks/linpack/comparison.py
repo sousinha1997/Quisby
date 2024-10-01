@@ -38,7 +38,7 @@ def compare_linpack_results(spreadsheets, spreadsheetId, test_name):
                         value[4],
                         value[5],
                         ele[5],
-                        "Price/Perf % Diff",
+                        "Price-perf % Diff",
                     ]
                 )
                 break

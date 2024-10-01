@@ -134,7 +134,7 @@ def graph_pig_data(spreadsheetId, test_name, action):
                             "subtitle": f"{graph_data[0][0]}",
                             "basicChart": {
                                 "chartType": "COMBO",
-                                "legendPosition": "BOTTOM_LEGEND",
+                                "legendPosition": "RIGHT_LEGEND",
                                 "axis": [
                                     {"position": "BOTTOM_AXIS", "title": "Threads"},
                                     {
