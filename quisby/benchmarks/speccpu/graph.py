@@ -40,7 +40,7 @@ def create_series_range_speccpu_compare(column_count, sheetId, start_index, end_
                     "sources": [
                         {
                             "sheetId": sheetId,
-                            "startRowIndex": start_index + 1,
+                            "startRowIndex": start_index ,
                             "endRowIndex": end_index,
                             "startColumnIndex": 1,
                             "endColumnIndex": 2,
@@ -57,7 +57,7 @@ def create_series_range_speccpu_compare(column_count, sheetId, start_index, end_
                     "sources": [
                         {
                             "sheetId": sheetId,
-                            "startRowIndex": start_index + 1,
+                            "startRowIndex": start_index ,
                             "endRowIndex": end_index,
                             "startColumnIndex": 2,
                             "endColumnIndex": 3,
@@ -74,7 +74,7 @@ def create_series_range_speccpu_compare(column_count, sheetId, start_index, end_
                     "sources": [
                         {
                             "sheetId": sheetId,
-                            "startRowIndex": start_index + 1,
+                            "startRowIndex": start_index ,
                             "endRowIndex": end_index,
                             "startColumnIndex": 3,
                             "endColumnIndex": 4,
@@ -112,7 +112,7 @@ def graph_speccpu_data(spreadsheetId, test_name, action):
             start_index = index
             test = data[start_index][0]
             title = "%s : %s" % (test_name, "Price-Performance")
-            subtitle = "%s : %s" % ("Geomean/$", test)
+            subtitle = "%s :" % (row[1].split("-")[0])
             left_title = row[1].lower()
 
         if start_index:
