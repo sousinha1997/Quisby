@@ -37,14 +37,14 @@ def custom_key(item):
 def group_data(results):
     cloud_type = read_config("cloud", "cloud_type")
     if cloud_type == "aws":
-        return groupby(results, key=lambda x: process_instance(x[0][0], "family", "version", "feature", "machine_type"))
+        return groupby(results, key=lambda x: process_instance(x[0][0], "family", "feature", "machine_type"))
     elif cloud_type == "azure":
         results = sorted(results, key=lambda x: process_instance(x[0][0], "family", "feature"))
         return groupby(results, key=lambda x: process_instance(x[0][0], "family", "feature"))
     elif cloud_type == "gcp":
-        return groupby(results, key=lambda x: process_instance(x[0][0], "family", "version","sub_family","feature"))
+        return groupby(results, key=lambda x: process_instance(x[0][0], "family","sub_family","feature"))
     elif cloud_type == "local":
-        return groupby(results, key=lambda x: process_instance(x[1][0], "family"))
+        return groupby(results, key=lambda x: process_instance(x[0][0], "family"))
 
 
 def calc_price_performance(inst, avg):
@@ -64,59 +64,64 @@ def calc_price_performance(inst, avg):
 
 def create_summary_speccpu_data(results, OS_RELEASE):
     sorted_result = []
-    # results = [list(g) for k, g in groupby(results, key=lambda x: x != [""]) if k]
     results = [list(g) for k, g in groupby(results, key=lambda x: x != [""]) if k]
     sorted_result =  list(filter(None, results))
     results = []
-    gmean_results_intrate = []
-    gmean_results_fprate = []
-
-    cost_per_hour, price_perf_int, price_perf_float = [], [], []
     for _,items in group_data(sorted_result):
-        i_gmean = []
-        f_gmean = []
+        cost_per_hour, price_perf_int, price_perf_float = [], [], []
+        gmean_results_intrate = []
+        gmean_results_fprate = []
         start_index = 0
         test = ""
-        items = list(items)[0]
-        test = items[0][1]
+        items = list(items)
+        sorted_data = sorted(items, key=lambda x: mk_int(process_instance(x[0][0], "size")))
+        for item in sorted_data:
+            i_gmean = []
+            f_gmean = []
+            test = item[0][1]
+            for i in range(3, len(item)):
+                if test == "intrate":
+                    i_gmean.append(float(item[i][1]))
+                elif test == "fprate":
+                    f_gmean.append(float(item[i][1]))
+            if i_gmean:
+                i_gmean = gmean(i_gmean)
+                gmean_results_intrate.append([item[0][0], i_gmean])
+            if f_gmean:
+                f_gmean = gmean(f_gmean)
+                gmean_results_fprate.append([item[0][0], f_gmean])
 
-        for i in range(3, len(items)):
-            if test == "intrate":
-                i_gmean.append(float(items[i][1]))
-            elif test == "fprate":
-                f_gmean.append(float(items[i][1]))
-        if i_gmean:
-            i_gmean = gmean(i_gmean)
-            gmean_results_intrate.append([items[0][0], i_gmean])
-        if f_gmean:
-            f_gmean = gmean(f_gmean)
-            gmean_results_fprate.append([items[0][0], f_gmean])
-
-        cph = []
-        try:
-            if items[0][1] == "intrate":
-                cph, ppi = calc_price_performance(items[0][0], i_gmean)
-                price_perf_int.append([items[0][0], ppi])
-                cost_per_hour.append([items[0][0], cph])
-                results.append([""])
-                results.append(["System name", "Geomean_intrate-" + OS_RELEASE])
-                results += gmean_results_intrate
-            elif items[0][1] == "fprate":
-                cph, ppf = calc_price_performance(items[0][0], f_gmean)
-                price_perf_float.append([items[0][0], ppf])
-                results.append([""])
-                results.append(["System name", "Geomean_fprate-" + OS_RELEASE])
-                results += gmean_results_fprate
-        except Exception as exc:
-            custom_logger.error(str(exc))
-            break
+            cphi = []
+            cphf = []
+            try:
+                if item[0][1] == "intrate":
+                    cphi, ppi = calc_price_performance(item[0][0], i_gmean)
+                    price_perf_int.append([item[0][0], ppi])
+                    if [item[0][0], cphi] not in cost_per_hour:
+                        cost_per_hour.append([item[0][0], cphi])
+                elif item[0][1] == "fprate":
+                    cphf, ppf = calc_price_performance(item[0][0], f_gmean)
+                    price_perf_float.append([item[0][0], ppf])
+                    if [item[0][0], cphf] not in cost_per_hour:
+                        cost_per_hour.append([item[0][0], cphf])
+            except Exception as exc:
+                custom_logger.error(str(exc))
+                break
         results.append([""])
         results.append(["Cost/Hr"])
         results += cost_per_hour
-        results.extend([[""], ["intrate"]])
-        results.append(["Price-perf", f"Geomean_intrate/$-{OS_RELEASE}"])
-        results += price_perf_int
-        results.extend([[""], ["fprate"]])
-        results.append(["Price-perf", f"Geomean_fprate/$-{OS_RELEASE}"])
-    results += price_perf_float
+        if gmean_results_intrate :
+            results.append([""])
+            results.append(["System name", "Geomean_intrate-" + OS_RELEASE])
+            results += gmean_results_intrate
+            results.extend([[""]])
+            results.append(["Price-perf", f"Geomean_intrate/$-{OS_RELEASE}"])
+            results += price_perf_int
+        if gmean_results_fprate:
+            results.append([""])
+            results.append(["System name", "Geomean_fprate-" + OS_RELEASE])
+            results += gmean_results_fprate
+            results.extend([[""]])
+            results.append(["Price-perf", f"Geomean_fprate/$-{OS_RELEASE}"])
+            results += price_perf_float
     return results
