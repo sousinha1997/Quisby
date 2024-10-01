@@ -15,14 +15,18 @@ def extract_pig_data(path, system_name, OS_RELEASE):
     summary_file = path
     server = read_config("server", "name")
     result_dir = read_config("server", "result_dir")
-
+    data_index = 0
+    header = []
     try:
         with open(path) as file:
-            for line in file:
-                if "#" in line:
-                    header_row = line
+            pig_results = file.readlines()
+            for index, data in enumerate(pig_results):
+                if "#threads sched_eff" in data:
+                    data_index = index
+                    header = data.strip("\n")
                 else:
-                    result_data.append(line.strip("\n").split(":"))
+                    result_data.append(data.strip("\n").split(":"))
+            result_data = result_data[data_index :]
     except Exception as exc:
         custom_logger.error(str(exc))
         return None
@@ -38,3 +42,4 @@ def extract_pig_data(path, system_name, OS_RELEASE):
     results += result_data
 
     return results, summary_data
+

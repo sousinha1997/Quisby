@@ -216,10 +216,3 @@ def extract_uperf_data(path, system_name):
     return results, summary_data
 
 
-if __name__ == "__main__":
-    print(
-        extract_uperf_data(
-            "uperf_results_8.3/user_none_instance_m5a.24xlarge:Networks_number=1_/result.csv",
-            "i3en.xlarge",
-        )
-    )

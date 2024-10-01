@@ -111,7 +111,6 @@ def graph_uperf_data(spreadsheetId, range, action):
     if len(uperf_results) > 500:
         append_empty_row_sheet(spreadsheetId, 3000, range)
 
-
     for index, row in enumerate(uperf_results):
         if row:
             if "Cost/Hr" in row:
@@ -119,14 +118,13 @@ def graph_uperf_data(spreadsheetId, range, action):
             elif "Price-Perf" in row[0]:
                 start_index = index
                 title = f"Uperf : Price-Performance | {row[3]}"
-                subtitle = f"{row[1]} : {row[2]}"
+                subtitle = f"{row[2]}"
                 left_axis = row[3]
             elif "tcp_stream16" in row[1] or "tcp_rr64" in row[1] or "tcp_stream64" in row[1] or "tcp_rr16" in row[1]:
                 start_index = index
                 title= f"Uperf : {measurement[row[2]]} | {row[1]}"
-                subtitle = f"{row[0]}"
+                subtitle = ""
                 left_axis = row[2]
-
 
         if start_index:
             if not row:
