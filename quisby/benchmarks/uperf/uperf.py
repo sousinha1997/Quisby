@@ -6,6 +6,12 @@ import requests
 
 from quisby.util import read_config
 
+from quisby.util import mk_int, process_instance
+
+from quisby import custom_logger
+from quisby.benchmarks.coremark.coremark import calc_price_performance
+from quisby.util import read_config
+
 
 def extract_prefix_and_number(input_string):
     match = re.search(r'^(.*?)(\d+)(.*?)$', input_string)
@@ -19,7 +25,7 @@ def extract_prefix_and_number(input_string):
 
 def custom_key(item):
     cloud_type = read_config("cloud", "cloud_type")
-    if item[1][0] == "localhost":
+    if item[1][0] == "local":
         return item[1][0]
     elif cloud_type == "aws":
         instance_type =item[1][0].split(".")[0]
@@ -31,7 +37,7 @@ def custom_key(item):
          return instance_type, instance_number
     elif cloud_type == "azure":
         instance_type, instance_number, version= extract_prefix_and_number(item[1][0])
-        return instance_type, instance_number
+        return instance_type, version, instance_number
 
 
 def combine_uperf_data(results):
@@ -52,14 +58,15 @@ def combine_uperf_data(results):
 
 def create_summary_uperf_data(results, OS_RELEASE):
     summary_results = []
+
     group_by_test_name = {}
 
     sorted_results = [combine_uperf_data(results)]
 
     for result in sorted_results:
-        result = sorted(result, key=custom_key)
+        result = sorted(list(result), key=lambda x: mk_int(process_instance(x[1][0], "size")))
         for row in result:
-            key = row[1][0].split(".")[0] + "-" + row[2][0] + "-" + row[3][1]
+            key = row[1][0] + "-" + row[2][0] + "-" + row[3][1]
             if key in group_by_test_name:
                 group_by_test_name[key].append(row)
             else:
@@ -67,24 +74,61 @@ def create_summary_uperf_data(results, OS_RELEASE):
 
     for key, value in group_by_test_name.items():
         run_data = {}
+        price_per_perf = {}
+        price_results = []
+        cost_per_hour = []
         test_identifier = key.rsplit("-", 2)
+        cph = 0.0
+        pp = 0.0
 
         summary_results.append([""])
         summary_results.append(test_identifier)
         summary_results.append(["Instance Count"])
 
+        if test_identifier[-1] == "Gb_sec":
+            price_results.append([""])
+            price_results.append(["Price-Perf",test_identifier[0],test_identifier[1], "Gb_sec/$"])
+            price_results.append(["Instance Count"])
+
         for ele in value:
+            inst = ele[1][0]
             summary_results[-1].append(ele[1][0] + "-" + OS_RELEASE)
+            if test_identifier[-1] == "Gb_sec":
+                price_results[-1].append(ele[1][0] + "-" + OS_RELEASE)
+
             for index in ele[4:]:
                 if index[0] in run_data:
                     run_data[index[0]].append(index[1].strip())
                 else:
                     run_data[index[0]] = [index[1].strip()]
 
+                if price_results:
+                    try:
+                        cph, pp = calc_price_performance(inst, float(index[1].strip()))
+                    except Exception as exc:
+                        custom_logger.error(str(exc))
+                        cph = 0.0
+                        pp = 0.0
+
+                    if index[0] in price_per_perf:
+                        price_per_perf[index[0]].append(pp)
+                    else:
+                        price_per_perf[index[0]] = [pp]
+
+            cost_per_hour.append([inst, cph])
+
+
         for instance_count_data in value[0][4:]:
             summary_results.append(
                 [instance_count_data[0], *run_data[instance_count_data[0]]]
             )
+
+        if price_results:
+            summary_results += [[''], ['Cost/Hr']] + cost_per_hour
+
+        summary_results += price_results
+        for key, item in price_per_perf.items():
+            summary_results.append([key, *item])
 
     return summary_results
 
@@ -93,6 +137,10 @@ def extract_uperf_data(path, system_name):
     """"""
     results = []
     data_position = {}
+    summary_data = []
+    summary_file = path
+    server = read_config("server", "name")
+    result_dir = read_config("server", "result_dir")
 
     tests_supported = ["tcp_stream", "tcp_rr"]
 
@@ -106,6 +154,8 @@ def extract_uperf_data(path, system_name):
                 csv_reader = list(csv.reader(csv_file))
         else:
             return None
+
+    summary_data.append([system_name, server + "/results/" + result_dir + "/" + path])
 
     # find all ports result index in csv row
     for index, row in enumerate(csv_reader[0]):
@@ -163,13 +213,6 @@ def extract_uperf_data(path, system_name):
                     else:
                         results.append(*items)
 
-    return results
+    return results, summary_data
 
 
-if __name__ == "__main__":
-    print(
-        extract_uperf_data(
-            "uperf_results_8.3/user_none_instance_m5a.24xlarge:Networks_number=1_/result.csv",
-            "i3en.xlarge",
-        )
-    )

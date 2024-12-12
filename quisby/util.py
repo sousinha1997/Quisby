@@ -46,13 +46,13 @@ def write_config(section,key,value):
 
 def process_instance(instance_name, *args):
     cloud_type = read_config("cloud","cloud_type")
-    if instance_name == "localhost":
+    if "local" in instance_name:
         cloud_type = "local"
         machine = "local"
     else:
         machine = instance_name
     if cloud_type == "azure":
-        pattern = r"Standard_(?P<family>\w)(?P<sub_family>\D)?(?P<size>\d+)(?P<feature>\w+)?_(?P<accel_type>\w\d)?_?(?P<version>\w\d)"
+        pattern = r"Standard_(?P<family>\w)(?P<size>\d+)(?P<feature>\w*)_(?P<version>\w\d)"
 
     if cloud_type == "aws":
         pattern = r"(?P<family>\w)(?P<version>\d)(?P<feature>\w+)?.(?P<size>\d+)?(?P<bool_xlarge>x)?(?P<machine_type>\w+)"
@@ -67,6 +67,7 @@ def process_instance(instance_name, *args):
 
     regex_match = re.match(pattern, machine, flags=re.IGNORECASE)
     return regex_match.group(*args)
+
 
 def process_group(label_name, *args):
     cloud_type = read_config("cloud","cloud_type")

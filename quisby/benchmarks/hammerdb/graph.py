@@ -100,6 +100,11 @@ def graph_hammerdb_data(spreadsheetId, range, action):
         if row:
             if "User Count" in row[0]:
                 header_name = row[0].split("-")[0]
+                subtitle = "TPMS"
+                start_index = index
+            if "Price-Perf" in row[0]:
+                header_name = "Price-Performance"
+                subtitle = "TPMS/$"
                 start_index = index
 
         if start_index:
@@ -127,19 +132,35 @@ def graph_hammerdb_data(spreadsheetId, range, action):
                     "chart": {
                         "spec": {
                             "title": f"{header_name}",
+                            "subtitle": subtitle,
                             "basicChart": {
                                 "chartType": "COMBO",
-                                "legendPosition": "BOTTOM_LEGEND",
+                                "legendPosition": "RIGHT_LEGEND",
                                 "axis": [
                                     {
+                                        "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
                                         "position": "BOTTOM_AXIS",
                                         "title": "User count",
                                     },
                                     {
+                                        "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
                                         "position": "LEFT_AXIS",
-                                        "title": f"TPMs",
+                                        "title": subtitle,
                                     },
                                     {
+                                        "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
                                         "position": "RIGHT_AXIS",
                                         "title": "%Diff",
                                     },
@@ -171,14 +192,17 @@ def graph_hammerdb_data(spreadsheetId, range, action):
                                     "sheetId": sheetId,
                                     "rowIndex": GRAPH_ROW_INDEX,
                                     "columnIndex": GRAPH_COL_INDEX,
-                                }
+                                },
+                                "offsetXPixels": 100,
+                                "widthPixels": 600,
+                                "heightPixels": 400
                             }
                         },
                     }
                 }
             }
 
-            if GRAPH_COL_INDEX >= 10:
+            if GRAPH_COL_INDEX >= 6:
                 GRAPH_ROW_INDEX += 20
                 GRAPH_COL_INDEX = 0
             else:

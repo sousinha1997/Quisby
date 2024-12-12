@@ -16,13 +16,14 @@ def extract_prefix_and_number(input_string):
     match = re.search(r'^(.*?)(\d+)(.*?)$', input_string)
     if match:
         prefix = match.group(1)
-        return prefix
-    return None
+        suffix = match.group(3)  # Extracts the suffix after the number
+        return prefix, suffix
+    return None, None
 
 
 def compare_inst(item1, item2):
     cloud_type = read_config("cloud", "cloud_type")
-    if cloud_type == "localhost":
+    if cloud_type == "local":
         return True
     elif cloud_type == "aws":
         return item1.split(".")[0] == item2.split(".")[0]
@@ -48,6 +49,7 @@ def compare_specjbb_results(spreadsheets, spreadsheetId, test_name, table_name=[
     list_2 = list(values[1])
 
     for value in list_1:
+
         for ele in list_2:
             if value[0][0] in table_name and ele[0][0] in table_name:
                 if value[0][0] == ele[0][0]:

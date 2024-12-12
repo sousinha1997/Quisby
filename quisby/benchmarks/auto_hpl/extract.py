@@ -3,6 +3,7 @@ from typing import List, Dict, Optional
 from pathlib import Path
 from quisby.benchmarks.linpack.extract import linpack_format_data
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -34,6 +35,7 @@ def extract_auto_hpl_data(
     if file_path.suffix.lower() != '.csv':
         raise ValueError(f"Invalid file type. Expected .csv, got {file_path.suffix}")
 
+
     # Read file with proper error handling
     with open(file_path, 'r', encoding='utf-8') as file:
         file_data = file.readlines()
@@ -42,6 +44,7 @@ def extract_auto_hpl_data(
         if len(file_data) < 2:
             logger.warning(f"Insufficient data in file: {path}")
             return None
+
 
         # Extract header and data rows
         header_row = file_data[-2].strip().split(":")

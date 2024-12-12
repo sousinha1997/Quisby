@@ -45,7 +45,7 @@ def graph_linpack_compare(spreadsheetId, test_name, action):
 
     Graphs:
     - GFLOP and GFLOPS scaling
-    - Price/perf
+    - Price-perf
 
     :sheet: sheet API function
     :spreadsheetId
@@ -91,10 +91,10 @@ def graph_linpack_compare(spreadsheetId, test_name, action):
                 "addChart": {
                     "chart": {
                         "spec": {
-                            "title": "%s and %s" % (header_row[2], header_row[3]),
+                            "title": "%s : %s and %s" % (test_name, header_row[2], header_row[3]),
                             "basicChart": {
                                 "chartType": "COMBO",
-                                "legendPosition": "BOTTOM_LEGEND",
+                                "legendPosition": "RIGHT_LEGEND",
                                 "axis": [
                                     {
                                         "position": "BOTTOM_AXIS",
@@ -203,15 +203,15 @@ def graph_linpack_compare(spreadsheetId, test_name, action):
 
             sheet.batchUpdate(spreadsheetId=spreadsheetId, body=body).execute()
 
-            # PRICE/PERF graph
+            # Price-perf graph
             requests = {
                 "addChart": {
                     "chart": {
                         "spec": {
-                            "title": "%s and %s" % (header_row[9], header_row[10]),
+                            "title": "%s : Price-Performance" % (test_name),
                             "basicChart": {
                                 "chartType": "COMBO",
-                                "legendPosition": "BOTTOM_LEGEND",
+                                "legendPosition": "RIGHT_LEGEND",
                                 "axis": [
                                     {
                                         "position": "BOTTOM_AXIS",
@@ -324,16 +324,27 @@ def graph_linpack_compare(spreadsheetId, test_name, action):
                 "addChart": {
                     "chart": {
                         "spec": {
-                            "title": "GFLOP Scaling",
+                            "title": "%s : GFLOP Scaling" %(test_name),
                             "basicChart": {
                                 "chartType": "COMBO",
-                                "legendPosition": "BOTTOM_LEGEND",
+                                "legendPosition": "RIGHT_LEGEND",
                                 "axis": [
                                     {
+                                        "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
                                         "position": "BOTTOM_AXIS",
                                         "title": "",
                                     },
-                                    {"position": "LEFT_AXIS", "title": "GFlops Scaling "},
+                                    {
+                                        "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
+                                        "position": "LEFT_AXIS", "title": "GFlops Scaling "},
                                 ],
                                 "domains": [
                                     {
@@ -414,7 +425,10 @@ def graph_linpack_compare(spreadsheetId, test_name, action):
                                     "sheetId": sheetId,
                                     "rowIndex": GRAPH_ROW_INDEX,
                                     "columnIndex": 12,
-                                }
+                                },
+                                "offsetXPixels": 100,
+                                "widthPixels": 600,
+                                "heightPixels": 400
                             }
                         },
                     }
@@ -448,7 +462,7 @@ def graph_linpack_data(spreadsheetId, test_name, action):
 
     Graphs:
     - GFLOP and GFLOPS scaling
-    - Price/perf
+    - Price-perf
 
     :sheet: sheet API function
     :spreadsheetId
@@ -460,10 +474,10 @@ def graph_linpack_data(spreadsheetId, test_name, action):
     GFLOPS_PLOT_RANGE = "C"
     PRICE_PER_PERF_RANGE = "E"
     GRAPH_COL_INDEX = 5
-    GRAPH_ROW_INDEX = 0
-    start_index, end_index = None, None
-
     data = read_sheet(spreadsheetId, test_name)
+    last_row = len(data)
+    GRAPH_ROW_INDEX = last_row + 1
+    start_index, end_index = None, None
     header_row = data[0]
 
     for index, row in enumerate(data):
@@ -490,20 +504,30 @@ def graph_linpack_data(spreadsheetId, test_name, action):
                 "addChart": {
                     "chart": {
                         "spec": {
-                            "title": "%s and %s"
-                                     % (header_row[2], header_row[3]),
+                            "title": "%s : %s and %s"
+                                     % (test_name, header_row[2].split("-")[0], header_row[3].split("-")[0]),
                             "basicChart": {
                                 "chartType": "COMBO",
-                                "legendPosition": "BOTTOM_LEGEND",
+                                "legendPosition": "RIGHT_LEGEND",
                                 "axis": [
                                     {
+                                        "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
                                         "position": "BOTTOM_AXIS",
                                         "title": "%s" % (header_row[0]),
                                     },
                                     {
+                                        "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
                                         "position": "LEFT_AXIS",
                                         "title": "%s and %s"
-                                                 % (header_row[2], header_row[3]),
+                                                 % (header_row[2].lower(), header_row[3].lower()),
                                     },
                                 ],
                                 "domains": [
@@ -567,15 +591,18 @@ def graph_linpack_data(spreadsheetId, test_name, action):
                                 "anchorCell": {
                                     "sheetId": sheetId,
                                     "rowIndex": GRAPH_ROW_INDEX,
-                                    "columnIndex": column_count + 1,
-                                }
+                                    "columnIndex": 0,
+                                },
+                                "offsetXPixels": 100,
+                                "widthPixels": 600,
+                                "heightPixels": 400
                             }
                         },
                     }
                 }
             }
 
-            # PRICE/PERF graph
+            # Price-perf graph
             body = {"requests": requests}
 
             sheet.batchUpdate(spreadsheetId=spreadsheetId, body=body).execute()
@@ -584,16 +611,26 @@ def graph_linpack_data(spreadsheetId, test_name, action):
                 "addChart": {
                     "chart": {
                         "spec": {
-                            "title": "%s " % (header_row[5]),
+                            "title": "%s : Price-Performance" %(test_name),
                             "basicChart": {
                                 "chartType": "COLUMN",
-                                "legendPosition": "BOTTOM_LEGEND",
+                                "legendPosition": "RIGHT_LEGEND",
                                 "axis": [
                                     {
+                                        "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
                                         "position": "BOTTOM_AXIS",
                                         "title": "%s" % (header_row[0]),
                                     },
                                     {
+                                        "format": {
+                                            "bold": True,
+                                            "italic": True,
+                                            "fontSize": 14
+                                        },
                                         "position": "LEFT_AXIS",
                                         "title": "%s " % (header_row[5]),
                                     },
@@ -642,8 +679,11 @@ def graph_linpack_data(spreadsheetId, test_name, action):
                                 "anchorCell": {
                                     "sheetId": sheetId,
                                     "rowIndex": GRAPH_ROW_INDEX,
-                                    "columnIndex": column_count + 7,
-                                }
+                                    "columnIndex": 6,
+                                },
+                                "offsetXPixels": 100,
+                                "widthPixels": 600,
+                                "heightPixels": 400
                             }
                         },
                     }
