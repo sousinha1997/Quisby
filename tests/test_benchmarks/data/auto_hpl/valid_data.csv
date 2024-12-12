@@ -1,0 +1,17 @@
+# Test general meta start
+# Test: auto_hpl
+# Results version: 1.0
+# Host: c4a-standard-16
+# Sys environ: gcp
+# Tuned: tuned_none
+# OS: 5.14.0-503.11.1.el9_5.aarch64
+# Numa nodes: 1
+# CPU family: Neoverse-V2
+# Number cpus: 16
+# Memory: 65121408kB
+# Test general meta end
+# Test meta data start
+# /usr/lib64/openmpi/bin/mpirun --allow-run-as-root -np 1 --mca btl self,vader --report-bindings --map-by l3cache -x OMP_NUM_THREADS=16 ./xhpl
+# Test meta data end
+T/V:N:NB:P:Q:Time:Gflops
+WR12R2R4:78336:256:1:1:659.06:4.8627e+02
