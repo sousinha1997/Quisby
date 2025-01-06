@@ -1,5 +1,4 @@
 from quisby import custom_logger
-
 from quisby.sheet.sheet_util import (
     read_sheet,
     append_to_sheet,
@@ -10,18 +9,35 @@ from quisby.sheet.sheet_util import (
 )
 from quisby.util import percentage_deviation
 
+def compare_linpack_results(spreadsheets, spreadsheet_id, test_name):
+    """
+    Compares Linpack test results from two spreadsheets and appends the comparison results
+    to the specified spreadsheet.
 
-def compare_linpack_results(spreadsheets, spreadsheetId, test_name):
+    This function compares the GFLOPS, scaling, and price-performance data between
+    two sets of test results, calculates the percentage differences, and updates the
+    results on a Google Sheet.
+
+    Args:
+        spreadsheets (list): A list of spreadsheets containing the test data to compare.
+        spreadsheet_id (str): The ID of the spreadsheet to append the results to.
+        test_name (str): The name of the test whose results are being compared.
+
+    Returns:
+        str: The ID of the spreadsheet where the results were appended, or the same ID if the operation fails.
+    """
     values = []
     results = []
-    spreadsheet_name = []
+    spreadsheet_names = []
 
+    # Read the test data from both spreadsheets
     for spreadsheet in spreadsheets:
         values.append(read_sheet(spreadsheet, test_name))
-        spreadsheet_name.append(
+        spreadsheet_names.append(
             get_sheet(spreadsheet, test_name)["properties"]["title"]
         )
 
+    # Initialize results with headers
     for value in values[0]:
         for ele in values[1]:
             if value[0] == "System" and ele[0] == "System":
@@ -42,38 +58,43 @@ def compare_linpack_results(spreadsheets, spreadsheetId, test_name):
                     ]
                 )
                 break
-            else:
-                if value[0] == ele[0]:
-                    price_perf = []
-                    price_perf.append(float(value[2]) / float(value[4]))
-                    price_perf.append(float(ele[2]) / float(ele[4]))
-                    price_perf_diff = percentage_deviation(price_perf[0], price_perf[1])
-                    percentage_diff = percentage_deviation(value[2], ele[2])
-                    gflop_diff = percentage_deviation(value[3], ele[3])
-                    results.append(
-                        [
-                            value[0],
-                            value[1],
-                            value[2],
-                            ele[2],
-                            percentage_diff,
-                            value[3],
-                            ele[3],
-                            gflop_diff,
-                            value[4],
-                            price_perf[0],
-                            price_perf[1],
-                            price_perf_diff,
-                        ]
-                    )
+            elif value[0] == ele[0]:
+                # Calculate percentage differences for GFLOPS, scaling, and price-performance
+                price_perf = [
+                    float(value[2]) / float(value[4]),
+                    float(ele[2]) / float(ele[4]),
+                ]
+                price_perf_diff = percentage_deviation(price_perf[0], price_perf[1])
+                percentage_diff = percentage_deviation(value[2], ele[2])
+                gflop_diff = percentage_deviation(value[3], ele[3])
+
+                results.append(
+                    [
+                        value[0],
+                        value[1],
+                        value[2],
+                        ele[2],
+                        percentage_diff,
+                        value[3],
+                        ele[3],
+                        gflop_diff,
+                        value[4],
+                        price_perf[0],
+                        price_perf[1],
+                        price_perf_diff,
+                    ]
+                )
+
+    # Attempt to update the spreadsheet with the new comparison data
     try:
-        create_sheet(spreadsheetId, test_name)
+        create_sheet(spreadsheet_id, test_name)
         custom_logger.info("Deleting existing charts and data from the sheet...")
-        clear_sheet_charts(spreadsheetId, test_name)
-        clear_sheet_data(spreadsheetId, test_name)
-        custom_logger.info("Appending new " + test_name + " data to sheet...")
-        append_to_sheet(spreadsheetId, results, test_name)
+        clear_sheet_charts(spreadsheet_id, test_name)
+        clear_sheet_data(spreadsheet_id, test_name)
+        custom_logger.info(f"Appending new {test_name} data to sheet...")
+        append_to_sheet(spreadsheet_id, results, test_name)
     except Exception as exc:
+        # Log the error and return the spreadsheet ID if the operation fails
         custom_logger.debug(str(exc))
         custom_logger.error("Failed to append data to sheet")
-        return spreadsheetId
+        return spreadsheet_id

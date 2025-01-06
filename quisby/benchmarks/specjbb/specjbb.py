@@ -128,16 +128,11 @@ def create_summary_specjbb_data(specjbb_data, OS_RELEASE):
 def extract_specjbb_data(path, system_name, OS_RELEASE):
     """"""
     results = [[""], [system_name]]
-    summary_data = []
-    server = read_config("server", "name")
-    result_dir = read_config("server", "result_dir")
-
     # File read
     try:
         if path.endswith(".csv"):
             with open(path) as csv_file:
                 specjbb_results = list(csv.DictReader(csv_file, delimiter=":"))
-            summary_data.append([system_name, server + "/results/" + result_dir + "/" + path])
         else:
             return None
     except Exception as exc:
@@ -151,4 +146,4 @@ def extract_specjbb_data(path, system_name, OS_RELEASE):
         else:
             results.append([data_dict["Warehouses"], data_dict["Bops"]])
 
-    return results, summary_data
+    return results

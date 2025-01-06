@@ -71,18 +71,19 @@ def get_gcp_prices(instance_name, region):
     prefix = ""
     gcp_price_list = google_ext_prices["gcp_price_list"]
     family, model, cpu = instance_name.split("-")
-    if family.upper() in ("N2", "N2D", "T2D", "T2A", "C2", "C2D", "M1", "M2", "N1", "E2"):
+    if family.upper() in ("N2", "N2D", "T2D", "T2A", "C2", "C2D", "M1", "M2", "N1", "E2", "C4A", "C3D"):
         prefix = "CP-COMPUTEENGINE-" + family.upper() + "-PREDEFINED-VM-CORE".strip()
     else:
-        custom_logger.error("This machine price is not available")
-        return
+        custom_logger.error("Machine price is not available for :" + instance_name)
+        return None
 
     for name, prices in gcp_price_list.items():
         if prefix == name:
             for key, price in prices.items():
                 if region == key:
                     return gcp_price_list[name][region] * float(cpu)
-            return 0.0
+            custom_logger.error("Machine price is not available for region:" + region)
+            return None
 
 
 def get_aws_pricing(instance_type, region, os_type):

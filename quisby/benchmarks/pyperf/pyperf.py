@@ -122,15 +122,14 @@ def create_summary_pyperf_data(data, OS_RELEASE):
 def extract_pyperf_data(path, system_name, OS_RELEASE):
     """"""
     results = []
-    server = read_config("server", "name")
-    result_dir = read_config("server", "result_dir")
+
+
     # Extract data from file
     summary_data = []
     try:
         if path:
             with open(path) as file:
                 pyperf_results = file.readlines()
-                summary_data.append([system_name, +server+"/results/"+result_dir+"/"+path])
         else:
             return None
     except Exception as exc:
@@ -141,4 +140,4 @@ def extract_pyperf_data(path, system_name, OS_RELEASE):
     results.append([""])
     results.append([system_name])
     results.extend(pyperf_results[1:])
-    return [results], summary_data
+    return [results]

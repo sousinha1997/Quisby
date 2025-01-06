@@ -203,7 +203,6 @@ def data_handler(proc_list, noti_flag, exclude_list):
             print(line, end="")
 
     with open(results_path) as file:
-        summary_result = []
         custom_logger.info("Reading data files path provided in file : " + results_path)
         test_result_path = file.readlines()
         flag = False
@@ -212,14 +211,9 @@ def data_handler(proc_list, noti_flag, exclude_list):
             if "test " in data:
                 flag = False
                 if results:
-                    summary_result = [[""],[test_name]]+summary_result
-                    #TODO Check better way to add this information
-                    append_to_sheet(spreadsheetid, summary_result, "summary")
-                    spreadsheetid = process_results(results, test_name, cloud_type, os_type, os_release,
-                                                    spreadsheet_name, spreadsheetid)
+                    spreadsheetid = process_results(results, test_name, cloud_type, os_type, os_release, spreadsheet_name, spreadsheetid)
                 results = []
                 test_name = data.replace("test ", "").strip()
-                summary_result = []
                 source = "results"
                 if test_name in proc_list or proc_list == [] and test_name not in exclude_list:
                     flag = True
@@ -241,107 +235,77 @@ def data_handler(proc_list, noti_flag, exclude_list):
                     path = test_path + "/" + path.strip()
                     custom_logger.debug(path)
                     if test_name == "streams" and flag == True:
-                        ret_val, summary_data = extract_streams_data(path, system_name, os_release)
+                        ret_val = extract_streams_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
-                        if summary_data:
-                            summary_result +=summary_data
                     elif test_name == "uperf" and flag == True:
-                        ret_val, summary_data = extract_uperf_data(path, system_name)
+                        ret_val = extract_uperf_data(path, system_name)
                         if ret_val:
                             results += ret_val
-                        if summary_data:
-                            summary_result +=summary_data
                     elif test_name == "linpack" and flag == True:
-                        ret_val, summary_data = extract_linpack_data(path, system_name)
+                        ret_val = extract_linpack_data(path, system_name)
                         if ret_val:
                             results += ret_val
-                        if summary_data:
-                            summary_result +=summary_data
                     elif test_name == "specjbb" and flag == True:
-                        ret_value, summary_data = extract_specjbb_data(path, system_name, os_release)
+                        ret_value = extract_specjbb_data(path, system_name, os_release)
                         if ret_value is not None:
                             results.append(ret_value)
-                        if summary_data:
-                            summary_result +=summary_data
                     elif test_name == "pig" and flag == True:
-                        ret_val, summary_data = extract_pig_data(path, system_name, os_release)
+                        ret_val = extract_pig_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
-                        if summary_data:
-                            summary_result +=summary_data
                     elif check_test_is_hammerdb(test_name) and flag == True:
-                        ret_val, summary_data = extract_hammerdb_data(path, system_name, test_name, os_release)
+                        ret_val = extract_hammerdb_data(path, system_name, test_name, os_release)
                         if ret_val:
                             results += ret_val
-                        if summary_data:
-                            summary_result +=summary_data
                     elif test_name == "fio_run" and flag == True:
                         ret_val = None
                         if source == "results":
-                            ret_val, summary_data = extract_fio_run_data(path, system_name, os_release)
+                            ret_val = extract_fio_run_data(path, system_name, os_release)
                         elif source == "pbench":
-                            ret_val, summary_data = process_fio_run_result(path, system_name)
+                            ret_val = process_fio_run_result(path, system_name)
                         if ret_val:
                             results += ret_val
-                        if summary_data:
-                            summary_result +=summary_data
                     elif test_name == "boot" and flag == True:
-                        ret_val, summary_data = extract_boot_data(path, system_name)
+                        ret_val = extract_boot_data(path, system_name)
                         if ret_val:
                             results += ret_val
-                        if summary_data:
-                            summary_result +=summary_data
                     elif test_name == "aim" and flag == True:
                         ret_val = extract_aim_data(path, system_name)
                         if ret_val:
                             results += ret_val
                     elif test_name == "auto_hpl" and flag == True:
-                        ret_val, summary_data = extract_auto_hpl_data(path, system_name)
+                        ret_val= extract_auto_hpl_data(path, system_name)
                         if ret_val:
                             results += ret_val
-                        if summary_data:
-                            summary_result +=summary_data
                     elif test_name == "speccpu" and flag == True:
-                        ret_val, summary_data = extract_speccpu_data(path, system_name, os_release)
+                        ret_val = extract_speccpu_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
-                        if summary_data:
-                            summary_result +=summary_data
                     elif test_name == "etcd" and flag == True:
                         ret_val = extract_etcd_data(path, system_name)
                         if ret_val:
                             results += ret_val
                     elif test_name == "coremark" and flag == True:
-                        ret_val, summary_data = extract_coremark_data(path, system_name, os_release)
+                        ret_val = extract_coremark_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
-                        if summary_data:
-                            summary_result +=summary_data
                     elif test_name == "coremark_pro" and flag == True:
-                        ret_val, summary_data = extract_coremark_pro_data(path, system_name, os_release)
+                        ret_val = extract_coremark_pro_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
-                        if summary_data:
-                            summary_result +=summary_data
                     elif test_name == "passmark" and flag == True:
-                        ret_val, summary_data = extract_passmark_data(path, system_name, os_release)
+                        ret_val = extract_passmark_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
-                        if summary_data:
-                            summary_result += summary_data
                     elif test_name == "pyperf" and flag == True:
-                        ret_val, summary_data = extract_pyperf_data(path, system_name, os_release)
+                        ret_val = extract_pyperf_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
-                        if summary_data:
-                            summary_result +=summary_data
                     elif test_name == "phoronix" and flag == True:
-                        ret_val, summary_data= extract_phoronix_data(path, system_name, os_release)
+                        ret_val= extract_phoronix_data(path, system_name, os_release)
                         if ret_val:
                             results += ret_val
-                        if summary_data:
-                            summary_result +=summary_data
                     else:
                         if flag == False:
                             pass
@@ -355,10 +319,8 @@ def data_handler(proc_list, noti_flag, exclude_list):
             register_details_json(spreadsheet_name, spreadsheetid)
         else:
             try:
-                append_to_sheet(spreadsheetid, summary_result, "summary")
                 spreadsheetid = process_results(results, test_name, cloud_type, os_type, os_release, spreadsheet_name,
                                                 spreadsheetid)
-
             except Exception as exc:
                 custom_logger.error(str(exc))
                 pass
