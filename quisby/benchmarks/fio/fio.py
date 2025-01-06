@@ -116,16 +116,15 @@ def extract_fio_run_data(path, system_name, OS_RELEASE):
     results = []
     summary_data = []
     summary_file = path
-    server = read_config("server", "name")
-    result_dir = read_config("server", "result_dir")
+
+
     try:
         with open(path + "/result.csv") as csv_file:
             csv_data = csv_file.readlines()
             csv_data[-1] = csv_data[-1].strip()
             results += extract_csv_data(csv_data, os.path.basename(path))
-        summary_data.append([system_name, server + "/results/" + result_dir + "/" + path])
 
-        return group_data(results, system_name, OS_RELEASE), summary_data
+        return group_data(results, system_name, OS_RELEASE)
     except Exception as exc:
         custom_logger.error("Unable to find fio path")
         custom_logger.error(str(exc))
