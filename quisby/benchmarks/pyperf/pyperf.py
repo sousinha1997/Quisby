@@ -44,6 +44,7 @@ def calc_price_performance(inst, avg):
     cloud_type = read_config("cloud", "cloud_type")
     os_type = read_config("test", "os_type")
     cost_per_hour = None
+    price_perf = 0.0
     try:
         cost_per_hour = get_cloud_pricing(
             inst, region, cloud_type.lower(), os_type)
@@ -126,6 +127,7 @@ def extract_pyperf_data(path, system_name, OS_RELEASE):
 
     # Extract data from file
     summary_data = []
+    data_index = 0
     try:
         if path:
             with open(path) as file:
@@ -136,7 +138,13 @@ def extract_pyperf_data(path, system_name, OS_RELEASE):
         custom_logger.error(str(exc))
         return None
     for index, data in enumerate(pyperf_results):
-        pyperf_results[index] = data.strip("\n").split(":")
+        if "Test:Avg:Unit" in data:
+            data_index = index
+            header = data.strip("\n").split(":")
+        else:
+            pyperf_results[index] = data.strip("\n").split(":")
+
+    pyperf_results = [header] + pyperf_results[data_index + 1:]
     results.append([""])
     results.append([system_name])
     results.extend(pyperf_results[1:])
