@@ -127,23 +127,22 @@ def create_summary_specjbb_data(specjbb_data, OS_RELEASE):
 
 def extract_specjbb_data(path, system_name, OS_RELEASE):
     """"""
-    results = [[""], [system_name]]
+    results = [[""], [system_name],["Warehouses", f"Thrput-{OS_RELEASE}"]]
     # File read
     try:
         if path.endswith(".csv"):
             with open(path) as csv_file:
-                specjbb_results = list(csv.DictReader(csv_file, delimiter=":"))
+                specjbb_results = csv_file.readlines()
         else:
             return None
     except Exception as exc:
         custom_logger.error(str(exc))
         return None, None
-
-    results.append(["Warehouses", f"Thrput-{OS_RELEASE}"])
-    for data_dict in specjbb_results[1:]:
-        if data_dict["Warehouses"] == "Warehouses" or data_dict["Bops"] == "Bops":
-            pass
+    data_index = 0
+    for index ,data in enumerate(specjbb_results):
+        if "Warehouses:Bops" in data:
+            data_index = index
         else:
-            results.append([data_dict["Warehouses"], data_dict["Bops"]])
-
+            specjbb_results[index] = data.strip("\n").split(":")
+    results = results + specjbb_results[data_index +1:]
     return results
