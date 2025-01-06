@@ -119,15 +119,12 @@ def create_summary_phoronix_data(data, OS_RELEASE):
 def extract_phoronix_data(path, system_name, OS_RELEASE):
     """"""
     results = []
-    summary_data = []
-    server = read_config("server", "name")
-    result_dir = read_config("server", "result_dir")
+
     # Extract data from file
     try:
         if path.endswith("results.csv"):
             with open(path) as file:
                 phoronix_results = file.readlines()
-            summary_data.append([system_name, server + "/results/" + result_dir + "/" + path])
         else:
             return None
     except Exception as exc:
@@ -146,4 +143,4 @@ def extract_phoronix_data(path, system_name, OS_RELEASE):
     results.append([""])
     results.append([system_name])
     results.extend(phoronix_results[1:])
-    return [results], summary_data
+    return [results]

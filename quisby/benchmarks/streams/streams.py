@@ -133,8 +133,7 @@ def extract_streams_data(path, system_name, OS_RELEASE):
 
     summary_data = []
     summary_file = path
-    server = read_config("server", "name")
-    result_dir = read_config("server", "result_dir")
+
 
     if not os.path.isfile(summary_file):
         return None
@@ -142,7 +141,6 @@ def extract_streams_data(path, system_name, OS_RELEASE):
     with open(path) as file:
         streams_results = file.readlines()
 
-    summary_data.append([system_name, server + "/results/" + result_dir + "/" + path])
 
     data_index = 0
     for index, data in enumerate(streams_results):
@@ -189,7 +187,7 @@ def extract_streams_data(path, system_name, OS_RELEASE):
                 data_pos = pos - 1
             proccessed_data[pos - 5].append(memory + "-" + OS_RELEASE)
             proccessed_data[data_pos].extend(row[1:])
-    return proccessed_data, summary_data
+    return proccessed_data
 
 
 if __name__ == "__main__":
