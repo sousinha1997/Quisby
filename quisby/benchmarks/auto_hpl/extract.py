@@ -40,15 +40,31 @@ def extract_auto_hpl_data(
     with open(file_path, 'r', encoding='utf-8') as file:
         file_data = file.readlines()
 
+        if not file_data:
+            raise ValueError("Empty File")
+
         # Check for minimum required data
         if len(file_data) < 2:
             logger.warning(f"Insufficient data in file: {path}")
             return None
 
+        data_row = None
+        data_index = 0
+        header_row = []
+        for index, data in enumerate(file_data):
+            if "Gflops" in data:
+                data_index = index
+                header_row = data.strip("\n").split(":")
 
-        # Extract header and data rows
-        header_row = file_data[-2].strip().split(":")
-        data_row = file_data[-1].strip().split(":")
+        if not header_row:
+            raise KeyError("Missing 'Gflops' in data")
+
+        if len(file_data) > data_index+1:
+            data_row = file_data[data_index+1].strip().split(":")
+
+        # Check if insufficient data
+        if not data_row:
+            return None
 
         # Validate data extraction
         if len(header_row) != len(data_row):
@@ -56,10 +72,6 @@ def extract_auto_hpl_data(
 
         # Create dictionary from rows
         data_dict = dict(zip(header_row, data_row))
-
-        # Validate required field
-        if 'Gflops' not in data_dict:
-            raise KeyError("Missing 'Gflops' in data")
 
         # Process and format data
         results: List[Dict[str, str]] = []

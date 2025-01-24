@@ -13,5 +13,3 @@
 # Test meta data start
 # /usr/lib64/openmpi/bin/mpirun --allow-run-as-root -np 1 --mca btl self,vader --report-bindings --map-by l3cache -x OMP_NUM_THREADS=16 ./xhpl
 # Test meta data end
-T/V:N:NB:P:Q:Time:Gflops
-WR12R2R4:9216:256:1:1:13.05:InvalidGflops

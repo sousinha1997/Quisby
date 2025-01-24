@@ -1,5 +1,17 @@
 
 def extract_hammerdb_data(path, system_name, test_name, OS_RELEASE):
+    """
+    Extracts HammerDB results from a file and processes them into a structured format.
+
+    Args:
+        path (str): The path to the HammerDB result file.
+        system_name (str): The name of the system.
+        test_name (str): The name of the test.
+        os_release (str): The OS release version.
+
+    Returns:
+        list: A list containing processed HammerDB data.
+    """
     results = []
     result_data = []
     data_index = 0
