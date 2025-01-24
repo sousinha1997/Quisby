@@ -35,13 +35,15 @@ class TestAutoHPLExtract(unittest.TestCase):
         invalid_file_path = self.get_sample_data_path("invalid_data.txt")  # A non-CSV file
         with self.assertRaises(ValueError):
             res = extract_auto_hpl_data(invalid_file_path, "TestSystem")
-            print(res)
 
     # Test when the file has insufficient data (less than two lines)
     def test_insufficient_data(self):
         insufficient_data_file_path = self.get_sample_data_path("insufficient_data.csv")
         result = extract_auto_hpl_data(insufficient_data_file_path, "TestSystem")
         self.assertIsNone(result)
+        no_data_file_path = self.get_sample_data_path("no_data.csv")
+        with self.assertRaises(KeyError):
+            result = extract_auto_hpl_data(no_data_file_path, "TestSystem")
 
     # Test when the Gflops field is missing (KeyError)
     def test_missing_gflops(self):
