@@ -149,8 +149,6 @@ def extract_coremark_data(
     processed_data = []
     summary_data = []
 
-    server = read_config("server", "name")
-    result_dir = read_config("server", "result_dir")
 
     try:
         if not path.endswith(".csv"):
@@ -165,8 +163,6 @@ def extract_coremark_data(
             print(metadata)
             print()
 
-        sum_path = path.split("/./")[1]
-        summary_data.append([system_name, f"http://{server}/results/{result_dir}/{sum_path}"])
 
         # Find header index
         data_index = next(
