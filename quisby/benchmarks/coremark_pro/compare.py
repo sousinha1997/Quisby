@@ -1,27 +1,41 @@
 from itertools import groupby
-
 from quisby import custom_logger
 from quisby.benchmarks.coremark_pro.graph import graph_coremark_pro_data
 from quisby.sheet.sheet_util import (
     append_to_sheet,
     read_sheet,
     get_sheet,
-    create_sheet, clear_sheet_data, clear_sheet_charts,
+    create_sheet,
+    clear_sheet_data,
+    clear_sheet_charts,
 )
 from quisby.util import merge_lists_alternately
 
 
-def compare_coremark_pro_results(spreadsheets, spreadsheetId, test_name, table_name=["System name"]):
+def compare_coremark_pro_results(spreadsheets, spreadsheet_id, test_name, table_name=["System name"]):
+    """
+    Compare Coremark Pro results across multiple spreadsheets.
+
+    Args:
+        spreadsheets (list): A list of spreadsheets to compare.
+        spreadsheet_id (str): The ID of the spreadsheet where the results will be stored.
+        test_name (str): The name of the test to compare results for.
+        table_name (list): A list of table names (default is ["System name"]).
+
+    Returns:
+        str: The spreadsheet ID if the process fails.
+    """
     values = []
     results = []
-    spreadsheet_name = []
+    spreadsheet_names = []
 
     for spreadsheet in spreadsheets:
         values.append(read_sheet(spreadsheet, range=test_name))
-        spreadsheet_name.append(get_sheet(spreadsheet, test_name=test_name)["properties"]["title"])
+        spreadsheet_names.append(get_sheet(spreadsheet, test_name=test_name)["properties"]["title"])
 
     for index, value in enumerate(values):
-        values[index] = (list(g) for k, g in groupby(value, key=lambda x: x != []) if k)
+        values[index] = [list(g) for k, g in groupby(value, key=lambda x: x != []) if k]
+
     list_1 = list(values[0])
     list_2 = list(values[1])
 
@@ -46,25 +60,24 @@ def compare_coremark_pro_results(spreadsheets, spreadsheetId, test_name, table_n
                     break
 
     try:
-        create_sheet(spreadsheetId, test_name)
+        create_sheet(spreadsheet_id, test_name)
         custom_logger.info("Deleting existing charts and data from the sheet...")
-        clear_sheet_charts(spreadsheetId, test_name)
-        clear_sheet_data(spreadsheetId, test_name)
-        custom_logger.info("Appending new " + test_name + " data to sheet...")
-        append_to_sheet(spreadsheetId, results, test_name)
-        #graph_coremark_pro_data(spreadsheetId, test_name, "compare")
+        clear_sheet_charts(spreadsheet_id, test_name)
+        clear_sheet_data(spreadsheet_id, test_name)
+        custom_logger.info(f"Appending new {test_name} data to sheet...")
+        append_to_sheet(spreadsheet_id, results, test_name)
+        # graph_coremark_pro_data(spreadsheet_id, test_name, "compare")
     except Exception as exc:
         custom_logger.debug(str(exc))
         custom_logger.error("Failed to append data to sheet")
-        return spreadsheetId
+        return spreadsheet_id
 
 
 if __name__ == "__main__":
     spreadsheets = [
-        "",
-        "",
+        "",  # Add spreadsheet URLs or IDs
+        "",  # Add spreadsheet URLs or IDs
     ]
     test_name = "coremark_pro"
 
-    compare_coremark_pro_results(spreadsheets, "", test_name,
-                                 table_name=["System Name"])
+    compare_coremark_pro_results(spreadsheets, "", test_name, table_name=["System Name"])

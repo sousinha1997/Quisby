@@ -6,7 +6,19 @@ from quisby.sheet.sheetapi import sheet
 from quisby.util import read_value
 
 
-def create_series_range_list_coremark_pro_process(column_count, sheetId, start_index, end_index):
+def create_series_range_list_coremark_pro_process(column_count, sheet_id, start_index, end_index):
+    """
+    Create a series range list for processing Coremark Pro data.
+
+    Args:
+        column_count (int): The number of columns in the data.
+        sheet_id (int): The sheet ID.
+        start_index (int): The start row index.
+        end_index (int): The end row index.
+
+    Returns:
+        list: A list of series configuration for chart creation.
+    """
     series = []
 
     for index in range(column_count):
@@ -16,7 +28,7 @@ def create_series_range_list_coremark_pro_process(column_count, sheetId, start_i
                     "sourceRange": {
                         "sources": [
                             {
-                                "sheetId": sheetId,
+                                "sheetId": sheet_id,
                                 "startRowIndex": start_index,
                                 "endRowIndex": end_index,
                                 "startColumnIndex": index + 1,
@@ -32,14 +44,26 @@ def create_series_range_list_coremark_pro_process(column_count, sheetId, start_i
     return series
 
 
-def create_series_range_list_coremark_pro_compare(column_count, sheetId, start_index, end_index):
+def create_series_range_list_coremark_pro_compare(column_count, sheet_id, start_index, end_index):
+    """
+    Create a series range list for comparing Coremark Pro data.
+
+    Args:
+        column_count (int): The number of columns in the data.
+        sheet_id (int): The sheet ID.
+        start_index (int): The start row index.
+        end_index (int): The end row index.
+
+    Returns:
+        list: A list of series configuration for chart creation.
+    """
     series = [
         {
             "series": {
                 "sourceRange": {
                     "sources": [
                         {
-                            "sheetId": sheetId,
+                            "sheetId": sheet_id,
                             "startRowIndex": start_index,
                             "endRowIndex": end_index,
                             "startColumnIndex": 1,
@@ -56,7 +80,7 @@ def create_series_range_list_coremark_pro_compare(column_count, sheetId, start_i
                 "sourceRange": {
                     "sources": [
                         {
-                            "sheetId": sheetId,
+                            "sheetId": sheet_id,
                             "startRowIndex": start_index,
                             "endRowIndex": end_index,
                             "startColumnIndex": 2,
@@ -73,7 +97,7 @@ def create_series_range_list_coremark_pro_compare(column_count, sheetId, start_i
                 "sourceRange": {
                     "sources": [
                         {
-                            "sheetId": sheetId,
+                            "sheetId": sheet_id,
                             "startRowIndex": start_index,
                             "endRowIndex": end_index,
                             "startColumnIndex": 3,
@@ -89,20 +113,29 @@ def create_series_range_list_coremark_pro_compare(column_count, sheetId, start_i
     return series
 
 
-def graph_coremark_pro_data(spreadsheetId, range, action):
+def graph_coremark_pro_data(spreadsheet_id, data_range, action):
+    """
+    Generate and insert a graph for Coremark Pro data into the specified spreadsheet.
+
+    Args:
+        spreadsheet_id (str): The ID of the spreadsheet.
+        data_range (str): The range of data to graph.
+        action (str): The action type, either 'process' or 'compare'.
+
+    """
     GRAPH_COL_INDEX = 1
     GRAPH_ROW_INDEX = 1
     start_index = 0
     end_index = 0
     diff_col = [3]
 
-    data = read_sheet(spreadsheetId, range)
+    data = read_sheet(spreadsheet_id, data_range)
 
     if len(data) > 500:
-        append_empty_row_sheet(spreadsheetId, 3000, range)
+        append_empty_row_sheet(spreadsheet_id, 3000, data_range)
 
     header = []
-    sheetId = -1
+    sheet_id = -1
 
     for index, row in enumerate(data):
         if "System name" in row:
@@ -116,34 +149,27 @@ def graph_coremark_pro_data(spreadsheetId, range, action):
                 end_index = index + 1
 
         if end_index:
-
             graph_data = data[start_index:end_index]
             column_count = len(graph_data[0])
 
-            sheetId = get_sheet(spreadsheetId, range)["sheets"][0]["properties"][
+            sheet_id = get_sheet(spreadsheet_id, data_range)["sheets"][0]["properties"][
                 "sheetId"
             ]
 
-            series= globals()[f'create_series_range_list_coremark_pro_{action}'](column_count, sheetId, start_index, end_index)
+            series = globals()[f'create_series_range_list_coremark_pro_{action}'](column_count, sheet_id, start_index, end_index)
 
             requests = {
                 "addChart": {
                     "chart": {
                         "spec": {
-                            "title": "%s : %s : %s" % (range, "score", iteration),
+                            "title": f"{data_range} : score : {iteration}",
                             "basicChart": {
                                 "chartType": "COMBO",
                                 "legendPosition": "BOTTOM_LEGEND",
                                 "axis": [
                                     {"position": "BOTTOM_AXIS", "title": ""},
-                                    {
-                                        "position": "LEFT_AXIS",
-                                        "title": "Score",
-                                    },
-                                    {
-                                        "position": "RIGHT_AXIS",
-                                        "title": "%Diff",
-                                    },
+                                    {"position": "LEFT_AXIS", "title": "Score"},
+                                    {"position": "RIGHT_AXIS", "title": "%Diff"},
                                 ],
                                 "domains": [
                                     {
@@ -151,7 +177,7 @@ def graph_coremark_pro_data(spreadsheetId, range, action):
                                             "sourceRange": {
                                                 "sources": [
                                                     {
-                                                        "sheetId": sheetId,
+                                                        "sheetId": sheet_id,
                                                         "startRowIndex": start_index,
                                                         "endRowIndex": end_index,
                                                         "startColumnIndex": 0,
@@ -169,7 +195,7 @@ def graph_coremark_pro_data(spreadsheetId, range, action):
                         "position": {
                             "overlayPosition": {
                                 "anchorCell": {
-                                    "sheetId": sheetId,
+                                    "sheetId": sheet_id,
                                     "rowIndex": GRAPH_ROW_INDEX,
                                     "columnIndex": column_count + GRAPH_COL_INDEX,
                                 }
@@ -187,16 +213,16 @@ def graph_coremark_pro_data(spreadsheetId, range, action):
 
             body = {"requests": requests}
 
-            sheet.batchUpdate(spreadsheetId=spreadsheetId, body=body).execute()
+            sheet.batchUpdate(spreadsheetId=spreadsheet_id, body=body).execute()
 
             # Reset variables
             start_index, end_index = 0, 0
 
             time.sleep(3)
 
-    if sheetId != -1:
-        threshold = read_value("percent_threshold", range)
+    if sheet_id != -1:
+        threshold = read_value("percent_threshold", data_range)
         if not threshold:
             threshold = "5"
         for col in diff_col:
-            update_conditional_formatting(spreadsheetId, sheetId, col, threshold)
+            update_conditional_formatting(spreadsheet_id, sheet_id, col, threshold)

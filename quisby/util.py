@@ -103,6 +103,7 @@ def percentage_deviation(item1,item2):
     item1 = float(item1)
     item2 = float(item2)
 
+
     if (item1 == 0.0 == item2):
         percentage_deviation = None
     elif (item1 == 0.0):
@@ -174,4 +175,49 @@ def combine_two_array_alternating(results, value, ele):
                     holder_list.append("%Diff")
         results.append(holder_list)
     return results
+
+
+def extract_metadata(file_path: str):
+    with open(file_path, 'r') as file:
+        content = file.readlines()
+
+    metadata_list = []
+    current_metadata = {
+        "general_metadata": {},
+        "test_metadata": []
+    }
+
+    collecting_general = False
+    collecting_test = False
+
+    for line in content:
+        line = line.strip()
+
+        # Check for start and end of metadata
+        if line.startswith('# Test general meta start'):
+            collecting_general = True
+            current_metadata["general_metadata"] = {}
+        elif line.startswith('# Test general meta end'):
+            collecting_general = False
+        elif line.startswith('# Test meta data start'):
+            collecting_test = True
+            current_metadata["test_metadata"].append({})
+        elif line.startswith('# Test meta data end'):
+            collecting_test = False
+        elif collecting_general and line.startswith('#'):
+            # Extract general metadata key-value pairs
+            key_value = line[1:].strip().split(': ', 1)
+            if len(key_value) == 2:
+                current_metadata["general_metadata"][key_value[0].strip()] = key_value[1].strip()
+        elif collecting_test and line.startswith('#'):
+            # Extract test metadata key-value pairs
+            key_value = line[1:].strip().split(': ', 1)
+            if len(key_value) == 2:
+                current_metadata["test_metadata"][-1][key_value[0].strip()] = key_value[1].strip()
+
+    # If we collected any metadata, append it to the list
+    if current_metadata["general_metadata"] or current_metadata["test_metadata"]:
+        metadata_list.append(current_metadata)
+
+    return metadata_list
 
