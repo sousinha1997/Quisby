@@ -227,8 +227,7 @@ def data_handler(proc_list, noti_flag, exclude_list):
                 try:
                     if test_name == "fio_run":
                         data = data.strip("\n").strip("'").strip()
-                        path, system_name = (data.split(",")[0] + "," + data.split(",")[1]), data.split(",")[-1]
-                        path = path.replace("/" + os.path.basename(path), "")
+                        path, system_name = data.split(",")
                     else:
                         data = data.strip("\n").strip("'")
                         path, system_name = data.split(",")
@@ -389,7 +388,7 @@ def compare_results(spreadsheets, comp_list, noti_flag, exclude_list):
                 custom_logger.info(
                     "# Sleeping 10 sec to workaround the Google Sheet per minute API limit"
                 )
-                time.sleep(5)
+                time.sleep(1)
         except Exception as exc:
             custom_logger.error(str(exc))
             custom_logger.error("Benchmark " + test_name + " comparison failed")
@@ -417,97 +416,100 @@ def compare_data(s_list, comp_list, noti_flag, exclude):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Tool to preprocess and visualise datasets")
-    parser.add_argument("--config", type=str, required=False, help="Location to configuration file")
-    parser.add_argument("--process", action='store_true', help="To preprocess and visualise all benchmarks")
-    parser.add_argument("--compare", type=str, required=False, help="To compare and plot two datasets")
-    parser.add_argument("--list-benchmarks", action='store_true', help="To list supported benchmarks")
-    parser.add_argument("--compare-list", type=str, required=False, help="Give specific benchmark/benchmarks to compare")
-    parser.add_argument("--process-list", type=str, required=False, help="Give specific benchmark/benchmarks to process")
-    parser.add_argument("--exclude-list", type=str, required=False, help="Exclude the benchamrks")
-    parser.add_argument("--no-check", action='store_true', help="No health check")
-    parser.add_argument("--no-notify", action='store_true', help="No notification")
-    parser.add_argument("--health-check", action='store_true', help="No notification")
-
-    args = parser.parse_args()
-    supported_benchmarks = ['aim', 'auto_hpl', 'boot', 'coremark', 'coremark_pro', 'etcd', 'fio_run', 'hammerdb_maria',
-                            'hammerdb_mssql', 'hammerdb_pg', 'linpack', 'passmark', 'phoronix', 'pig', 'pyperf',
-                            'specjbb', 'speccpu', 'streams', 'uperf']
-
-    if args.process_list and args.exclude_list:
-        custom_logger.error("Invalid options")
-        exit(0)
-
-    if args.compare_list and args.exclude_list:
-        custom_logger.error("Invalid options")
-        exit(0)
-
-    if args.health_check:
-        health_check()
-        exit(0)
-
-    if args.list_benchmarks:
-        custom_logger.info("Supported benchmarks :")
-        for i in supported_benchmarks:
-            print(i)
-        exit(0)
-
-    if not (args.process or args.compare):
-        parser.print_help()
-        exit(0)
-
-    if not args.no_check:
-        health_check()
-
-    noti_flag = True
-    if args.no_notify:
-        noti_flag = False
-
-    if not args.config:
-        custom_logger.warning("No configuration path mentioned. Using default. ")
-        home_dir = os.getenv("HOME")
-        util.config_location = home_dir + "/.quisby/config/config.ini"
-        if not os.path.exists(util.config_location):
-            shutil.copy("./quisby/example.ini", util.config_location)
-    else:
-        util.config_location = args.config
-    custom_logger.info("Config path : " + util.config_location)
-    check_config_file(util.config_location)
-    custom_logger.info("Health check complete...")
-    print("**********************************************************************************************")
-    print("**********************************************************************************************")
-    if args.process:
-        proc_list = []
-        exclude_list = []
-        if args.process_list:
-            proc_list = args.process_list.split(",")
-
-        if args.exclude_list:
-            exclude_list = args.exclude_list.split(",")
-
-        reduce_data(proc_list, noti_flag, exclude_list)
-        exit(0)
-    elif args.compare:
-        comp_list = []
-        exclude_list = []
-        if args.compare_list:
-            comp_list = args.compare_list.split(",")
-        if args.exclude_list:
-            exclude_list = args.exclude_list.split(",")
-        try:
-            s_list = args.compare.split(",")
-            if len(s_list) > 1:
-                compare_data(s_list, comp_list, noti_flag, exclude_list)
-                exit(0)
-            else:
-                custom_logger.error("Provide two or more sheets to compare.")
-                exit(0)
-        except Exception as exc:
-            custom_logger.error("Comparison failed. Check arguments.")
-            exit(0)
-
-
-
-
-
-
+    home_dir = os.getenv("HOME")
+    util.config_location = "/Users/soumyasinha/18-feb/Quisby/10_config"
+    reduce_data(["fio_run"],True,[])
+    # parser = argparse.ArgumentParser(description="Tool to preprocess and visualise datasets")
+    # parser.add_argument("--config", type=str, required=False, help="Location to configuration file")
+    # parser.add_argument("--process", action='store_true', help="To preprocess and visualise all benchmarks")
+    # parser.add_argument("--compare", type=str, required=False, help="To compare and plot two datasets")
+    # parser.add_argument("--list-benchmarks", action='store_true', help="To list supported benchmarks")
+    # parser.add_argument("--compare-list", type=str, required=False, help="Give specific benchmark/benchmarks to compare")
+    # parser.add_argument("--process-list", type=str, required=False, help="Give specific benchmark/benchmarks to process")
+    # parser.add_argument("--exclude-list", type=str, required=False, help="Exclude the benchamrks")
+    # parser.add_argument("--no-check", action='store_true', help="No health check")
+    # parser.add_argument("--no-notify", action='store_true', help="No notification")
+    # parser.add_argument("--health-check", action='store_true', help="No notification")
+    #
+    # args = parser.parse_args()
+    # supported_benchmarks = ['aim', 'auto_hpl', 'boot', 'coremark', 'coremark_pro', 'etcd', 'fio_run', 'hammerdb_maria',
+    #                         'hammerdb_mssql', 'hammerdb_pg', 'linpack', 'passmark', 'phoronix', 'pig', 'pyperf',
+    #                         'specjbb', 'speccpu', 'streams', 'uperf']
+    #
+    # if args.process_list and args.exclude_list:
+    #     custom_logger.error("Invalid options")
+    #     exit(0)
+    #
+    # if args.compare_list and args.exclude_list:
+    #     custom_logger.error("Invalid options")
+    #     exit(0)
+    #
+    # if args.health_check:
+    #     health_check()
+    #     exit(0)
+    #
+    # if args.list_benchmarks:
+    #     custom_logger.info("Supported benchmarks :")
+    #     for i in supported_benchmarks:
+    #         print(i)
+    #     exit(0)
+    #
+    # if not (args.process or args.compare):
+    #     parser.print_help()
+    #     exit(0)
+    #
+    # if not args.no_check:
+    #     health_check()
+    #
+    # noti_flag = True
+    # if args.no_notify:
+    #     noti_flag = False
+    #
+    # if not args.config:
+    #     custom_logger.warning("No configuration path mentioned. Using default. ")
+    #     home_dir = os.getenv("HOME")
+    #     util.config_location = home_dir + "/.quisby/config/config.ini"
+    #     if not os.path.exists(util.config_location):
+    #         shutil.copy("./quisby/example.ini", util.config_location)
+    # else:
+    #     util.config_location = args.config
+    # custom_logger.info("Config path : " + util.config_location)
+    # check_config_file(util.config_location)
+    # custom_logger.info("Health check complete...")
+    # print("**********************************************************************************************")
+    # print("**********************************************************************************************")
+    # if args.process:
+    #     proc_list = []
+    #     exclude_list = []
+    #     if args.process_list:
+    #         proc_list = args.process_list.split(",")
+    #
+    #     if args.exclude_list:
+    #         exclude_list = args.exclude_list.split(",")
+    #
+    #     reduce_data(proc_list, noti_flag, exclude_list)
+    #     exit(0)
+    # elif args.compare:
+    #     comp_list = []
+    #     exclude_list = []
+    #     if args.compare_list:
+    #         comp_list = args.compare_list.split(",")
+    #     if args.exclude_list:
+    #         exclude_list = args.exclude_list.split(",")
+    #     try:
+    #         s_list = args.compare.split(",")
+    #         if len(s_list) > 1:
+    #             compare_data(s_list, comp_list, noti_flag, exclude_list)
+    #             exit(0)
+    #         else:
+    #             custom_logger.error("Provide two or more sheets to compare.")
+    #             exit(0)
+    #     except Exception as exc:
+    #         custom_logger.error("Comparison failed. Check arguments.")
+    #         exit(0)
+    #
+    #
+    #
+    #
+    #
+    #

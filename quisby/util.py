@@ -46,26 +46,28 @@ def write_config(section,key,value):
 
 def process_instance(instance_name, *args):
     cloud_type = read_config("cloud","cloud_type")
+    """Process the instance name to extract cloud details based on regex patterns."""
     if "local" in instance_name:
         cloud_type = "local"
         machine = "local"
     else:
         machine = instance_name
-    if cloud_type == "azure":
-        pattern = r"Standard_(?P<family>\w)(?P<size>\d+)(?P<feature>\w*)_(?P<version>\w\d)"
 
-    if cloud_type == "aws":
-        pattern = r"(?P<family>\w)(?P<version>\d)(?P<feature>\w+)?.(?P<size>\d+)?(?P<bool_xlarge>x)?(?P<machine_type>\w+)"
+    # Define regex patterns based on cloud type
+    patterns = {
+        "azure": r"Standard_(?P<family>\w)(?P<size>\d+)(?P<feature>\w*)_(?P<version>\w\d)",
+        "aws": r"(?P<family>\w)(?P<version>\d)(?P<feature>\w+)?.(?P<size>\d+)?(?P<bool_xlarge>x)?(?P<machine_type>\w+)",
+        "gcp": r"(?P<family>\w)(?P<version>\d)(?P<sub_family>\w)?-(?P<feature>\w+)?-(?P<size>\d+)?",
+        "local": r"(?P<family>\D+)"
+    }
 
-    if cloud_type == "gcp":
-        pattern = r"(?P<family>\w)(?P<version>\d)(?P<sub_family>\w)?-(?P<feature>\w+)?-(?P<size>\d+)?"
+    # Select the pattern based on the cloud type
+    pattern = patterns.get(cloud_type, r"")
 
-    if cloud_type == "local":
-        pattern = r"(?P<family>\D+)"
-        regex_match = re.match(pattern, machine, flags=re.IGNORECASE)
-        return regex_match.group(1)
-
+    # Apply the regex
     regex_match = re.match(pattern, machine, flags=re.IGNORECASE)
+    if not regex_match:
+        return None
     return regex_match.group(*args)
 
 
@@ -92,13 +94,13 @@ def process_group(label_name, *args):
     return regex_match.group(*args)
 
 def mk_int(string):
+    """Convert string to an integer, return 1 for 'local' or empty strings."""
     if string == 'local':
         return 1
     if string:
         string = string.strip()
         return int(string) if string else 1
-    else:
-        return 1
+    return 1
 
 def percentage_deviation(item1,item2):
     item1 = float(item1)
