@@ -32,22 +32,27 @@ def custom_key(item):
 
 
 def fio_run_sort_data(results):
+    """Sort FIO run data by specific conditions such as instance family, size, and operation type."""
     sorted_result = []
-    # group data
-    results = [list(g) for k, g in groupby(
-        results, key=lambda x: x != [""]) if k]
 
-    # sort results together by operation and operation size
-    results.sort(key=lambda x: (x[0][1], x[0][2], str(
-        process_instance(x[0][0], "family", "version", "feature"))))
+    # Group results by non-empty entries
+    results = [list(g) for k, g in groupby(results, key=lambda x: x != [""]) if k]
 
-    for _, items in groupby(
-            results, key=lambda x: (process_instance(
-                x[0][0], "family", "version", "feature"), x[0][1], x[0][2])
-    ):
-        sorted_result += sorted(
-            list(items), key=lambda x: mk_int(process_instance(x[0][1], "size"))
-        )
+    # Sort results by operation type and size
+    results.sort(key=lambda x: (
+        x[0][1],  # Operation type (read/write)
+        x[0][2],  # Size
+        str(process_instance(x[0][0], "family", "version", "feature"))  # Instance details
+    ))
+
+    # Group by family, operation type, and size, then sort within each group by size
+    for _, items in groupby(results, key=lambda x: (
+            process_instance(x[0][0], "family", "version", "feature"),
+            x[0][1],  # Operation type
+            x[0][2]  # Size
+    )):
+        sorted_result += sorted(list(items), key=lambda x: mk_int(process_instance(x[0][1], "size")))
+
     return sorted_result
 
 

@@ -14,29 +14,53 @@ HEADER_TO_EXTRACT = [
     "lat:client_hostname:all",
 ]
 
+def split_into_parts(data):
+    result = []
+    temp = []
 
-def extract_csv_data(csv_data, path):
+    # Iterate through the data
+    for item in data:
+        if item == "\n":
+            if temp:
+                result.append(temp)
+                temp = []
+        else:
+            temp.append(item)
+
+    # Append the last group if it's not empty
+    if temp:
+        result.append(temp)
+    return result
+
+def extract_csv_data(csv_data):
     indexof_all = []
-    results = []
-    custom_logger.info(f"extract csv data: {path}")
-    header_row = csv_data.pop(0).split(",")
-    io_depth = re.findall(r"iod.*?_(\d+)", path)[0]
-    ndisks = re.findall(r"ndisks_(\d+)", path)[0]
-    njobs = re.findall(r"njobs_(\d+)", path)[0]
+    result = []
+    op_value = ""
+    size_value = ""
+    metric = ""
+    for i, line in enumerate(csv_data):
+        if line.startswith('# op:'):
+            op_value = line.split(':')[1].strip()
+        elif line.startswith('# size:'):
+            size_value = line.split(':')[1].strip()
+        if line.startswith('njobs:ndisks:iodepth:'):
+            metric = line.split(":")[-1].strip()
+            header_line_index = i
+            break
+
+    data_lines = csv_data[header_line_index + 1:]
+
     try:
-        for header in HEADER_TO_EXTRACT:
-            indexof_all.append(header_row.index(header))
-        for row in csv_data:
-            run_data = []
-            if row:
-                csv_row = row.split(",")
-                for index in indexof_all:
-                    run_data.append(csv_row[index])
-                results.append([csv_row[1], ndisks, njobs, io_depth, *run_data])
+        for line in data_lines:
+            # Split the values in the format '1:1:1:641169.83'
+            values = line.split(":")
+            if len(values) == 4:  # If the line contains the expected format
+                njobs, ndisks, iodepth, value = values
+                result.append([f"{op_value}-{size_value}", int(njobs), int(ndisks), int(iodepth), f" {value}", metric])
     except Exception as exc:
         custom_logger.debug(str(exc))
         custom_logger.error("Data format incorrect. Skipping data")
-    return results
+    return result
 
 
 def group_data(run_data, system_name, OS_RELEASE):
@@ -53,15 +77,11 @@ def group_data(run_data, system_name, OS_RELEASE):
     grouped_data = []
     for key, items in groupby(sorted(run_data), key=lambda x: x[0].split("-")):
         for item in items:
-            for value in run_metric[key[1]]:
-                grouped_data.append([""])
-                grouped_data.append([system_name, key[0], f"{key[1]}-{value}"])
-                grouped_data.append(["iteration_name", f"{value}-{OS_RELEASE}"])
-                row_hash = f"{item[1]}_d-{item[2]}_j-{item[3]}_iod"
-                if "iops" in value:
-                    grouped_data.append([row_hash, item[4]])
-                elif "lat" in value:
-                    grouped_data.append([row_hash, item[5]])
+            grouped_data.append([""])
+            grouped_data.append([system_name, key[0], f"{key[1]}-{item[5]}"])
+            grouped_data.append(["iteration_name", f"{item[5]}-{OS_RELEASE}"])
+            row_hash = f"{item[1]}_d-{item[2]}_j-{item[3]}_iod"
+            grouped_data.append([row_hash, item[4]])
     return grouped_data
 
 
@@ -119,10 +139,11 @@ def extract_fio_run_data(path, system_name, OS_RELEASE):
 
 
     try:
-        with open(path + "/result.csv") as csv_file:
+        with open(path) as csv_file:
             csv_data = csv_file.readlines()
-            csv_data[-1] = csv_data[-1].strip()
-            results += extract_csv_data(csv_data, os.path.basename(path))
+            csv_data = split_into_parts(csv_data)
+            for data in csv_data:
+                results += extract_csv_data(data)
 
         return group_data(results, system_name, OS_RELEASE)
     except Exception as exc:

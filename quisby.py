@@ -227,8 +227,7 @@ def data_handler(proc_list, noti_flag, exclude_list):
                 try:
                     if test_name == "fio_run":
                         data = data.strip("\n").strip("'").strip()
-                        path, system_name = (data.split(",")[0] + "," + data.split(",")[1]), data.split(",")[-1]
-                        path = path.replace("/" + os.path.basename(path), "")
+                        path, system_name = data.split(",")
                     else:
                         data = data.strip("\n").strip("'")
                         path, system_name = data.split(",")
@@ -389,7 +388,7 @@ def compare_results(spreadsheets, comp_list, noti_flag, exclude_list):
                 custom_logger.info(
                     "# Sleeping 10 sec to workaround the Google Sheet per minute API limit"
                 )
-                time.sleep(5)
+                time.sleep(1)
         except Exception as exc:
             custom_logger.error(str(exc))
             custom_logger.error("Benchmark " + test_name + " comparison failed")
