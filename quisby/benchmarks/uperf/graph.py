@@ -102,7 +102,7 @@ def graph_uperf_data(spreadsheetId, range, action):
     diff_col = []
     sheetId = -1
     measurement = {
-        "Gb_sec": "Bandwidth",
+        "GB_Sec": "Bandwidth",
         "trans_sec": "Transactions/second",
         "usec": "Latency",
     }
@@ -117,10 +117,10 @@ def graph_uperf_data(spreadsheetId, range, action):
                 pass
             elif "Price-Perf" in row[0]:
                 start_index = index
-                title = f"Uperf : Price-Performance | {row[3]}"
-                subtitle = f"{row[2]}"
-                left_axis = row[3]
-            elif "tcp_stream16" in row[1] or "tcp_rr64" in row[1] or "tcp_stream64" in row[1] or "tcp_rr16" in row[1]:
+                title = f"Uperf : Price-Performance | {row[2]}"
+                subtitle = f"{row[1]}"
+                left_axis = row[2]
+            elif "tcp_stream16" in row[1] or "tcp_rr64" in row[1] or "tcp_stream64" in row[1] or "tcp_rr16" in row[1] or "tcp_stream16384" in row[1] or "tcp_rr16384" in row[1]:
                 start_index = index
                 title= f"Uperf : {measurement[row[2]]} | {row[1]}"
                 subtitle = ""
