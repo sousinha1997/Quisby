@@ -7,7 +7,7 @@ from quisby.sheet.sheet_util import (
     get_sheet,
     create_sheet, clear_sheet_charts, clear_sheet_data,
 )
-from quisby.util import combine_two_array_alternating
+from quisby.util import combine_two_array_alternating,merge_lists_alternately
 from quisby.util import read_config
 import re
 
@@ -50,10 +50,10 @@ def compare_uperf_results(spreadsheets, spreadsheetId, test_name):
 
     for value in list_1:
         for ele in list_2:
-            if value[0] == ele[0] and value[0][0] not in ignore_table:
+            if value[0] == ele[0] and (value[0][0] not in ignore_table):
                 results.append([""])
-                results.append(value[0])
-                results = combine_two_array_alternating(results, value[1:], ele[1:])
+                results = combine_two_array_alternating(results, value[0:], ele[0:])
+                break
 
             elif value[0][0] == "Cost/Hr" and ele[0][0] == "Cost/Hr":
                 if compare_inst(value[1][0], ele[1][0]):
