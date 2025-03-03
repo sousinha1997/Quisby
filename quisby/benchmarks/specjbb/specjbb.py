@@ -138,11 +138,30 @@ def extract_specjbb_data(path, system_name, OS_RELEASE):
     except Exception as exc:
         custom_logger.error(str(exc))
         return None, None
-    data_index = 0
+    data_index = []
     for index ,data in enumerate(specjbb_results):
         if "Warehouses:Bops" in data:
-            data_index = index
-        else:
-            specjbb_results[index] = data.strip("\n").split(":")
-    results = results + specjbb_results[data_index +1:]
+            data_index.append(index)
+    specjbb_data = []
+
+    if len(data_index) == 1:
+        # Fetch values from the last index to the end
+        line = specjbb_results[data_index[-1]+1:]
+        for values in line:
+            specjbb_data.append(values.strip().split(":"))
+    else:
+        for i in range(len(data_index) - 1):
+            line = specjbb_results[data_index[i]+1:data_index[i+1]-1]
+            for values in line:
+                specjbb_data.append(values.strip().split(":"))
+            break
+
+    # Fetch values from the last index to the end
+    # line = specjbb_results[data_index[-1]:]
+    #
+    # for values in line:
+    #     specjbb_data.append(values.strip().split(":"))
+    #
+    # specjbb_results[index] = data.strip("\n").split(":")
+    results = results + specjbb_data
     return results
