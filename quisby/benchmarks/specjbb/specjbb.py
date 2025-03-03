@@ -146,7 +146,7 @@ def extract_specjbb_data(path, system_name, OS_RELEASE):
 
     if len(data_index) == 1:
         # Fetch values from the last index to the end
-        line = specjbb_results[data_index[-1]+1:]
+        line = specjbb_results[data_index[-1]+1:-1]
         for values in line:
             specjbb_data.append(values.strip().split(":"))
     else:
