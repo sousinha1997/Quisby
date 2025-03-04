@@ -49,25 +49,40 @@ def compare_specjbb_results(spreadsheets, spreadsheetId, test_name, table_name=[
     list_2 = list(values[1])
 
     for value in list_1:
-
         for ele in list_2:
             if value[0][0] in table_name and ele[0][0] in table_name:
                 if value[0][0] == ele[0][0]:
                     if compare_inst(value[1][0], ele[1][0]):
                         results.append([""])
+                        header = []
+                        data = []
                         for item1 in value:
                             for item2 in ele:
                                 if item1[0] == item2[0]:
-                                    results = merge_lists_alternately(results, item1, item2)
+                                    if item1[0] in table_name:
+                                        header = merge_lists_alternately(header,item1,item2)
+                                        continue
+                                    data = merge_lists_alternately(data, item1, item2)
+                        if data:
+                            results.extend(header)
+                            results.extend(data)
                         break
 
             elif value[0][0] == "Cost/Hr" and ele[0][0] == "Cost/Hr":
                 if compare_inst(value[1][0], ele[1][0]):
                     results.append([""])
+                    header = []
+                    data = []
                     for item1 in value:
                         for item2 in ele:
                             if item1[0] == item2[0]:
-                                results.append(item1)
+                                if item1[0] == "Cost/Hr":
+                                    header.append(item1)
+                                    continue
+                                data.append(item1)
+                    if data:
+                        results.extend(header)
+                        results.extend(data)
                     break
     try:
         create_sheet(spreadsheetId, test_name)

@@ -47,19 +47,17 @@ def group_data(results):
         return groupby(results, key=lambda x: process_instance(x[1][0], "family"))
 
 def specjbb_sort_data_by_system_family(results):
-    sorted_result = []
-
     results.sort(key=lambda x: str(process_instance(
         x[1][0], "family", "version", "feature")))
 
 
-    for _, items in groupby(results, key=lambda x: process_instance(x[1][0], "family", "version", "feature")):
-        sorted_result.append(
-            sorted(list(items), key=lambda x: mk_int(
-                process_instance(x[1][0], "size")))
-        )
+    # for _, items in groupby(results, key=lambda x: process_instance(x[1][0], "family", "version", "feature")):
+    #     sorted_result.append(
+    #         sorted(list(items), key=lambda x: mk_int(
+    #             process_instance(x[1][0], "size")))
+    #     )
 
-    return sorted_result
+    return results
 
 
 def calc_peak_throughput_peak_efficiency(data):
@@ -92,7 +90,7 @@ def create_summary_specjbb_data(specjbb_data, OS_RELEASE):
     """"""
 
     results = []
-    #specjbb_data = specjbb_sort_data_by_system_family(specjbb_data)
+    specjbb_data = specjbb_sort_data_by_system_family(specjbb_data)
     specjbb_data = list(filter(None, specjbb_data))
     sort_data(specjbb_data)
     specjbb_data = group_data(specjbb_data)
