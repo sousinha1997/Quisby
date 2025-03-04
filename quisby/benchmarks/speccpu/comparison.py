@@ -54,7 +54,7 @@ def compare_speccpu_results(spreadsheets, spreadsheetId, test_name):
     for value in list_1:
         for ele in list_2:
             # Check max throughput
-            if value[0][0] in table_name and ele[0][0] in table_name and value[0][0] == ele[0][0]:
+            if value[0][0] == ele[0][0] == "System name" and value[0][1].split("-")[0] == ele[0][1].split("-")[0]:
                 if compare_inst(value[1][0], ele[1][0]):
                     results.append([""])
                     for item1 in value:
@@ -72,12 +72,13 @@ def compare_speccpu_results(spreadsheets, spreadsheetId, test_name):
                                 results.append(item1)
                     break
 
-            elif value[1][0] == ele[1][0]:
-                if value[0][0] == ele[0][0]:
+            elif value[0][0] == ele[0][0] == "Price-perf" and value[0][1].split("-")[0] == ele[0][1].split("-")[0]:
+                if compare_inst(value[1][0], ele[1][0]):
                     results.append([""])
-                    results.append(value[0])
-                    for item1, item2 in zip(value[1:], ele[1:]):
-                        results = merge_lists_alternately(results, item1, item2)
+                    for item1 in value:
+                        for item2 in ele:
+                            if item1[0] == item2[0]:
+                                results = merge_lists_alternately(results, item1, item2)
                     break
     try:
         create_sheet(spreadsheetId, test_name)
