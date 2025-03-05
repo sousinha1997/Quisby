@@ -70,8 +70,6 @@ def compare_uperf_results(spreadsheets, spreadsheetId, test_name):
                     break
 
             elif value[0] == ele[0] and (value[0][0] not in ignore_table):
-                if value[0][0] == "Price-Perf":
-                    pass
                 results.append([""])
                 results.append(value[0])
                 results = combine_two_array_alternating(results, value[1:], ele[1:])
