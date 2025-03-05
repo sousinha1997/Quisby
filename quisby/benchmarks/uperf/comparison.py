@@ -50,13 +50,35 @@ def compare_uperf_results(spreadsheets, spreadsheetId, test_name):
 
     for value in list_1:
         for ele in list_2:
-            if value[0] == ele[0] and (value[0][0] not in ignore_table):
+            if value[0] == ele[0] and value[0][0] =="Price-Perf":
+                v1 = value[1][1].split("-")[-1]
+                v2 = ele[1][1].split("-")[-1]
+                if value[1][1].replace(v1,"") == ele[1][1].replace(v2,""):
+                    results.append([""])
+                    header = [value[0]]
+                    data = []
+                    for item1 in value[1:]:
+                        for item2 in ele[1:]:
+                            if item1[0] == item2[0]:
+                                if item1[0] == "Instance Count":
+                                    header = merge_lists_alternately(header, item1, item2)
+                                    continue
+                                data = merge_lists_alternately(data, item1, item2)
+                    if data:
+                        results.extend(header)
+                        results.extend(data)
+                    break
+
+            elif value[0] == ele[0] and (value[0][0] not in ignore_table):
+                if value[0][0] == "Price-Perf":
+                    pass
                 results.append([""])
-                results = combine_two_array_alternating(results, value[0:], ele[0:])
+                results.append(value[0])
+                results = combine_two_array_alternating(results, value[1:], ele[1:])
                 break
 
             elif value[0][0] == "Cost/Hr" and ele[0][0] == "Cost/Hr":
-                if compare_inst(value[1][0], ele[1][0]):
+                if value[1][0] == ele[1][0]:
                     results.append([""])
                     for item1 in value:
                         for item2 in ele:
