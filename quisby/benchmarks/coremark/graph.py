@@ -4,10 +4,11 @@ from quisby.sheet.sheetapi import sheet
 from quisby.util import read_value
 import time
 
-
+# Function to create series for "coremark process" type chart
 def create_series_range_list_coremark_process(column_count, sheetId, start_index, end_index):
     series = []
 
+    # Loop through each column to create the corresponding series
     for index in range(column_count):
         series.append(
             {
@@ -24,15 +25,18 @@ def create_series_range_list_coremark_process(column_count, sheetId, start_index
                         ],
                     },
                 },
-                "type": "COLUMN",
+                "type": "COLUMN", # Column type for the chart
             }
         )
 
     return series
 
 
+
+# Function to create series for "coremark compare" type chart
 def create_series_range_list_coremark_compare(column_count, sheetId, start_index, end_index):
     series = [
+        # Series 1 for the left axis
         {
             "series": {
                 "sourceRange": {
@@ -48,8 +52,9 @@ def create_series_range_list_coremark_compare(column_count, sheetId, start_index
                 }
             },
             "targetAxis": "LEFT_AXIS",
-            "type": "COLUMN",
+            "type": "COLUMN", # Column type for the chart
         },
+        # Series 2 for the left axis
         {
             "series": {
                 "sourceRange": {
@@ -65,8 +70,9 @@ def create_series_range_list_coremark_compare(column_count, sheetId, start_index
                 }
             },
             "targetAxis": "LEFT_AXIS",
-            "type": "COLUMN",
+            "type": "COLUMN",  # Column type for the chart
         },
+        # Series 3 for the right axis (line chart)
         {
             "series": {
                 "sourceRange": {
@@ -82,26 +88,30 @@ def create_series_range_list_coremark_compare(column_count, sheetId, start_index
                 }
             },
             "targetAxis": "RIGHT_AXIS",
-            "type": "LINE",
+            "type": "LINE", # Line type for the chart
+
         },
     ]
     return series
 
 
+# Main function to create a chart based on CoreMark data
 def graph_coremark_data(spreadsheetId, range, action):
-    GRAPH_COL_INDEX = 1
-    GRAPH_ROW_INDEX = 1
+    GRAPH_COL_INDEX = 1 # Initial column index for the graph
+    GRAPH_ROW_INDEX = 1 # Initial row index for the graph
     start_index = 0
     end_index = 0
-    diff_col = [3]
-    data = read_sheet(spreadsheetId, range)
+    diff_col = [3] # Column(s) for applying conditional formatting
+    data = read_sheet(spreadsheetId, range) # Fetch data from the specified range
 
+    # Check if data exceeds 500 rows, and append empty rows if necessary
     if len(data) > 500:
         append_empty_row_sheet(spreadsheetId, 3000, range)
 
     header_row = []
     sheetId = -1
 
+    # Process the rows to find the start and end indices, and define chart title/subtitle
     for index, row in enumerate(data):
         if "System name" in row:
             start_index = index
@@ -113,21 +123,28 @@ def graph_coremark_data(spreadsheetId, range, action):
             header_row.extend(row)
             title = "%s : %s" % (range, "Price-Performance")
             subtitle = "Passes/$"
+
+        # Determine the end index based on an empty row or end of data
         if start_index:
             if not row:
                 end_index = index
             if index + 1 == len(data):
                 end_index = index + 1
 
+        # Create the chart only if end_index is set
         if end_index:
+            graph_data = data[start_index:end_index] # Slice the data for charting
+            column_count = len(graph_data[0]) # Get the number of columns for the chart
 
-            graph_data = data[start_index:end_index]
-            column_count = len(graph_data[0])
-
+            # Get the sheetId for the current range
             sheetId = get_sheet(spreadsheetId, range)["sheets"][0]["properties"][
                 "sheetId"
             ]
+
+            # Dynamically call the appropriate function to create series based on the action
             series = globals()[f'create_series_range_list_coremark_{action}'](column_count, sheetId, start_index, end_index)
+
+            # Define the chart request body
             requests = {
                 "addChart": {
                     "chart": {
@@ -135,7 +152,7 @@ def graph_coremark_data(spreadsheetId, range, action):
                             "title": title,
                             "subtitle": subtitle + " : ",
                             "basicChart": {
-                                "chartType": "COMBO",
+                                "chartType": "COMBO", # Combo chart type (both column and line)
                                 "legendPosition": "RIGHT_LEGEND",
                                 "axis": [
                                     {
@@ -202,25 +219,29 @@ def graph_coremark_data(spreadsheetId, range, action):
                 }
             }
 
+            # Adjust position if necessary
             if GRAPH_COL_INDEX >= 5:
                 GRAPH_ROW_INDEX += 20
                 GRAPH_COL_INDEX = 1
             else:
                 GRAPH_COL_INDEX += 6
 
+            # Execute the batch update to create the chart
             body = {"requests": requests}
 
             sheet.batchUpdate(spreadsheetId=spreadsheetId, body=body).execute()
 
-            # Reset variables
+            # Reset start and end indices for the next graph
             start_index, end_index = 0, 0
 
             time.sleep(3)
 
+
+    # Apply conditional formatting if sheetId is valid
     if sheetId != -1:
         threshold = read_value("percent_threshold", range)
         if not threshold:
-            threshold = "5"
+            threshold = "5" # Default threshold value
         for col in diff_col:
             update_conditional_formatting(spreadsheetId, sheetId, col, threshold)
 
