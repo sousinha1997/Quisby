@@ -1,7 +1,6 @@
 from quisby import custom_logger
 from itertools import groupby
 from quisby.sheet.sheet_util import (
-    create_spreadsheet,
     append_to_sheet,
     read_sheet,
     get_sheet,
@@ -9,8 +8,7 @@ from quisby.sheet.sheet_util import (
     clear_sheet_data,
     clear_sheet_charts,
 )
-from quisby.util import combine_two_array_alternating, merge_lists_alternately, read_config
-from quisby.benchmarks.coremark.graph import graph_coremark_data
+from quisby.util import merge_lists_alternately, read_config
 import re
 
 
@@ -88,19 +86,35 @@ def compare_coremark_results(spreadsheets, spreadsheetId, test_name, table_name=
                 if value[0][0] in table_name and ele[0][0] in table_name and value[0][0] == ele[0][0]:
                     if compare_inst(value[1][0], ele[1][0]):
                         results.append([""])
+                        header = []
+                        data = []
                         for item1 in value:
                             for item2 in ele:
                                 if item1[0] == item2[0]:
-                                    results = merge_lists_alternately(results, item1, item2)
+                                    if item1[0] in table_name:
+                                        header = merge_lists_alternately(header, item1, item2)
+                                        continue
+                                    data = merge_lists_alternately(data, item1, item2)
+                        if data:
+                            results.extend(header)
+                            results.extend(data)
                         break
                 # Handle cost/hour comparison
                 elif value[0][0] == "Cost/Hr" and ele[0][0] == "Cost/Hr":
                     if compare_inst(value[1][0], ele[1][0]):
                         results.append([""])
+                        header = []
+                        data = []
                         for item1 in value:
                             for item2 in ele:
                                 if item1[0] == item2[0]:
-                                    results.append(item1)
+                                    if item1[0] == "Cost/Hr":
+                                        header.append(item1)
+                                        continue
+                                    data.append(item1)
+                        if data:
+                            results.extend(header)
+                            results.extend(data)
                         break
                 # General comparison based on row keys
                 elif value[1][0] == ele[1][0]:
@@ -119,8 +133,6 @@ def compare_coremark_results(spreadsheets, spreadsheetId, test_name, table_name=
             clear_sheet_data(spreadsheetId, test_name)
             custom_logger.info(f"Appending new {test_name} data to sheet...")
             append_to_sheet(spreadsheetId, results, test_name)
-            # Optionally, generate a graph for CoreMark comparison
-            # graph_coremark_data(spreadsheetId, test_name, "compare")
         except Exception as exc:
             custom_logger.error(f"Failed to append data to sheet '{test_name}' in spreadsheet {spreadsheetId}: {str(exc)}")
             return spreadsheetId

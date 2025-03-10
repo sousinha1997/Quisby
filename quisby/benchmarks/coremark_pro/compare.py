@@ -86,22 +86,36 @@ def compare_coremark_pro_results(spreadsheets, spreadsheetId, test_name, table_n
                 if value[1][0] in table_name and ele[1][0] in table_name and value[1][0] == ele[1][0]:
                     if compare_inst(value[2][0], ele[2][0]) and value[0][0] == ele[0][0]:
                         results.append([""])
+                        header = []
+                        data = []
                         for item1 in value:
                             for item2 in ele:
                                 if item1[0] == item2[0]:
-                                    results = merge_lists_alternately(results, item1, item2)
+                                    if item1[0] in table_name or item1[0] in ["Single Iterations", "Multi Iterations"]:
+                                        header = merge_lists_alternately(header, item1, item2)
+                                        continue
+                                    data = merge_lists_alternately(data, item1, item2)
+                        if data:
+                            results.extend(header)
+                            results.extend(data)
                         break
-
                 # Handle cost/hour comparison
                 elif value[0][0] == "Cost/Hr" and ele[0][0] == "Cost/Hr":
                     if compare_inst(value[1][0], ele[1][0]):
                         results.append([""])
+                        header = []
+                        data = []
                         for item1 in value:
                             for item2 in ele:
                                 if item1[0] == item2[0]:
-                                    results.append(item1)
+                                    if item1[0] == "Cost/Hr":
+                                        header.append(item1)
+                                        continue
+                                    data.append(item1)
+                        if data:
+                            results.extend(header)
+                            results.extend(data)
                         break
-
                 # General comparison based on row keys
                 elif value[1][0] == ele[1][0]:
                     if value[0][0] == ele[0][0]:
@@ -119,8 +133,6 @@ def compare_coremark_pro_results(spreadsheets, spreadsheetId, test_name, table_n
             clear_sheet_data(spreadsheetId, test_name)
             custom_logger.info(f"Appending new {test_name} data to sheet...")
             append_to_sheet(spreadsheetId, results, test_name)
-            # Optionally, generate a graph for CoreMark Pro comparison
-            # graph_coremark_pro_data(spreadsheetId, test_name, "compare")
         except Exception as exc:
             custom_logger.error(f"Failed to append data to sheet '{test_name}' in spreadsheet {spreadsheetId}: {str(exc)}")
             return spreadsheetId
