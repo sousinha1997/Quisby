@@ -1,8 +1,6 @@
 from itertools import groupby
 import re
-
 from quisby import custom_logger
-from quisby.benchmarks.passmark.graph import graph_passmark_data
 from quisby.sheet.sheet_util import (
     append_to_sheet,
     read_sheet,
@@ -74,22 +72,36 @@ def compare_passmark_results(spreadsheets, spreadsheetId, test_name, table_name=
             if value[0][0] in table_name and ele[0][0] in table_name and value[0][0] == ele[0][0]:
                 if compare_inst(value[1][0], ele[1][0]):
                     results.append([""])
+                    header = []
+                    data = []
                     for item1 in value:
                         for item2 in ele:
                             if item1[0] == item2[0]:
-                                results = merge_lists_alternately(results, item1, item2)
+                                if item1[0] in table_name:
+                                    header = merge_lists_alternately(header, item1, item2)
+                                    continue
+                                data = merge_lists_alternately(data, item1, item2)
+                    if data:
+                        results.extend(header)
+                        results.extend(data)
                     break
-
             # Compare cost per hour
             elif value[0][0] == "Cost/Hr" and ele[0][0] == "Cost/Hr":
                 if compare_inst(value[1][0], ele[1][0]):
                     results.append([""])
+                    header = []
+                    data = []
                     for item1 in value:
                         for item2 in ele:
                             if item1[0] == item2[0]:
-                                results.append(item1)
+                                if item1[0] == "Cost/Hr":
+                                    header.append(item1)
+                                    continue
+                                data.append(item1)
+                    if data:
+                        results.extend(header)
+                        results.extend(data)
                     break
-
             # Compare other matching rows
             elif value[1][0] == ele[1][0]:
                 if value[0][0] == ele[0][0]:
@@ -105,12 +117,8 @@ def compare_passmark_results(spreadsheets, spreadsheetId, test_name, table_name=
         custom_logger.info("Deleting existing charts and data from the sheet...")
         clear_sheet_charts(spreadsheetId, test_name)
         clear_sheet_data(spreadsheetId, test_name)
-
         custom_logger.info(f"Appending new {test_name} data to sheet...")
         append_to_sheet(spreadsheetId, results, test_name)
-        # Optionally, create a graph (commented out for now)
-        # graph_passmark_data(spreadsheetId, test_name, "compare")
-
     except Exception as exc:
         custom_logger.debug(str(exc))
         custom_logger.error("Failed to append data to sheet")

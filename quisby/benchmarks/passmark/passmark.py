@@ -188,9 +188,7 @@ def extract_passmark_data(path, system_name, OS_RELEASE):
             passmark_results[index] = data.strip("\n").split(":")
 
     passmark_results = [header] + passmark_results[data_index + 1:]
-
     results.append([""])
     results.append([system_name])
     results.extend(passmark_results)
-
     return [results]
